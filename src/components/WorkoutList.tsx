@@ -11,16 +11,17 @@ import {
 } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Edit, Trash2 } from 'lucide-react';
+import { CheckCircle, Edit, Trash2, Eye } from 'lucide-react';
 
 interface WorkoutListProps {
   workouts: Workout[];
   onEdit: (workout: Workout) => void;
   onDelete: (workoutId: string) => void;
   onToggleComplete: (workoutId: string) => void;
+  onView: (workoutId: string) => void;
 }
 
-const WorkoutList = ({ workouts, onEdit, onDelete, onToggleComplete }: WorkoutListProps) => {
+const WorkoutList = ({ workouts, onEdit, onDelete, onToggleComplete, onView }: WorkoutListProps) => {
   return (
     <div className="space-y-4">
       {workouts.map((workout) => (
@@ -41,6 +42,15 @@ const WorkoutList = ({ workouts, onEdit, onDelete, onToggleComplete }: WorkoutLi
                 </CardDescription>
               </div>
               <div className="flex space-x-1">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 w-8 p-0"
+                  onClick={() => onView(workout.id)}
+                  title="View details"
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
                 <Button 
                   variant="ghost" 
                   size="sm" 
@@ -97,6 +107,17 @@ const WorkoutList = ({ workouts, onEdit, onDelete, onToggleComplete }: WorkoutLi
               </AccordionItem>
             </Accordion>
           </CardContent>
+          <CardFooter className="pt-0 justify-end">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onView(workout.id)}
+              className="gap-1"
+            >
+              <Eye className="h-4 w-4" /> 
+              View Details
+            </Button>
+          </CardFooter>
         </Card>
       ))}
     </div>

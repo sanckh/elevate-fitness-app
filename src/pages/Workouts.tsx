@@ -1,6 +1,7 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 import { Calendar } from '@/components/ui/calendar';
 import { Card } from '@/components/ui/card';
 import Header from '@/components/Header';
@@ -35,6 +36,24 @@ const Workouts = () => {
   const [isAddingWorkout, setIsAddingWorkout] = useState(false);
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  // Load workouts from localStorage on component mount
+  useEffect(() => {
+    const storedWorkouts = localStorage.getItem('workouts');
+    if (storedWorkouts) {
+      const parsedWorkouts = JSON.parse(storedWorkouts).map((workout: any) => ({
+        ...workout,
+        date: new Date(workout.date)
+      }));
+      setWorkouts(parsedWorkouts);
+    }
+  }, []);
+
+  // Save workouts to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('workouts', JSON.stringify(workouts));
+  }, [workouts]);
 
   // Filtered workouts for the selected date
   const selectedDateWorkouts = workouts.filter(
@@ -100,6 +119,10 @@ const Workouts = () => {
     );
   };
 
+  const handleViewWorkoutDetails = (workoutId: string) => {
+    navigate(`/workouts/${workoutId}`);
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -157,6 +180,7 @@ const Workouts = () => {
                     onEdit={setEditingWorkout}
                     onDelete={handleDeleteWorkout}
                     onToggleComplete={handleToggleComplete}
+                    onView={handleViewWorkoutDetails}
                   />
                 ) : (
                   <div className="text-center p-8 bg-secondary/20 rounded-lg">
