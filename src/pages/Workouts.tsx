@@ -113,7 +113,7 @@ const Workouts = () => {
               mode="single"
               selected={selectedDate}
               onSelect={handleDateSelect}
-              className="rounded-md border"
+              className="rounded-md"
               modifiers={{
                 workout: workoutDates,
               }}
