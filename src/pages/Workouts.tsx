@@ -19,6 +19,7 @@ export type Workout = {
   name: string;
   exercises: Exercise[];
   completed: boolean;
+  category?: string; // Added category field
 };
 
 export type Exercise = {

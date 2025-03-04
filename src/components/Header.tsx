@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -23,7 +22,7 @@ const Header = () => {
   const navLinks = [
     { name: 'Calendar', href: '/workouts' },
     { name: 'Dashboard', href: '/dashboard' },
-    { name: 'Workouts', href: '/workouts' },
+    { name: 'Workouts', href: '/workout-library' },
     { name: 'Nutrition (coming soon)', href: '/nutrition' }
   ];
   
