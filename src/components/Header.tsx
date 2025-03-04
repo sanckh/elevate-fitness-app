@@ -1,11 +1,12 @@
 
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import AnimatedButton from './AnimatedButton';
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
   
   useEffect(() => {
     const handleScroll = () => {
@@ -46,7 +47,12 @@ const Header = () => {
             <Link 
               key={link.name}
               to={link.href}
-              className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"
+              className={cn(
+                "text-sm font-medium transition-colors",
+                location.pathname === link.href
+                  ? "text-primary"
+                  : "text-foreground/80 hover:text-foreground"
+              )}
             >
               {link.name}
             </Link>
