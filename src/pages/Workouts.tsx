@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
@@ -107,7 +108,7 @@ const Workouts = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Calendar Section */}
-          <Card className="p-4 col-span-1 shadow-md">
+          <Card className="p-6 col-span-1 shadow-md">
             <Calendar
               mode="single"
               selected={selectedDate}
