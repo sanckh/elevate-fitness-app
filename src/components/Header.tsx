@@ -21,7 +21,7 @@ const Header = () => {
   }, [scrolled]);
   
   const navLinks = [
-    { name: 'Home', href: '/workouts' },
+    { name: 'Calendar', href: '/workouts' },
     { name: 'Dashboard', href: '/dashboard' },
     { name: 'Workouts', href: '/workouts' },
     { name: 'Nutrition (coming soon)', href: '/nutrition' }
