@@ -107,20 +107,22 @@ const Workouts = () => {
         <h1 className="text-3xl font-bold mb-6">Workout Calendar</h1>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Calendar Section */}
-          <Card className="p-6 col-span-1 shadow-md">
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={handleDateSelect}
-              className="rounded-md"
-              modifiers={{
-                workout: workoutDates,
-              }}
-              modifiersClassNames={{
-                workout: "bg-primary/10 text-primary font-medium border border-primary/20",
-              }}
-            />
+          {/* Calendar Section - Added flex justify-center to center the calendar */}
+          <Card className="p-6 col-span-1 shadow-md flex flex-col items-center">
+            <div className="w-full flex justify-center">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={handleDateSelect}
+                className="rounded-md"
+                modifiers={{
+                  workout: workoutDates,
+                }}
+                modifiersClassNames={{
+                  workout: "bg-primary/10 text-primary font-medium border border-primary/20",
+                }}
+              />
+            </div>
           </Card>
 
           {/* Workout Management Section */}
