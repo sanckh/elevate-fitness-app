@@ -40,14 +40,38 @@ const WorkoutForm = ({ initialWorkout, onSubmit, onCancel }: WorkoutFormProps) =
     );
   };
 
-  // New function to handle number input changes specifically
+  // Improved function to handle number input changes for each field independently
   const handleNumberChange = (id: string, field: 'sets' | 'reps' | 'weight', value: string) => {
-    // Convert to number if value is not empty, otherwise use undefined for weight
-    const numericValue = value === '' 
-      ? (field === 'weight' ? undefined : 1) // Weight can be undefined, sets/reps default to 1
-      : Math.max(1, parseInt(value) || 1);   // Ensure value is at least 1 for sets/reps
+    const targetExercise = exercises.find(exercise => exercise.id === id);
+    if (!targetExercise) return;
+
+    let numericValue: number | undefined;
     
-    handleExerciseChange(id, field, numericValue);
+    // Handle empty values appropriately based on field type
+    if (value === '') {
+      if (field === 'weight') {
+        numericValue = undefined; // Weight can be undefined
+      } else {
+        numericValue = 1; // Sets and reps default to 1
+      }
+    } else {
+      // Convert to number and ensure minimum values
+      const parsedValue = parseInt(value);
+      if (field === 'weight') {
+        numericValue = isNaN(parsedValue) ? undefined : Math.max(0, parsedValue);
+      } else {
+        numericValue = isNaN(parsedValue) ? 1 : Math.max(1, parsedValue);
+      }
+    }
+    
+    // Update only the specific exercise and field
+    setExercises(
+      exercises.map(exercise => 
+        exercise.id === id 
+          ? { ...exercise, [field]: numericValue } 
+          : exercise
+      )
+    );
   };
 
   const handleSubmit = (e: React.FormEvent) => {
