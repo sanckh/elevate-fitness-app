@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -6,9 +5,11 @@ import Footer from '@/components/Footer';
 import AnimatedButton from '@/components/AnimatedButton';
 import ProductShowcase from '@/components/ProductShowcase';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/AuthContext';
 
 const Index = () => {
   const heroRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
   
   // Parallax effect on scroll
   useEffect(() => {
@@ -45,9 +46,9 @@ const Index = () => {
             </p>
             
             <div className="flex flex-wrap gap-4 justify-center animate-slide-up opacity-0" style={{ animationDelay: '700ms', animationFillMode: 'forwards' }}>
-              <Link to="/dashboard">
+              <Link to={user ? "/workouts" : "/auth"}>
                 <AnimatedButton variant="primary" size="lg">
-                  Get Started
+                  {user ? "My Workouts" : "Get Started"}
                 </AnimatedButton>
               </Link>
               <AnimatedButton variant="outline" size="lg">
@@ -195,12 +196,12 @@ const Index = () => {
                 Join Elevate Fitness and transform your approach to health and wellness with our all-in-one solution.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Link to="/dashboard">
+                <Link to={user ? "/workouts" : "/auth"}>
                   <AnimatedButton
                     className="bg-white text-primary hover:bg-white/90"
                     size="lg"
                   >
-                    Get Started
+                    {user ? "My Workouts" : "Get Started"}
                   </AnimatedButton>
                 </Link>
                 <AnimatedButton
