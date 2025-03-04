@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
@@ -26,13 +25,13 @@ const WorkoutDetail = () => {
   const [editingExerciseId, setEditingExerciseId] = useState<string | null>(null);
   const [editedExercise, setEditedExercise] = useState<Exercise | null>(null);
   
-  // Editing specific exercise fields
   const [editingSets, setEditingSets] = useState<string | null>(null);
   const [editingReps, setEditingReps] = useState<string | null>(null);
   const [editingWeight, setEditingWeight] = useState<string | null>(null);
-  const [tempValue, setTempValue] = useState<string>('');
+  const [tempSetValue, setTempSetValue] = useState<string>('');
+  const [tempRepValue, setTempRepValue] = useState<string>('');
+  const [tempWeightValue, setTempWeightValue] = useState<string>('');
   
-  // Fetch workouts from localStorage
   useEffect(() => {
     const storedWorkouts = localStorage.getItem('workouts');
     if (storedWorkouts) {
@@ -42,7 +41,6 @@ const WorkoutDetail = () => {
       }));
       setAllWorkouts(parsedWorkouts);
       
-      // Find the specific workout based on ID or date
       if (workoutId) {
         const foundWorkout = parsedWorkouts.find((w: Workout) => w.id === workoutId);
         if (foundWorkout) {
@@ -53,13 +51,12 @@ const WorkoutDetail = () => {
         const targetDate = new Date(date);
         setDateFormatted(format(targetDate, 'MMMM d, yyyy'));
         
-        // Find workouts for this specific date
         const workoutsForDate = parsedWorkouts.filter((w: Workout) => 
           format(new Date(w.date), 'yyyy-MM-dd') === format(targetDate, 'yyyy-MM-dd')
         );
         
         if (workoutsForDate.length > 0) {
-          setWorkout(workoutsForDate[0]); // Show the first workout for this date
+          setWorkout(workoutsForDate[0]);
         }
       }
     }
@@ -122,25 +119,21 @@ const WorkoutDetail = () => {
     });
   };
 
-  // Start editing an individual exercise
   const handleEditExercise = (exercise: Exercise) => {
     setEditingExerciseId(exercise.id);
     setEditedExercise({...exercise});
   };
 
-  // Cancel editing an exercise
   const handleCancelEditExercise = () => {
     setEditingExerciseId(null);
     setEditedExercise(null);
   };
 
-  // Update exercise field
   const handleExerciseFieldChange = (field: keyof Exercise, value: any) => {
     if (!editedExercise) return;
     setEditedExercise({...editedExercise, [field]: value});
   };
 
-  // Save exercise changes
   const handleSaveExercise = () => {
     if (!workout || !editedExercise) return;
 
@@ -164,28 +157,35 @@ const WorkoutDetail = () => {
       description: `${editedExercise.name} has been updated.`,
     });
   };
-  
-  // Start editing specific field
+
   const startEditingField = (exerciseId: string, field: 'sets' | 'reps' | 'weight', currentValue: any) => {
-    if (field === 'sets') setEditingSets(exerciseId);
-    if (field === 'reps') setEditingReps(exerciseId);
-    if (field === 'weight') setEditingWeight(exerciseId);
-    
-    setTempValue(currentValue?.toString() || '');
+    if (field === 'sets') {
+      setEditingSets(exerciseId);
+      setTempSetValue(currentValue?.toString() || '');
+    } else if (field === 'reps') {
+      setEditingReps(exerciseId);
+      setTempRepValue(currentValue?.toString() || '');
+    } else if (field === 'weight') {
+      setEditingWeight(exerciseId);
+      setTempWeightValue(currentValue?.toString() || '');
+    }
   };
-  
-  // Save edited field
+
   const saveEditedField = (exerciseId: string, field: 'sets' | 'reps' | 'weight') => {
     if (!workout) return;
     
-    // Find exercise and update the specific field
+    let tempValue = '';
+    if (field === 'sets') tempValue = tempSetValue;
+    else if (field === 'reps') tempValue = tempRepValue;
+    else if (field === 'weight') tempValue = tempWeightValue;
+    
     const updatedExercises = workout.exercises.map(ex => {
       if (ex.id === exerciseId) {
         let value: any = tempValue;
         if (field === 'sets' || field === 'reps') {
-          value = parseInt(tempValue) || 1; // Default to 1 if invalid
+          value = parseInt(tempValue) || 1;
         } else if (field === 'weight') {
-          value = tempValue ? parseInt(tempValue) : undefined; // Weight can be undefined
+          value = tempValue ? parseInt(tempValue) : undefined;
         }
         return { ...ex, [field]: value };
       }
@@ -201,24 +201,21 @@ const WorkoutDetail = () => {
     setWorkout(updatedWorkout);
     setAllWorkouts(updatedWorkouts);
     
-    // Reset editing state
-    setEditingSets(null);
-    setEditingReps(null);
-    setEditingWeight(null);
-    setTempValue('');
+    cancelFieldEditing();
     
     toast({
       title: "Exercise Updated",
       description: `Exercise ${field} has been updated.`,
     });
   };
-  
-  // Cancel field editing
+
   const cancelFieldEditing = () => {
     setEditingSets(null);
     setEditingReps(null);
     setEditingWeight(null);
-    setTempValue('');
+    setTempSetValue('');
+    setTempRepValue('');
+    setTempWeightValue('');
   };
 
   if (isEditing && workout) {
@@ -365,8 +362,8 @@ const WorkoutDetail = () => {
                               <Input
                                 type="number"
                                 min="1"
-                                value={tempValue}
-                                onChange={(e) => setTempValue(e.target.value)}
+                                value={tempSetValue}
+                                onChange={(e) => setTempSetValue(e.target.value)}
                                 className="h-8 text-center font-semibold w-16"
                                 autoFocus
                                 onKeyDown={(e) => {
@@ -404,8 +401,8 @@ const WorkoutDetail = () => {
                               <Input
                                 type="number"
                                 min="1"
-                                value={tempValue}
-                                onChange={(e) => setTempValue(e.target.value)}
+                                value={tempRepValue}
+                                onChange={(e) => setTempRepValue(e.target.value)}
                                 className="h-8 text-center font-semibold w-16"
                                 autoFocus
                                 onKeyDown={(e) => {
@@ -444,8 +441,8 @@ const WorkoutDetail = () => {
                                 type="number"
                                 min="0"
                                 step="5"
-                                value={tempValue}
-                                onChange={(e) => setTempValue(e.target.value)}
+                                value={tempWeightValue}
+                                onChange={(e) => setTempWeightValue(e.target.value)}
                                 className="h-8 text-center font-semibold w-16"
                                 autoFocus
                                 onKeyDown={(e) => {
