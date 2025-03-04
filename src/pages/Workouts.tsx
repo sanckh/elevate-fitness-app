@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
@@ -108,7 +107,7 @@ const Workouts = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Calendar Section */}
-          <Card className="p-4 col-span-1">
+          <Card className="p-4 col-span-1 shadow-md">
             <Calendar
               mode="single"
               selected={selectedDate}
@@ -118,13 +117,13 @@ const Workouts = () => {
                 workout: workoutDates,
               }}
               modifiersClassNames={{
-                workout: "bg-primary/20 text-primary font-bold",
+                workout: "bg-primary/10 text-primary font-medium border border-primary/20",
               }}
             />
           </Card>
 
           {/* Workout Management Section */}
-          <Card className="p-4 col-span-1 md:col-span-2">
+          <Card className="p-4 col-span-1 md:col-span-2 shadow-md">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-medium">
                 {format(selectedDate, 'MMMM d, yyyy')}
