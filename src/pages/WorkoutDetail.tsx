@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
-import { ArrowLeft, Calendar, CheckCircle, Edit, Trash2 } from 'lucide-react';
+import { ArrowLeft, Calendar, CheckCircle, Edit, Trash2, Save, X } from 'lucide-react';
 import { Workout, Exercise } from '@/pages/Workouts';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,6 +13,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import WorkoutForm from '@/components/WorkoutForm';
 import { Link } from 'react-router-dom';
+import { Input } from '@/components/ui/input';
 
 const WorkoutDetail = () => {
   const { workoutId, date } = useParams();
@@ -22,6 +23,8 @@ const WorkoutDetail = () => {
   const [allWorkouts, setAllWorkouts] = useState<Workout[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [dateFormatted, setDateFormatted] = useState<string>('');
+  const [editingExerciseId, setEditingExerciseId] = useState<string | null>(null);
+  const [editedExercise, setEditedExercise] = useState<Exercise | null>(null);
   
   // Fetch workouts from localStorage
   useEffect(() => {
@@ -110,6 +113,49 @@ const WorkoutDetail = () => {
     toast({
       title: "Workout Updated",
       description: `${updatedWorkout.name} has been updated.`,
+    });
+  };
+
+  // Start editing an individual exercise
+  const handleEditExercise = (exercise: Exercise) => {
+    setEditingExerciseId(exercise.id);
+    setEditedExercise({...exercise});
+  };
+
+  // Cancel editing an exercise
+  const handleCancelEditExercise = () => {
+    setEditingExerciseId(null);
+    setEditedExercise(null);
+  };
+
+  // Update exercise field
+  const handleExerciseFieldChange = (field: keyof Exercise, value: any) => {
+    if (!editedExercise) return;
+    setEditedExercise({...editedExercise, [field]: value});
+  };
+
+  // Save exercise changes
+  const handleSaveExercise = () => {
+    if (!workout || !editedExercise) return;
+
+    const updatedExercises = workout.exercises.map(ex => 
+      ex.id === editingExerciseId ? editedExercise : ex
+    );
+
+    const updatedWorkout = {...workout, exercises: updatedExercises};
+    const updatedWorkouts = allWorkouts.map(w => 
+      w.id === workout.id ? updatedWorkout : w
+    );
+    
+    localStorage.setItem('workouts', JSON.stringify(updatedWorkouts));
+    setWorkout(updatedWorkout);
+    setAllWorkouts(updatedWorkouts);
+    setEditingExerciseId(null);
+    setEditedExercise(null);
+
+    toast({
+      title: "Exercise Updated",
+      description: `${editedExercise.name} has been updated.`,
     });
   };
 
@@ -213,7 +259,38 @@ const WorkoutDetail = () => {
                     <div key={exercise.id} className="border rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="text-xl font-medium">{exercise.name}</h4>
-                        <span className="text-muted-foreground text-sm">Exercise {index + 1}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-muted-foreground text-sm">Exercise {index + 1}</span>
+                          {editingExerciseId === exercise.id ? (
+                            <>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={handleSaveExercise}
+                                className="h-8 w-8 p-0"
+                              >
+                                <Save className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={handleCancelEditExercise}
+                                className="h-8 w-8 p-0"
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </>
+                          ) : (
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => handleEditExercise(exercise)}
+                              className="h-8 w-8 p-0"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
                       </div>
                       
                       <Separator className="my-3" />
@@ -221,24 +298,64 @@ const WorkoutDetail = () => {
                       <div className="grid grid-cols-3 gap-4 mt-4">
                         <div className="bg-muted/50 rounded-md p-3 text-center">
                           <div className="text-sm text-muted-foreground mb-1">Sets</div>
-                          <div className="font-semibold text-lg">{exercise.sets}</div>
+                          {editingExerciseId === exercise.id ? (
+                            <Input
+                              type="number"
+                              min="1"
+                              value={editedExercise?.sets || 1}
+                              onChange={(e) => handleExerciseFieldChange('sets', parseInt(e.target.value) || 1)}
+                              className="h-8 text-center font-semibold"
+                            />
+                          ) : (
+                            <div className="font-semibold text-lg">{exercise.sets}</div>
+                          )}
                         </div>
                         <div className="bg-muted/50 rounded-md p-3 text-center">
                           <div className="text-sm text-muted-foreground mb-1">Reps</div>
-                          <div className="font-semibold text-lg">{exercise.reps}</div>
+                          {editingExerciseId === exercise.id ? (
+                            <Input
+                              type="number"
+                              min="1"
+                              value={editedExercise?.reps || 1}
+                              onChange={(e) => handleExerciseFieldChange('reps', parseInt(e.target.value) || 1)}
+                              className="h-8 text-center font-semibold"
+                            />
+                          ) : (
+                            <div className="font-semibold text-lg">{exercise.reps}</div>
+                          )}
                         </div>
                         <div className="bg-muted/50 rounded-md p-3 text-center">
                           <div className="text-sm text-muted-foreground mb-1">Weight</div>
-                          <div className="font-semibold text-lg">
-                            {exercise.weight ? `${exercise.weight} lbs` : 'N/A'}
-                          </div>
+                          {editingExerciseId === exercise.id ? (
+                            <Input
+                              type="number"
+                              min="0"
+                              step="5"
+                              value={editedExercise?.weight || ''}
+                              onChange={(e) => handleExerciseFieldChange('weight', e.target.value ? parseInt(e.target.value) : undefined)}
+                              className="h-8 text-center font-semibold"
+                              placeholder="N/A"
+                            />
+                          ) : (
+                            <div className="font-semibold text-lg">
+                              {exercise.weight ? `${exercise.weight} lbs` : 'N/A'}
+                            </div>
+                          )}
                         </div>
                       </div>
                       
-                      {exercise.notes && (
+                      {(exercise.notes || editingExerciseId === exercise.id) && (
                         <div className="mt-4 bg-secondary/20 p-3 rounded-md">
                           <div className="text-sm text-muted-foreground mb-1">Notes</div>
-                          <div>{exercise.notes}</div>
+                          {editingExerciseId === exercise.id ? (
+                            <Input
+                              value={editedExercise?.notes || ''}
+                              onChange={(e) => handleExerciseFieldChange('notes', e.target.value)}
+                              placeholder="Add notes here..."
+                            />
+                          ) : (
+                            <div>{exercise.notes}</div>
+                          )}
                         </div>
                       )}
                     </div>
