@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import AnimatedButton from '@/components/AnimatedButton';
 import { cn } from '@/lib/utils';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 // Dashboard sections
 const sections = [
@@ -65,9 +67,10 @@ const Dashboard = () => {
   const [activeSection, setActiveSection] = useState<string | null>(null);
   
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
+      <Header />
       {/* Dashboard Header */}
-      <div className="bg-primary text-primary-foreground py-8">
+      <div className="bg-primary text-primary-foreground py-8 mt-20">
         <div className="container mx-auto px-4 md:px-6">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-2xl md:text-3xl font-display font-bold mb-2">Elevate Fitness Dashboard</h1>
@@ -77,7 +80,7 @@ const Dashboard = () => {
       </div>
       
       {/* Dashboard Content */}
-      <div className="container mx-auto px-4 md:px-6 py-8">
+      <div className="container mx-auto px-4 md:px-6 py-8 flex-1">
         <div className="max-w-4xl mx-auto">
           {/* Dashboard Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -165,14 +168,15 @@ const Dashboard = () => {
           {/* Return to Home */}
           <div className="text-center">
             <Link 
-              to="/" 
+              to="/workouts" 
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              Return to Home
+              Return to Workouts
             </Link>
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };
