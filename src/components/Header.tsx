@@ -21,9 +21,9 @@ const Header = () => {
   
   const navLinks = [
     { name: 'Home', href: '/' },
-    { name: 'Products', href: '/products' },
-    { name: 'About', href: '/about' },
-    { name: 'Contact', href: '/contact' }
+    { name: 'Dashboard', href: '/dashboard' },
+    { name: 'Workouts', href: '/workouts' },
+    { name: 'Nutrition', href: '/nutrition' }
   ];
   
   return (
@@ -38,7 +38,7 @@ const Header = () => {
           to="/" 
           className="font-display text-xl font-medium tracking-tight transition-opacity hover:opacity-80"
         >
-          Luminous
+          Elevate Fitness
         </Link>
         
         <nav className="hidden md:flex items-center space-x-8">
@@ -54,13 +54,15 @@ const Header = () => {
         </nav>
         
         <div className="flex items-center space-x-4">
-          <AnimatedButton 
-            variant="primary" 
-            size="sm"
-            className="rounded-full"
-          >
-            Get Started
-          </AnimatedButton>
+          <Link to="/dashboard">
+            <AnimatedButton 
+              variant="primary" 
+              size="sm"
+              className="rounded-full"
+            >
+              Get Started
+            </AnimatedButton>
+          </Link>
           
           <button className="md:hidden p-2 -mr-2 rounded-md hover:bg-accent">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

@@ -33,21 +33,23 @@ const Index = () => {
         <div className="container mx-auto px-4 md:px-6 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <span className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium bg-primary/10 text-primary mb-6 animate-fade-in opacity-0" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
-              Introducing Luminous
+              Elevate Fitness
             </span>
             
             <h1 className="h1 mb-6 animate-slide-up opacity-0" style={{ animationDelay: '300ms', animationFillMode: 'forwards' }}>
-              Beautifully crafted products for a better experience
+              Your complete fitness journey in one app
             </h1>
             
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto animate-slide-up opacity-0" style={{ animationDelay: '500ms', animationFillMode: 'forwards' }}>
-              Experience the perfect balance of form and function, designed with precision and care to elevate your everyday interactions.
+              Track workouts, monitor nutrition, set goals, and visualize your progress all in one place.
             </p>
             
             <div className="flex flex-wrap gap-4 justify-center animate-slide-up opacity-0" style={{ animationDelay: '700ms', animationFillMode: 'forwards' }}>
-              <AnimatedButton variant="primary" size="lg">
-                Get Started
-              </AnimatedButton>
+              <Link to="/dashboard">
+                <AnimatedButton variant="primary" size="lg">
+                  Get Started
+                </AnimatedButton>
+              </Link>
               <AnimatedButton variant="outline" size="lg">
                 Learn More
               </AnimatedButton>
@@ -67,45 +69,44 @@ const Index = () => {
       <section className="py-16 md:py-24 relative">
         <div className="container mx-auto px-4 md:px-6">
           <div className="text-center mb-16">
-            <h2 className="h2 mb-4">Thoughtfully designed</h2>
+            <h2 className="h2 mb-4">All your fitness needs in one place</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Every detail matters. We've created products that combine beautiful aesthetics with exceptional functionality.
+              A comprehensive solution designed to help you achieve your fitness goals with ease.
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
-                title: 'Precision',
-                description: 'Meticulously crafted with attention to every detail for a perfect experience.',
+                title: 'Workout Tracking',
+                description: 'Log your workouts, track your sets, reps, and weights with detailed analytics.',
                 icon: (
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z"></path>
-                    <path d="m15 9-3 3-3-3"></path>
-                    <path d="M12 12v5"></path>
+                    <path d="M18 11V9a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v1.5"></path>
+                    <path d="M14 10V8a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"></path>
+                    <path d="M10 9.5V5a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v9"></path>
+                    <path d="M6 14v1a6 6 0 0 0 12 0v-1"></path>
                   </svg>
                 )
               },
               {
-                title: 'Simplicity',
-                description: 'Intuitive design that eliminates complexity and focuses on what truly matters.',
+                title: 'Nutrition Management',
+                description: 'Monitor your daily calories, macronutrients, and build healthier eating habits.',
                 icon: (
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
-                    <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+                    <path d="M12 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path>
+                    <path d="M19.5 10a7.5 7.5 0 1 0-15 0"></path>
+                    <path d="M12 12v8"></path>
+                    <path d="M8 16h8"></path>
                   </svg>
                 )
               },
               {
-                title: 'Functionality',
-                description: 'Every feature serves a purpose, creating a seamless and effortless experience.',
+                title: 'Progress Tracking',
+                description: 'Visualize your journey with progress photos, measurements, and achievement badges.',
                 icon: (
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12.9 7.1C14.2 7.4 15.3 8.5 15.6 9.8"></path>
-                    <path d="M9.1 11.5a5 5 0 0 1 5.4-5.4"></path>
-                    <path d="M9.1 11.5a5 5 0 0 0 5.4 5.4"></path>
-                    <path d="M15.6 14.2a5 5 0 0 1-2.7 2.7"></path>
-                    <path d="M12 22c5.5 0 10-4.5 10-10S17.5 2 12 2 2 6.5 2 12s4.5 10 10 10z"></path>
+                    <path d="m8 3 4 8 5-5 5 15H2L8 3z"></path>
                   </svg>
                 )
               }
@@ -136,28 +137,28 @@ const Index = () => {
       <section className="py-16 md:py-24 bg-secondary/50">
         <div className="container mx-auto px-4 md:px-6">
           <div className="text-center mb-16">
-            <h2 className="h2 mb-4">What our customers say</h2>
+            <h2 className="h2 mb-4">Transformations that inspire</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Hear from people who have experienced the difference our products make.
+              Join thousands who have changed their lives with Elevate Fitness.
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
-                quote: "The attention to detail and intuitive design make this product a joy to use every day.",
+                quote: "This app helped me stay consistent with my workouts and track my progress in ways I never could before.",
                 author: "Alex Johnson",
-                role: "Creative Director"
+                role: "Lost 30 lbs in 6 months"
               },
               {
-                quote: "Exceptional quality that exceeds expectations. This has completely transformed how I work.",
+                quote: "The nutrition tracking features completely changed my relationship with food and helped me reach my goals.",
                 author: "Samantha Lee",
-                role: "Product Designer"
+                role: "Gained 12 lbs of muscle"
               },
               {
-                quote: "Beautiful, functional, and thoughtfully designed. Exactly what I've been looking for.",
+                quote: "Setting goals and tracking progress has never been easier. This is the app I've been waiting for.",
                 author: "Michael Chen",
-                role: "Entrepreneur"
+                role: "Improved 5K time by 7 minutes"
               }
             ].map((testimonial, idx) => (
               <div 
@@ -189,22 +190,24 @@ const Index = () => {
         <div className="container mx-auto px-4 md:px-6">
           <div className="relative rounded-3xl overflow-hidden bg-primary text-primary-foreground p-8 md:p-12 lg:p-16">
             <div className="relative z-10 max-w-2xl">
-              <h2 className="h2 mb-4">Ready to experience the difference?</h2>
+              <h2 className="h2 mb-4">Start your fitness journey today</h2>
               <p className="text-lg opacity-90 mb-8">
-                Join thousands of satisfied customers who have transformed their daily experience with our products.
+                Join Elevate Fitness and transform your approach to health and wellness with our all-in-one solution.
               </p>
               <div className="flex flex-wrap gap-4">
-                <AnimatedButton
-                  className="bg-white text-primary hover:bg-white/90"
-                  size="lg"
-                >
-                  Get Started
-                </AnimatedButton>
+                <Link to="/dashboard">
+                  <AnimatedButton
+                    className="bg-white text-primary hover:bg-white/90"
+                    size="lg"
+                  >
+                    Get Started
+                  </AnimatedButton>
+                </Link>
                 <AnimatedButton
                   className="bg-primary-foreground/10 text-primary-foreground border border-primary-foreground/20 hover:bg-primary-foreground/20"
                   size="lg"
                 >
-                  Contact Sales
+                  Learn More
                 </AnimatedButton>
               </div>
             </div>
