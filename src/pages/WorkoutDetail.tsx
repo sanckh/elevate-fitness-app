@@ -26,6 +26,12 @@ const WorkoutDetail = () => {
   const [editingExerciseId, setEditingExerciseId] = useState<string | null>(null);
   const [editedExercise, setEditedExercise] = useState<Exercise | null>(null);
   
+  // Editing specific exercise fields
+  const [editingSets, setEditingSets] = useState<string | null>(null);
+  const [editingReps, setEditingReps] = useState<string | null>(null);
+  const [editingWeight, setEditingWeight] = useState<string | null>(null);
+  const [tempValue, setTempValue] = useState<string>('');
+  
   // Fetch workouts from localStorage
   useEffect(() => {
     const storedWorkouts = localStorage.getItem('workouts');
@@ -157,6 +163,62 @@ const WorkoutDetail = () => {
       title: "Exercise Updated",
       description: `${editedExercise.name} has been updated.`,
     });
+  };
+  
+  // Start editing specific field
+  const startEditingField = (exerciseId: string, field: 'sets' | 'reps' | 'weight', currentValue: any) => {
+    if (field === 'sets') setEditingSets(exerciseId);
+    if (field === 'reps') setEditingReps(exerciseId);
+    if (field === 'weight') setEditingWeight(exerciseId);
+    
+    setTempValue(currentValue?.toString() || '');
+  };
+  
+  // Save edited field
+  const saveEditedField = (exerciseId: string, field: 'sets' | 'reps' | 'weight') => {
+    if (!workout) return;
+    
+    // Find exercise and update the specific field
+    const updatedExercises = workout.exercises.map(ex => {
+      if (ex.id === exerciseId) {
+        let value: any = tempValue;
+        if (field === 'sets' || field === 'reps') {
+          value = parseInt(tempValue) || 1; // Default to 1 if invalid
+        } else if (field === 'weight') {
+          value = tempValue ? parseInt(tempValue) : undefined; // Weight can be undefined
+        }
+        return { ...ex, [field]: value };
+      }
+      return ex;
+    });
+    
+    const updatedWorkout = { ...workout, exercises: updatedExercises };
+    const updatedWorkouts = allWorkouts.map(w => 
+      w.id === workout.id ? updatedWorkout : w
+    );
+    
+    localStorage.setItem('workouts', JSON.stringify(updatedWorkouts));
+    setWorkout(updatedWorkout);
+    setAllWorkouts(updatedWorkouts);
+    
+    // Reset editing state
+    setEditingSets(null);
+    setEditingReps(null);
+    setEditingWeight(null);
+    setTempValue('');
+    
+    toast({
+      title: "Exercise Updated",
+      description: `Exercise ${field} has been updated.`,
+    });
+  };
+  
+  // Cancel field editing
+  const cancelFieldEditing = () => {
+    setEditingSets(null);
+    setEditingReps(null);
+    setEditingWeight(null);
+    setTempValue('');
   };
 
   if (isEditing && workout) {
@@ -296,48 +358,120 @@ const WorkoutDetail = () => {
                       <Separator className="my-3" />
                       
                       <div className="grid grid-cols-3 gap-4 mt-4">
-                        <div className="bg-muted/50 rounded-md p-3 text-center">
+                        <div className="bg-muted/50 rounded-md p-3 text-center cursor-pointer" onClick={() => startEditingField(exercise.id, 'sets', exercise.sets)}>
                           <div className="text-sm text-muted-foreground mb-1">Sets</div>
-                          {editingExerciseId === exercise.id ? (
-                            <Input
-                              type="number"
-                              min="1"
-                              value={editedExercise?.sets || 1}
-                              onChange={(e) => handleExerciseFieldChange('sets', parseInt(e.target.value) || 1)}
-                              className="h-8 text-center font-semibold"
-                            />
+                          {editingSets === exercise.id ? (
+                            <div className="flex items-center justify-center">
+                              <Input
+                                type="number"
+                                min="1"
+                                value={tempValue}
+                                onChange={(e) => setTempValue(e.target.value)}
+                                className="h-8 text-center font-semibold w-16"
+                                autoFocus
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') saveEditedField(exercise.id, 'sets');
+                                  if (e.key === 'Escape') cancelFieldEditing();
+                                }}
+                              />
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => saveEditedField(exercise.id, 'sets')}
+                                className="h-8 p-0 ml-1"
+                              >
+                                <Save className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={cancelFieldEditing}
+                                className="h-8 p-0"
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
                           ) : (
-                            <div className="font-semibold text-lg">{exercise.sets}</div>
+                            <div className="font-semibold text-lg hover:bg-muted/80 rounded-md transition-colors">
+                              {exercise.sets}
+                            </div>
                           )}
                         </div>
-                        <div className="bg-muted/50 rounded-md p-3 text-center">
+                        <div className="bg-muted/50 rounded-md p-3 text-center cursor-pointer" onClick={() => startEditingField(exercise.id, 'reps', exercise.reps)}>
                           <div className="text-sm text-muted-foreground mb-1">Reps</div>
-                          {editingExerciseId === exercise.id ? (
-                            <Input
-                              type="number"
-                              min="1"
-                              value={editedExercise?.reps || 1}
-                              onChange={(e) => handleExerciseFieldChange('reps', parseInt(e.target.value) || 1)}
-                              className="h-8 text-center font-semibold"
-                            />
+                          {editingReps === exercise.id ? (
+                            <div className="flex items-center justify-center">
+                              <Input
+                                type="number"
+                                min="1"
+                                value={tempValue}
+                                onChange={(e) => setTempValue(e.target.value)}
+                                className="h-8 text-center font-semibold w-16"
+                                autoFocus
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') saveEditedField(exercise.id, 'reps');
+                                  if (e.key === 'Escape') cancelFieldEditing();
+                                }}
+                              />
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => saveEditedField(exercise.id, 'reps')}
+                                className="h-8 p-0 ml-1"
+                              >
+                                <Save className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={cancelFieldEditing}
+                                className="h-8 p-0"
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
                           ) : (
-                            <div className="font-semibold text-lg">{exercise.reps}</div>
+                            <div className="font-semibold text-lg hover:bg-muted/80 rounded-md transition-colors">
+                              {exercise.reps}
+                            </div>
                           )}
                         </div>
-                        <div className="bg-muted/50 rounded-md p-3 text-center">
+                        <div className="bg-muted/50 rounded-md p-3 text-center cursor-pointer" onClick={() => startEditingField(exercise.id, 'weight', exercise.weight || '')}>
                           <div className="text-sm text-muted-foreground mb-1">Weight</div>
-                          {editingExerciseId === exercise.id ? (
-                            <Input
-                              type="number"
-                              min="0"
-                              step="5"
-                              value={editedExercise?.weight || ''}
-                              onChange={(e) => handleExerciseFieldChange('weight', e.target.value ? parseInt(e.target.value) : undefined)}
-                              className="h-8 text-center font-semibold"
-                              placeholder="N/A"
-                            />
+                          {editingWeight === exercise.id ? (
+                            <div className="flex items-center justify-center">
+                              <Input
+                                type="number"
+                                min="0"
+                                step="5"
+                                value={tempValue}
+                                onChange={(e) => setTempValue(e.target.value)}
+                                className="h-8 text-center font-semibold w-16"
+                                autoFocus
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') saveEditedField(exercise.id, 'weight');
+                                  if (e.key === 'Escape') cancelFieldEditing();
+                                }}
+                              />
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => saveEditedField(exercise.id, 'weight')}
+                                className="h-8 p-0 ml-1"
+                              >
+                                <Save className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={cancelFieldEditing}
+                                className="h-8 p-0"
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
                           ) : (
-                            <div className="font-semibold text-lg">
+                            <div className="font-semibold text-lg hover:bg-muted/80 rounded-md transition-colors">
                               {exercise.weight ? `${exercise.weight} lbs` : 'N/A'}
                             </div>
                           )}
