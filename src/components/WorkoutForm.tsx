@@ -40,6 +40,16 @@ const WorkoutForm = ({ initialWorkout, onSubmit, onCancel }: WorkoutFormProps) =
     );
   };
 
+  // New function to handle number input changes specifically
+  const handleNumberChange = (id: string, field: 'sets' | 'reps' | 'weight', value: string) => {
+    // Convert to number if value is not empty, otherwise use undefined for weight
+    const numericValue = value === '' 
+      ? (field === 'weight' ? undefined : 1) // Weight can be undefined, sets/reps default to 1
+      : Math.max(1, parseInt(value) || 1);   // Ensure value is at least 1 for sets/reps
+    
+    handleExerciseChange(id, field, numericValue);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -127,8 +137,8 @@ const WorkoutForm = ({ initialWorkout, onSubmit, onCancel }: WorkoutFormProps) =
                     id={`exercise-sets-${exercise.id}`}
                     type="number"
                     min="1"
-                    value={exercise.sets}
-                    onChange={(e) => handleExerciseChange(exercise.id, 'sets', parseInt(e.target.value) || 1)}
+                    value={exercise.sets || 1}
+                    onChange={(e) => handleNumberChange(exercise.id, 'sets', e.target.value)}
                     required
                   />
                 </div>
@@ -139,8 +149,8 @@ const WorkoutForm = ({ initialWorkout, onSubmit, onCancel }: WorkoutFormProps) =
                     id={`exercise-reps-${exercise.id}`}
                     type="number"
                     min="1"
-                    value={exercise.reps}
-                    onChange={(e) => handleExerciseChange(exercise.id, 'reps', parseInt(e.target.value) || 1)}
+                    value={exercise.reps || 1}
+                    onChange={(e) => handleNumberChange(exercise.id, 'reps', e.target.value)}
                     required
                   />
                 </div>
@@ -152,8 +162,8 @@ const WorkoutForm = ({ initialWorkout, onSubmit, onCancel }: WorkoutFormProps) =
                     type="number"
                     min="0"
                     step="5"
-                    value={exercise.weight || ''}
-                    onChange={(e) => handleExerciseChange(exercise.id, 'weight', e.target.value ? parseInt(e.target.value) : undefined)}
+                    value={exercise.weight !== undefined ? exercise.weight : ''}
+                    onChange={(e) => handleNumberChange(exercise.id, 'weight', e.target.value)}
                     placeholder="Optional"
                   />
                 </div>
