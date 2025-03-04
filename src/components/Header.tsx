@@ -21,7 +21,7 @@ const Header = () => {
   }, [scrolled]);
   
   const navLinks = [
-    { name: 'Home', href: '/' },
+    { name: 'Home', href: '/workouts' },
     { name: 'Dashboard', href: '/dashboard' },
     { name: 'Workouts', href: '/workouts' },
     { name: 'Nutrition (coming soon)', href: '/nutrition' }
@@ -36,7 +36,7 @@ const Header = () => {
     )}>
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
         <Link 
-          to="/" 
+          to="/workouts" 
           className="font-display text-xl font-medium tracking-tight transition-opacity hover:opacity-80"
         >
           Elevate Fitness
@@ -60,7 +60,7 @@ const Header = () => {
         </nav>
         
         <div className="flex items-center space-x-4">
-          <Link to="/dashboard">
+          <Link to="/workouts">
             <AnimatedButton 
               variant="primary" 
               size="sm"
