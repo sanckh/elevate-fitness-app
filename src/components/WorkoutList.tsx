@@ -11,18 +11,17 @@ import {
 } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Edit, Trash2, Eye } from 'lucide-react';
+import { Edit, Trash2, Eye } from 'lucide-react';
 import { Exercise } from '@/pages/WorkoutDetail';
 
 interface WorkoutListProps {
   workouts: Workout[];
   onEdit: (workout: Workout) => void;
   onDelete: (workoutId: string) => void;
-  onToggleComplete: (workoutId: string) => void;
   onView: (workoutId: string) => void;
 }
 
-const WorkoutList = ({ workouts, onEdit, onDelete, onToggleComplete, onView }: WorkoutListProps) => {
+const WorkoutList = ({ workouts, onEdit, onDelete, onView }: WorkoutListProps) => {
   // Helper function to render text for sets
   const getSetsSummary = (exercise: Exercise) => {
     if (!exercise.sets || !Array.isArray(exercise.sets) || exercise.sets.length === 0) {
@@ -34,17 +33,12 @@ const WorkoutList = ({ workouts, onEdit, onDelete, onToggleComplete, onView }: W
   return (
     <div className="space-y-4">
       {workouts.map((workout) => (
-        <Card key={workout.id} className={`${workout.completed ? 'border-primary bg-primary/5' : ''}`}>
+        <Card key={workout.id}>
           <CardHeader className="pb-2">
             <div className="flex justify-between items-start">
               <div>
                 <CardTitle className="flex items-center gap-2">
                   {workout.name}
-                  {workout.completed && (
-                    <Badge variant="outline" className="bg-primary/20 text-primary border-primary/20">
-                      Completed
-                    </Badge>
-                  )}
                 </CardTitle>
                 <CardDescription>
                   {workout.exercises.length} exercise{workout.exercises.length !== 1 ? 's' : ''}
@@ -59,15 +53,6 @@ const WorkoutList = ({ workouts, onEdit, onDelete, onToggleComplete, onView }: W
                   title="View details"
                 >
                   <Eye className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="h-8 w-8 p-0"
-                  onClick={() => onToggleComplete(workout.id)}
-                  title={workout.completed ? "Mark as incomplete" : "Mark as completed"}
-                >
-                  <CheckCircle className={`h-4 w-4 ${workout.completed ? 'text-primary fill-primary' : ''}`} />
                 </Button>
                 <Button 
                   variant="ghost" 

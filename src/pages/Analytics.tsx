@@ -8,23 +8,12 @@ import ExerciseProgressChart from '@/components/ExerciseProgressChart';
 import ExerciseSelector from '@/components/ExerciseSelector';
 import { Workout } from '@/pages/Workouts';
 
-// Helper function to determine if a workout should be marked as completed based on date
-export const isWorkoutCompleted = (workoutDate: Date): boolean => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // Set to beginning of today
-  const compareDate = new Date(workoutDate);
-  compareDate.setHours(0, 0, 0, 0); // Set to beginning of workout date
-  
-  return compareDate <= today;
-};
-
 // Placeholder data for testing
 const placeholderWorkouts: Workout[] = [
   {
     id: '1',
     name: 'Upper Body Workout',
     date: new Date('2023-01-05'),
-    completed: isWorkoutCompleted(new Date('2023-01-05')),
     exercises: [
       { 
         id: '1-1',
@@ -50,7 +39,6 @@ const placeholderWorkouts: Workout[] = [
     id: '2',
     name: 'Upper Body Workout',
     date: new Date('2023-01-15'),
-    completed: isWorkoutCompleted(new Date('2023-01-15')),
     exercises: [
       { 
         id: '2-1',
@@ -76,7 +64,6 @@ const placeholderWorkouts: Workout[] = [
     id: '3',
     name: 'Upper Body Workout',
     date: new Date('2023-01-25'),
-    completed: isWorkoutCompleted(new Date('2023-01-25')),
     exercises: [
       { 
         id: '3-1',
@@ -137,8 +124,11 @@ const Analytics = () => {
             workoutDate = new Date(); // Default to current date on error
           }
           
+          // Remove completed property if it exists
+          const { completed, ...workoutWithoutCompleted } = workout;
+          
           return {
-            ...workout,
+            ...workoutWithoutCompleted,
             date: workoutDate,
             // Ensure exercises is an array
             exercises: Array.isArray(workout.exercises) ? workout.exercises : []

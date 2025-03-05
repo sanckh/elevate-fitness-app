@@ -1,10 +1,9 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
-import { Trash2, Plus, X } from 'lucide-react';
+import { Trash2, Plus } from 'lucide-react';
 import { Exercise, Workout } from '@/pages/WorkoutDetail';
 import ExerciseSetList, { ExerciseSet } from '@/components/ExerciseSetList';
 
@@ -83,7 +82,6 @@ const WorkoutForm = ({ initialWorkout, onSubmit, onCancel }: WorkoutFormProps) =
       name: workoutName,
       exercises,
       date: initialWorkout?.date || new Date(),
-      completed: initialWorkout?.completed || false,
     };
     
     onSubmit(workout as any);

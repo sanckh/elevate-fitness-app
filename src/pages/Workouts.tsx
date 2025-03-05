@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -12,14 +13,12 @@ import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Exercise } from '@/pages/WorkoutDetail';
-import { isWorkoutCompleted } from '@/pages/Analytics';
 
 export type Workout = {
   id: string;
   date: Date;
   name: string;
   exercises: Exercise[];
-  completed: boolean;
   category?: string; // Added category field
 };
 
@@ -38,10 +37,11 @@ const Workouts = () => {
       try {
         const parsedWorkouts = JSON.parse(storedWorkouts).map((workout: any) => {
           const workoutDate = new Date(workout.date);
+          // Remove completed property from loaded workouts
+          const { completed, ...workoutWithoutCompleted } = workout;
           return {
-            ...workout,
-            date: workoutDate,
-            completed: isWorkoutCompleted(workoutDate)
+            ...workoutWithoutCompleted,
+            date: workoutDate
           };
         });
         setWorkouts(parsedWorkouts);
@@ -53,16 +53,7 @@ const Workouts = () => {
 
   // Save workouts to localStorage whenever they change
   useEffect(() => {
-    const updatedWorkouts = workouts.map(workout => ({
-      ...workout,
-      completed: isWorkoutCompleted(workout.date)
-    }));
-    
-    localStorage.setItem('workouts', JSON.stringify(updatedWorkouts));
-    
-    if (JSON.stringify(workouts) !== JSON.stringify(updatedWorkouts)) {
-      setWorkouts(updatedWorkouts);
-    }
+    localStorage.setItem('workouts', JSON.stringify(workouts));
   }, [workouts]);
 
   // Filtered workouts for the selected date
@@ -85,8 +76,7 @@ const Workouts = () => {
     const newWorkout = {
       ...workout,
       id: crypto.randomUUID(),
-      date: selectedDate,
-      completed: isWorkoutCompleted(selectedDate)
+      date: selectedDate
     };
 
     setWorkouts([...workouts, newWorkout as Workout]);
@@ -98,14 +88,9 @@ const Workouts = () => {
   };
 
   const handleEditWorkout = (updatedWorkout: Workout) => {
-    const workoutWithUpdatedCompletion = {
-      ...updatedWorkout,
-      completed: isWorkoutCompleted(updatedWorkout.date)
-    };
-    
     setWorkouts(
       workouts.map(workout => 
-        workout.id === updatedWorkout.id ? workoutWithUpdatedCompletion : workout
+        workout.id === updatedWorkout.id ? updatedWorkout : workout
       )
     );
     setEditingWorkout(null);
@@ -113,16 +98,6 @@ const Workouts = () => {
       title: "Workout Updated",
       description: `${updatedWorkout.name} has been updated.`,
     });
-  };
-
-  const handleToggleComplete = (workoutId: string) => {
-    setWorkouts(
-      workouts.map(workout => 
-        workout.id === workoutId 
-          ? { ...workout, completed: !workout.completed } 
-          : workout
-      )
-    );
   };
 
   const handleDeleteWorkout = (workoutId: string) => {
@@ -193,7 +168,6 @@ const Workouts = () => {
                     workouts={selectedDateWorkouts} 
                     onEdit={setEditingWorkout}
                     onDelete={handleDeleteWorkout}
-                    onToggleComplete={handleToggleComplete}
                     onView={handleViewWorkoutDetails}
                   />
                 ) : (

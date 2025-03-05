@@ -1,10 +1,10 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
-import { ArrowLeft, Calendar, CheckCircle, Edit, Trash2, Save, X, History, LineChart } from 'lucide-react';
+import { ArrowLeft, Calendar, Edit, Trash2, Save, X, History, LineChart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
@@ -13,7 +13,6 @@ import WorkoutForm from '@/components/WorkoutForm';
 import { Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import ExerciseSetList, { ExerciseSet } from '@/components/ExerciseSetList';
-import { isWorkoutCompleted } from '@/pages/Analytics';
 
 export interface Exercise {
   id: string;
@@ -27,7 +26,6 @@ export interface Workout {
   name: string;
   date: Date;
   exercises: Exercise[];
-  completed: boolean;
 }
 
 const WorkoutDetail = () => {
@@ -47,10 +45,11 @@ const WorkoutDetail = () => {
       try {
         const parsedWorkouts = JSON.parse(storedWorkouts).map((w: any) => {
           const workoutDate = new Date(w.date);
+          // Remove completed property if it exists
+          const { completed, ...workoutWithoutCompleted } = w;
           return {
-            ...w,
-            date: workoutDate,
-            completed: isWorkoutCompleted(workoutDate)
+            ...workoutWithoutCompleted,
+            date: workoutDate
           };
         });
         
@@ -80,8 +79,7 @@ const WorkoutDetail = () => {
           return {
             ...w,
             date: workoutDate,
-            exercises: updatedExercises,
-            completed: isWorkoutCompleted(workoutDate)
+            exercises: updatedExercises
           };
         });
         
@@ -141,37 +139,13 @@ const WorkoutDetail = () => {
     navigate('/workouts');
   };
 
-  const handleToggleComplete = () => {
-    if (!workout) return;
-    
-    const updatedWorkout = { ...workout, completed: !workout.completed };
-    const updatedWorkouts = allWorkouts.map(w => 
-      w.id === workout.id ? updatedWorkout : w
-    );
-    
-    localStorage.setItem('workouts', JSON.stringify(updatedWorkouts));
-    setWorkout(updatedWorkout);
-    setAllWorkouts(updatedWorkouts);
-    
-    toast({
-      title: updatedWorkout.completed ? "Workout Completed" : "Workout Marked Incomplete",
-      description: `${workout.name} has been ${updatedWorkout.completed ? 'marked as completed' : 'marked as incomplete'}.`,
-      variant: "default"
-    });
-  };
-
   const handleUpdateWorkout = (updatedWorkout: Workout) => {
-    const workoutWithCorrectCompletion = {
-      ...updatedWorkout,
-      completed: isWorkoutCompleted(updatedWorkout.date)
-    };
-    
     const newWorkouts = allWorkouts.map(w => 
-      w.id === workoutWithCorrectCompletion.id ? workoutWithCorrectCompletion : w
+      w.id === updatedWorkout.id ? updatedWorkout : w
     );
     
     localStorage.setItem('workouts', JSON.stringify(newWorkouts));
-    setWorkout(workoutWithCorrectCompletion);
+    setWorkout(updatedWorkout);
     setAllWorkouts(newWorkouts);
     setIsEditing(false);
     
@@ -309,26 +283,12 @@ const WorkoutDetail = () => {
                   <div>
                     <CardTitle className="text-2xl flex items-center gap-2">
                       {workout.name}
-                      {workout.completed && (
-                        <Badge variant="outline" className="bg-primary/20 text-primary border-primary/20">
-                          Completed
-                        </Badge>
-                      )}
                     </CardTitle>
                     <CardDescription>
                       {dateFormatted} • {workout.exercises.length} exercise{workout.exercises.length !== 1 ? 's' : ''} • {getTotalSets(workout.exercises)} total sets
                     </CardDescription>
                   </div>
                   <div className="flex space-x-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={handleToggleComplete}
-                      title={workout.completed ? "Mark as incomplete" : "Mark as completed"}
-                      className="h-9 w-9 p-0"
-                    >
-                      <CheckCircle className={`h-4 w-4 ${workout.completed ? 'text-primary fill-primary' : ''}`} />
-                    </Button>
                     <Button 
                       variant="outline" 
                       size="sm" 
