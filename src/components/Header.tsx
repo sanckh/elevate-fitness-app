@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { SheetTrigger, SheetContent, Sheet } from '@/components/ui/sheet';
-import { CalendarClock, Home, Menu, X, Dumbbell, BarChart } from 'lucide-react';
+import { CalendarClock, Home, Menu, X, Dumbbell, BarChart, TrendingUp } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -50,6 +50,12 @@ const Header = () => {
       name: 'Analytics',
       path: '/analytics',
       icon: <BarChart className="h-5 w-5" />,
+      requiresAuth: true,
+    },
+    {
+      name: 'Progression',
+      path: '/progression',
+      icon: <TrendingUp className="h-5 w-5" />,
       requiresAuth: true,
     },
   ];
