@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Exercise } from '@/pages/WorkoutDetail';
 
 export type Workout = {
   id: string;
@@ -19,15 +21,6 @@ export type Workout = {
   exercises: Exercise[];
   completed: boolean;
   category?: string; // Added category field
-};
-
-export type Exercise = {
-  id: string;
-  name: string;
-  sets: number;
-  reps: number;
-  weight?: number;
-  notes?: string;
 };
 
 const Workouts = () => {

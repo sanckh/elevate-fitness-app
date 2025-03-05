@@ -12,6 +12,7 @@ import {
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Edit, Trash2, Eye } from 'lucide-react';
+import { Exercise } from '@/pages/WorkoutDetail';
 
 interface WorkoutListProps {
   workouts: Workout[];
@@ -22,6 +23,42 @@ interface WorkoutListProps {
 }
 
 const WorkoutList = ({ workouts, onEdit, onDelete, onToggleComplete, onView }: WorkoutListProps) => {
+  // Helper function to render text for sets
+  const getSetsSummary = (exercise: Exercise) => {
+    if (!exercise.sets || !Array.isArray(exercise.sets) || exercise.sets.length === 0) {
+      return 'No sets';
+    }
+    return `${exercise.sets.length} set${exercise.sets.length !== 1 ? 's' : ''}`;
+  };
+
+  // Helper function to get average reps across all sets
+  const getAverageReps = (exercise: Exercise) => {
+    if (!exercise.sets || !Array.isArray(exercise.sets) || exercise.sets.length === 0) {
+      return 'N/A';
+    }
+    
+    const totalReps = exercise.sets.reduce((sum, set) => sum + set.reps, 0);
+    return Math.round(totalReps / exercise.sets.length);
+  };
+
+  // Helper function to get weight range
+  const getWeightRange = (exercise: Exercise) => {
+    if (!exercise.sets || !Array.isArray(exercise.sets) || exercise.sets.length === 0) {
+      return 'N/A';
+    }
+    
+    const weights = exercise.sets
+      .map(set => set.weight)
+      .filter((weight): weight is number => weight !== undefined);
+    
+    if (weights.length === 0) return 'bodyweight';
+    
+    const min = Math.min(...weights);
+    const max = Math.max(...weights);
+    
+    return min === max ? `${min} lbs` : `${min}-${max} lbs`;
+  };
+
   return (
     <div className="space-y-4">
       {workouts.map((workout) => (
@@ -91,9 +128,9 @@ const WorkoutList = ({ workouts, onEdit, onDelete, onToggleComplete, onView }: W
                       <div key={exercise.id} className="border rounded-md p-3">
                         <div className="font-medium">{exercise.name}</div>
                         <div className="text-sm text-muted-foreground flex gap-3 mt-1">
-                          <span>{exercise.sets} sets</span>
-                          <span>{exercise.reps} reps</span>
-                          {exercise.weight && <span>{exercise.weight} lbs</span>}
+                          <span>{getSetsSummary(exercise)}</span>
+                          <span>~{getAverageReps(exercise)} reps</span>
+                          <span>{getWeightRange(exercise)}</span>
                         </div>
                         {exercise.notes && (
                           <div className="text-sm mt-2 italic">
