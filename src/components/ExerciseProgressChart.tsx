@@ -16,6 +16,7 @@ interface ChartDataPoint {
   formattedDate: string;
   weight: number;
   oneRepMax?: number;
+  maxWeight?: number;
 }
 
 type MetricType = 'maxWeight' | 'oneRepMax';
@@ -182,7 +183,7 @@ const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChart
             <Tooltip 
               labelFormatter={(value) => `Date: ${value}`}
               formatter={(value: number, name: string) => {
-                const formattedName = name === 'oneRepMax' ? 'Estimated 1RM' : 'Weight';
+                const formattedName = name === 'oneRepMax' ? 'Estimated 1RM' : 'Max Weight';
                 return [`${Math.round(value)} lbs`, formattedName];
               }}
             />
