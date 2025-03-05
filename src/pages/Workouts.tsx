@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Exercise } from '@/pages/WorkoutDetail';
+import { isWorkoutCompleted } from '@/pages/Analytics';
 
 export type Workout = {
   id: string;
@@ -35,17 +35,34 @@ const Workouts = () => {
   useEffect(() => {
     const storedWorkouts = localStorage.getItem('workouts');
     if (storedWorkouts) {
-      const parsedWorkouts = JSON.parse(storedWorkouts).map((workout: any) => ({
-        ...workout,
-        date: new Date(workout.date)
-      }));
-      setWorkouts(parsedWorkouts);
+      try {
+        const parsedWorkouts = JSON.parse(storedWorkouts).map((workout: any) => {
+          const workoutDate = new Date(workout.date);
+          return {
+            ...workout,
+            date: workoutDate,
+            completed: isWorkoutCompleted(workoutDate)
+          };
+        });
+        setWorkouts(parsedWorkouts);
+      } catch (error) {
+        console.error('Error parsing workouts:', error);
+      }
     }
   }, []);
 
   // Save workouts to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('workouts', JSON.stringify(workouts));
+    const updatedWorkouts = workouts.map(workout => ({
+      ...workout,
+      completed: isWorkoutCompleted(workout.date)
+    }));
+    
+    localStorage.setItem('workouts', JSON.stringify(updatedWorkouts));
+    
+    if (JSON.stringify(workouts) !== JSON.stringify(updatedWorkouts)) {
+      setWorkouts(updatedWorkouts);
+    }
   }, [workouts]);
 
   // Filtered workouts for the selected date
@@ -69,6 +86,7 @@ const Workouts = () => {
       ...workout,
       id: crypto.randomUUID(),
       date: selectedDate,
+      completed: isWorkoutCompleted(selectedDate)
     };
 
     setWorkouts([...workouts, newWorkout as Workout]);
@@ -80,25 +98,20 @@ const Workouts = () => {
   };
 
   const handleEditWorkout = (updatedWorkout: Workout) => {
+    const workoutWithUpdatedCompletion = {
+      ...updatedWorkout,
+      completed: isWorkoutCompleted(updatedWorkout.date)
+    };
+    
     setWorkouts(
       workouts.map(workout => 
-        workout.id === updatedWorkout.id ? updatedWorkout : workout
+        workout.id === updatedWorkout.id ? workoutWithUpdatedCompletion : workout
       )
     );
     setEditingWorkout(null);
     toast({
       title: "Workout Updated",
       description: `${updatedWorkout.name} has been updated.`,
-    });
-  };
-
-  const handleDeleteWorkout = (workoutId: string) => {
-    const workoutToDelete = workouts.find(w => w.id === workoutId);
-    setWorkouts(workouts.filter(workout => workout.id !== workoutId));
-    toast({
-      title: "Workout Deleted",
-      description: workoutToDelete ? `${workoutToDelete.name} has been removed.` : "Workout has been removed.",
-      variant: "destructive",
     });
   };
 
@@ -112,6 +125,16 @@ const Workouts = () => {
     );
   };
 
+  const handleDeleteWorkout = (workoutId: string) => {
+    const workoutToDelete = workouts.find(w => w.id === workoutId);
+    setWorkouts(workouts.filter(workout => workout.id !== workoutId));
+    toast({
+      title: "Workout Deleted",
+      description: workoutToDelete ? `${workoutToDelete.name} has been removed.` : "Workout has been removed.",
+      variant: "destructive",
+    });
+  };
+
   const handleViewWorkoutDetails = (workoutId: string) => {
     navigate(`/workouts/${workoutId}`);
   };
@@ -123,7 +146,6 @@ const Workouts = () => {
         <h1 className="text-3xl font-bold mb-6">Workout Calendar</h1>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Calendar Section - Added flex justify-center to center the calendar */}
           <Card className="p-6 col-span-1 shadow-md flex flex-col items-center">
             <div className="w-full flex justify-center">
               <Calendar
@@ -141,7 +163,6 @@ const Workouts = () => {
             </div>
           </Card>
 
-          {/* Workout Management Section */}
           <Card className="p-4 col-span-1 md:col-span-2 shadow-md">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-medium">

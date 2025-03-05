@@ -13,6 +13,7 @@ import WorkoutForm from '@/components/WorkoutForm';
 import { Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import ExerciseSetList, { ExerciseSet } from '@/components/ExerciseSetList';
+import { isWorkoutCompleted } from '@/pages/Analytics';
 
 export interface Exercise {
   id: string;
@@ -44,12 +45,17 @@ const WorkoutDetail = () => {
     const storedWorkouts = localStorage.getItem('workouts');
     if (storedWorkouts) {
       try {
-        const parsedWorkouts = JSON.parse(storedWorkouts).map((w: any) => ({
-          ...w,
-          date: new Date(w.date)
-        }));
+        const parsedWorkouts = JSON.parse(storedWorkouts).map((w: any) => {
+          const workoutDate = new Date(w.date);
+          return {
+            ...w,
+            date: workoutDate,
+            completed: isWorkoutCompleted(workoutDate)
+          };
+        });
         
         const updatedWorkouts = parsedWorkouts.map((w: any) => {
+          const workoutDate = new Date(w.date);
           const updatedExercises = w.exercises.map((ex: any) => {
             if (typeof ex.sets === 'number' && !Array.isArray(ex.sets)) {
               const newSets: ExerciseSet[] = [];
@@ -73,7 +79,9 @@ const WorkoutDetail = () => {
           
           return {
             ...w,
-            exercises: updatedExercises
+            date: workoutDate,
+            exercises: updatedExercises,
+            completed: isWorkoutCompleted(workoutDate)
           };
         });
         
@@ -147,17 +155,23 @@ const WorkoutDetail = () => {
     
     toast({
       title: updatedWorkout.completed ? "Workout Completed" : "Workout Marked Incomplete",
-      description: `${workout.name} has been ${updatedWorkout.completed ? 'marked as completed' : 'marked as incomplete'}.`
+      description: `${workout.name} has been ${updatedWorkout.completed ? 'marked as completed' : 'marked as incomplete'}.`,
+      variant: "default"
     });
   };
 
   const handleUpdateWorkout = (updatedWorkout: Workout) => {
+    const workoutWithCorrectCompletion = {
+      ...updatedWorkout,
+      completed: isWorkoutCompleted(updatedWorkout.date)
+    };
+    
     const newWorkouts = allWorkouts.map(w => 
-      w.id === updatedWorkout.id ? updatedWorkout : w
+      w.id === workoutWithCorrectCompletion.id ? workoutWithCorrectCompletion : w
     );
     
     localStorage.setItem('workouts', JSON.stringify(newWorkouts));
-    setWorkout(updatedWorkout);
+    setWorkout(workoutWithCorrectCompletion);
     setAllWorkouts(newWorkouts);
     setIsEditing(false);
     
