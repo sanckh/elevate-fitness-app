@@ -28,6 +28,9 @@ const ExerciseSelector = ({
   onSelectExercise 
 }: ExerciseSelectorProps) => {
   const [open, setOpen] = useState(false);
+  
+  // Make sure exercises is always a valid array
+  const safeExercises = exercises || [];
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -49,7 +52,7 @@ const ExerciseSelector = ({
           <CommandInput placeholder="Search exercises..." />
           <CommandEmpty>No exercise found.</CommandEmpty>
           <CommandGroup className="max-h-60 overflow-y-auto">
-            {exercises.map((exercise) => (
+            {safeExercises.map((exercise) => (
               <CommandItem
                 key={exercise}
                 value={exercise}

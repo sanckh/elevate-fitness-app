@@ -9,20 +9,105 @@ import ExerciseProgressChart from '@/components/ExerciseProgressChart';
 import ExerciseSelector from '@/components/ExerciseSelector';
 import { Workout } from '@/pages/Workouts';
 
+// Placeholder data for testing
+const placeholderWorkouts: Workout[] = [
+  {
+    id: '1',
+    name: 'Upper Body Workout',
+    date: new Date('2023-01-05'),
+    exercises: [
+      { 
+        name: 'Bench Press', 
+        sets: [
+          { reps: 10, weight: 135 },
+          { reps: 8, weight: 155 },
+          { reps: 6, weight: 175 }
+        ] 
+      },
+      { 
+        name: 'Shoulder Press', 
+        sets: [
+          { reps: 10, weight: 85 },
+          { reps: 8, weight: 95 },
+          { reps: 6, weight: 105 }
+        ] 
+      }
+    ]
+  },
+  {
+    id: '2',
+    name: 'Upper Body Workout',
+    date: new Date('2023-01-15'),
+    exercises: [
+      { 
+        name: 'Bench Press', 
+        sets: [
+          { reps: 10, weight: 145 },
+          { reps: 8, weight: 165 },
+          { reps: 6, weight: 185 }
+        ] 
+      },
+      { 
+        name: 'Shoulder Press', 
+        sets: [
+          { reps: 10, weight: 90 },
+          { reps: 8, weight: 100 },
+          { reps: 6, weight: 110 }
+        ] 
+      }
+    ]
+  },
+  {
+    id: '3',
+    name: 'Upper Body Workout',
+    date: new Date('2023-01-25'),
+    exercises: [
+      { 
+        name: 'Bench Press', 
+        sets: [
+          { reps: 10, weight: 155 },
+          { reps: 8, weight: 175 },
+          { reps: 6, weight: 195 }
+        ] 
+      },
+      { 
+        name: 'Shoulder Press', 
+        sets: [
+          { reps: 10, weight: 95 },
+          { reps: 8, weight: 105 },
+          { reps: 6, weight: 115 }
+        ] 
+      }
+    ]
+  }
+];
+
 const Analytics = () => {
   const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
   const navigate = useNavigate();
   
-  // Load workouts from localStorage
+  // Load workouts from localStorage or use placeholder data
   const loadWorkouts = (): Workout[] => {
     const storedWorkouts = localStorage.getItem('workouts');
     if (storedWorkouts) {
-      return JSON.parse(storedWorkouts).map((workout: any) => ({
-        ...workout,
-        date: new Date(workout.date)
-      }));
+      try {
+        const parsedWorkouts = JSON.parse(storedWorkouts).map((workout: any) => ({
+          ...workout,
+          date: new Date(workout.date)
+        }));
+        
+        // If we have valid workouts with exercises, return them
+        if (parsedWorkouts.length > 0 && 
+            parsedWorkouts.some((w: any) => w.exercises && w.exercises.length > 0)) {
+          return parsedWorkouts;
+        }
+      } catch (error) {
+        console.error('Error parsing workouts:', error);
+      }
     }
-    return [];
+    
+    // Return placeholder data if no valid workouts found
+    return placeholderWorkouts;
   };
 
   const workouts = loadWorkouts();
