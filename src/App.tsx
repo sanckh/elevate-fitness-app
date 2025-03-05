@@ -13,6 +13,7 @@ import Workouts from "./pages/Workouts";
 import WorkoutDetail from "./pages/WorkoutDetail";
 import WorkoutLibrary from "./pages/WorkoutLibrary";
 import Analytics from "./pages/Analytics";
+import Progression from "./pages/Progression";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -56,6 +57,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Analytics />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/progression" 
+              element={
+                <ProtectedRoute>
+                  <Progression />
                 </ProtectedRoute>
               } 
             />

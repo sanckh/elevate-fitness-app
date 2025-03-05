@@ -20,7 +20,8 @@ const sections = [
         <path d="M6 14v1a6 6 0 0 0 12 0v-1"></path>
       </svg>
     ),
-    color: 'bg-blue-500/10 text-blue-500'
+    color: 'bg-blue-500/10 text-blue-500',
+    link: '/workouts'
   },
   {
     id: 'nutrition',
@@ -34,7 +35,8 @@ const sections = [
         <path d="M8 16h8"></path>
       </svg>
     ),
-    color: 'bg-green-500/10 text-green-500'
+    color: 'bg-green-500/10 text-green-500',
+    link: '/dashboard'
   },
   {
     id: 'goals',
@@ -45,12 +47,13 @@ const sections = [
         <path d="m8 3 4 8 5-5 5 15H2L8 3z"></path>
       </svg>
     ),
-    color: 'bg-purple-500/10 text-purple-500'
+    color: 'bg-purple-500/10 text-purple-500',
+    link: '/dashboard'
   },
   {
-    id: 'progress',
-    title: 'Progress Photos',
-    description: 'Visualize your transformation journey',
+    id: 'progression',
+    title: 'Progression',
+    description: 'Track your physical changes and measurements',
     icon: (
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M15 8h.01"></path>
@@ -59,7 +62,8 @@ const sections = [
         <path d="m14 14 1-1a3 5 0 0 1 3 0l2 2"></path>
       </svg>
     ),
-    color: 'bg-amber-500/10 text-amber-500'
+    color: 'bg-amber-500/10 text-amber-500',
+    link: '/progression'
   }
 ];
 
@@ -121,13 +125,15 @@ const Dashboard = () => {
                   <div>
                     <h3 className="text-lg font-medium mb-1">{section.title}</h3>
                     <p className="text-muted-foreground text-sm mb-4">{section.description}</p>
-                    <AnimatedButton 
-                      variant="outline" 
-                      size="sm"
-                      className="text-xs"
-                    >
-                      Open {section.title}
-                    </AnimatedButton>
+                    <Link to={section.link}>
+                      <AnimatedButton 
+                        variant="outline" 
+                        size="sm"
+                        className="text-xs"
+                      >
+                        Open {section.title}
+                      </AnimatedButton>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -138,12 +144,14 @@ const Dashboard = () => {
           <div className="bg-white border border-border/50 rounded-xl p-6 shadow-subtle mb-8">
             <h3 className="text-lg font-medium mb-4">Quick Actions</h3>
             <div className="flex flex-wrap gap-3">
-              <AnimatedButton 
-                variant="primary" 
-                size="sm"
-              >
-                Log Workout
-              </AnimatedButton>
+              <Link to="/workouts">
+                <AnimatedButton 
+                  variant="primary" 
+                  size="sm"
+                >
+                  Log Workout
+                </AnimatedButton>
+              </Link>
               <AnimatedButton 
                 variant="outline" 
                 size="sm"
@@ -156,12 +164,14 @@ const Dashboard = () => {
               >
                 Record Weight
               </AnimatedButton>
-              <AnimatedButton 
-                variant="outline" 
-                size="sm"
-              >
-                Add Progress Photo
-              </AnimatedButton>
+              <Link to="/progression">
+                <AnimatedButton 
+                  variant="outline" 
+                  size="sm"
+                >
+                  Add Progress Photo
+                </AnimatedButton>
+              </Link>
             </div>
           </div>
           
