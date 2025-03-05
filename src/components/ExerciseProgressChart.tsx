@@ -3,7 +3,6 @@ import { useMemo } from 'react';
 import { format } from 'date-fns';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Workout } from '@/pages/Workouts';
-import { Exercise } from '@/pages/WorkoutDetail';
 
 interface ExerciseProgressChartProps {
   exerciseName: string;
@@ -19,10 +18,12 @@ interface ChartDataPoint {
 const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChartProps) => {
   // Process the workout data to extract the progression for the selected exercise
   const chartData = useMemo(() => {
+    if (!workouts || !exerciseName) return [];
+    
     // Filter workouts that contain the exercise
     const relevantWorkouts = workouts
       .filter(workout => 
-        workout.exercises.some(exercise => 
+        workout.exercises && workout.exercises.some(exercise => 
           exercise.name.toLowerCase() === exerciseName.toLowerCase()
         )
       )
@@ -31,7 +32,7 @@ const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChart
     // Extract the data points
     return relevantWorkouts.map(workout => {
       // Find the exercise in this workout
-      const exercise = workout.exercises.find(
+      const exercise = workout.exercises?.find(
         e => e.name.toLowerCase() === exerciseName.toLowerCase()
       );
       

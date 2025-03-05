@@ -31,7 +31,7 @@ const Analytics = () => {
   const uniqueExerciseNames = Array.from(
     new Set(
       workouts
-        .flatMap(workout => workout.exercises)
+        .flatMap(workout => workout.exercises || [])
         .map(exercise => exercise.name)
     )
   ).sort();
@@ -57,11 +57,19 @@ const Analytics = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <ExerciseSelector 
-                  exercises={uniqueExerciseNames}
-                  selectedExercise={selectedExercise}
-                  onSelectExercise={setSelectedExercise}
-                />
+                {uniqueExerciseNames.length > 0 ? (
+                  <ExerciseSelector 
+                    exercises={uniqueExerciseNames}
+                    selectedExercise={selectedExercise}
+                    onSelectExercise={setSelectedExercise}
+                  />
+                ) : (
+                  <div className="text-center p-4 bg-secondary/20 rounded-lg">
+                    <p className="text-muted-foreground">
+                      No exercises found. Add workouts with exercises to see analytics.
+                    </p>
+                  </div>
+                )}
                 
                 {selectedExercise ? (
                   <ExerciseProgressChart 
@@ -71,7 +79,9 @@ const Analytics = () => {
                 ) : (
                   <div className="text-center p-8 bg-secondary/20 rounded-lg">
                     <p className="text-muted-foreground">
-                      Select an exercise to view your progress over time
+                      {uniqueExerciseNames.length > 0 
+                        ? "Select an exercise to view your progress over time" 
+                        : "Add workouts with exercises to see progress charts"}
                     </p>
                   </div>
                 )}
