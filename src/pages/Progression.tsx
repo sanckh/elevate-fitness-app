@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AnimatedButton from '@/components/AnimatedButton';
-import { Ruler, ImagePlus, Weight, Gallery, TrendingUp, Calendar as CalendarIcon } from 'lucide-react';
+import { Ruler, ImagePlus, Weight, Image, TrendingUp, Calendar as CalendarIcon } from 'lucide-react';
 
 // Dummy data for progress entries
 const progressEntries = [
@@ -131,7 +131,7 @@ const Progression = () => {
                   
                   <div className="mt-4">
                     <AnimatedButton 
-                      variant="default" 
+                      variant="primary" 
                       size="sm"
                       className="w-full"
                     >
@@ -209,7 +209,7 @@ const Progression = () => {
                   <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                     <TabsList className="grid grid-cols-2 mb-4">
                       <TabsTrigger value="photos" className="flex items-center gap-2">
-                        <Gallery className="h-4 w-4" />
+                        <Image className="h-4 w-4" />
                         <span>Photos</span>
                       </TabsTrigger>
                       <TabsTrigger value="measurements" className="flex items-center gap-2">
@@ -233,7 +233,7 @@ const Progression = () => {
                         </div>
                       ) : (
                         <div className="flex flex-col items-center justify-center py-12 text-center">
-                          <Gallery className="h-12 w-12 text-muted-foreground mb-4" />
+                          <Image className="h-12 w-12 text-muted-foreground mb-4" />
                           <h3 className="text-lg font-medium">No photos yet</h3>
                           <p className="text-muted-foreground mb-4">
                             Add progress photos to track your physical changes
@@ -313,7 +313,7 @@ const Progression = () => {
                         
                         <div className="flex justify-end mt-4 pt-4 border-t">
                           <AnimatedButton 
-                            variant="default"
+                            variant="primary"
                           >
                             Save Changes
                           </AnimatedButton>
