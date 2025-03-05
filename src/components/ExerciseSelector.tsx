@@ -29,7 +29,7 @@ const ExerciseSelector = ({
 }: ExerciseSelectorProps) => {
   const [open, setOpen] = useState(false);
   
-  // Make sure exercises is always a valid array with valid string values
+  // Ensure exercises is a valid array of strings
   const safeExercises = Array.isArray(exercises) 
     ? exercises.filter(exercise => typeof exercise === 'string' && exercise.trim() !== '') 
     : [];
@@ -50,30 +50,37 @@ const ExerciseSelector = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
-        <Command>
-          <CommandInput placeholder="Search exercises..." />
-          <CommandEmpty>No exercise found.</CommandEmpty>
-          <CommandGroup className="max-h-60 overflow-y-auto">
-            {safeExercises.map((exercise) => (
-              <CommandItem
-                key={exercise}
-                value={exercise}
-                onSelect={() => {
-                  onSelectExercise(exercise);
-                  setOpen(false);
-                }}
-              >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    selectedExercise === exercise ? "opacity-100" : "opacity-0"
-                  )}
-                />
-                {exercise}
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        </Command>
+        {/* Only render Command when we have safe exercises to work with */}
+        {safeExercises.length > 0 ? (
+          <Command>
+            <CommandInput placeholder="Search exercises..." />
+            <CommandEmpty>No exercise found.</CommandEmpty>
+            <CommandGroup className="max-h-60 overflow-y-auto">
+              {safeExercises.map((exercise) => (
+                <CommandItem
+                  key={exercise}
+                  value={exercise}
+                  onSelect={() => {
+                    onSelectExercise(exercise);
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      selectedExercise === exercise ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {exercise}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </Command>
+        ) : (
+          <div className="p-4 text-center text-sm text-muted-foreground">
+            No exercises available
+          </div>
+        )}
       </PopoverContent>
     </Popover>
   );

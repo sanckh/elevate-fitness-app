@@ -18,8 +18,14 @@ interface ChartDataPoint {
 const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChartProps) => {
   // Process the workout data to extract the progression for the selected exercise
   const chartData = useMemo(() => {
-    if (!workouts || !Array.isArray(workouts) || workouts.length === 0 || !exerciseName) {
-      console.log('No valid workouts or exercise name provided');
+    // Validate inputs
+    if (!exerciseName || typeof exerciseName !== 'string' || exerciseName.trim() === '') {
+      console.log('Invalid exercise name provided');
+      return [];
+    }
+    
+    if (!workouts || !Array.isArray(workouts) || workouts.length === 0) {
+      console.log('No valid workouts provided');
       return [];
     }
     
@@ -33,14 +39,21 @@ const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChart
           workout.exercises.some(exercise => 
             exercise && 
             exercise.name && 
+            typeof exercise.name === 'string' &&
             exercise.name.toLowerCase() === exerciseName.toLowerCase()
           )
         )
         .sort((a, b) => {
-          if (!(a.date instanceof Date) || !(b.date instanceof Date)) {
+          // Safely handle dates
+          const dateA = a.date instanceof Date ? a.date : new Date(a.date || 0);
+          const dateB = b.date instanceof Date ? b.date : new Date(b.date || 0);
+          
+          // Check if dates are valid
+          if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
             return 0;
           }
-          return a.date.getTime() - b.date.getTime();
+          
+          return dateA.getTime() - dateB.getTime();
         });
       
       if (relevantWorkouts.length === 0) {
@@ -52,15 +65,25 @@ const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChart
       return relevantWorkouts.map(workout => {
         // Find the exercise in this workout
         const exercise = workout.exercises?.find(
-          e => e && e.name && e.name.toLowerCase() === exerciseName.toLowerCase()
+          e => e && e.name && typeof e.name === 'string' && 
+               e.name.toLowerCase() === exerciseName.toLowerCase()
         );
         
         // Calculate the max weight used in any set of this exercise
         const maxWeight = exercise?.sets?.reduce((max, set) => {
-          return set && set.weight && set.weight > max ? set.weight : max;
+          return set && typeof set.weight === 'number' && set.weight > max ? set.weight : max;
         }, 0) || 0;
         
-        const workoutDate = workout.date instanceof Date ? workout.date : new Date(workout.date);
+        // Handle date safely
+        let workoutDate;
+        try {
+          workoutDate = workout.date instanceof Date ? workout.date : new Date(workout.date || 0);
+          if (isNaN(workoutDate.getTime())) {
+            workoutDate = new Date(); // Default to current date if invalid
+          }
+        } catch (e) {
+          workoutDate = new Date(); // Default to current date on error
+        }
         
         return {
           date: workoutDate.getTime(), // Use timestamp for sorting

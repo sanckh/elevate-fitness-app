@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -105,8 +104,8 @@ const Analytics = () => {
   const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
   const navigate = useNavigate();
   
-  // Load workouts from localStorage or use placeholder data
-  const loadWorkouts = (): Workout[] => {
+  // Load workouts from localStorage or use placeholder data with proper validation
+  const workouts = useMemo(() => {
     try {
       const storedWorkouts = localStorage.getItem('workouts');
       if (!storedWorkouts) {
@@ -114,44 +113,63 @@ const Analytics = () => {
         return placeholderWorkouts;
       }
       
-      const parsedWorkouts = JSON.parse(storedWorkouts).map((workout: any) => ({
-        ...workout,
-        date: new Date(workout.date)
-      }));
-      
-      // Validate the parsed workouts
-      if (!Array.isArray(parsedWorkouts)) {
-        console.log('Parsed workouts is not an array, using placeholder data');
-        return placeholderWorkouts;
+      let parsedWorkouts;
+      try {
+        parsedWorkouts = JSON.parse(storedWorkouts);
+        
+        // Check if parsedWorkouts is an array
+        if (!Array.isArray(parsedWorkouts)) {
+          console.log('Parsed workouts is not an array, using placeholder data');
+          return placeholderWorkouts;
+        }
+        
+        // Validate and transform workouts
+        const validWorkouts = parsedWorkouts.map((workout: any) => {
+          // Ensure workout date is properly converted to Date object
+          let workoutDate;
+          try {
+            workoutDate = new Date(workout.date);
+            // Check if date is valid
+            if (isNaN(workoutDate.getTime())) {
+              workoutDate = new Date(); // Default to current date if invalid
+            }
+          } catch (e) {
+            workoutDate = new Date(); // Default to current date on error
+          }
+          
+          return {
+            ...workout,
+            date: workoutDate,
+            // Ensure exercises is an array
+            exercises: Array.isArray(workout.exercises) ? workout.exercises : []
+          };
+        });
+        
+        // Filter out workouts without valid exercises
+        const workoutsWithExercises = validWorkouts.filter((workout: any) => {
+          return workout && 
+                 workout.exercises && 
+                 Array.isArray(workout.exercises) &&
+                 workout.exercises.some((exercise: any) => 
+                   exercise && typeof exercise.name === 'string' && exercise.name.trim() !== ''
+                 );
+        });
+        
+        if (workoutsWithExercises.length > 0) {
+          return workoutsWithExercises;
+        }
+      } catch (error) {
+        console.error('Error parsing workouts:', error);
       }
       
-      // Additional validation for each workout
-      const validWorkouts = parsedWorkouts.filter((workout: any) => {
-        return (
-          workout && 
-          workout.id && 
-          workout.exercises && 
-          Array.isArray(workout.exercises) &&
-          workout.exercises.length > 0
-        );
-      });
-      
-      if (validWorkouts.length > 0) {
-        return validWorkouts;
-      }
-      
-      console.log('No valid workouts found in localStorage, using placeholder data');
       return placeholderWorkouts;
     } catch (error) {
       console.error('Error loading workouts:', error);
       return placeholderWorkouts;
     }
-  };
-
-  // Use useMemo to avoid recalculating workouts on each render
-  const workouts = useMemo(() => loadWorkouts(), []);
+  }, []);
   
-  // Extract all unique exercise names from all workouts, with robust validation
+  // Extract all unique exercise names from workouts with robust validation
   const uniqueExerciseNames = useMemo(() => {
     if (!Array.isArray(workouts) || workouts.length === 0) {
       console.log('No workouts available for extracting exercise names');
@@ -162,9 +180,9 @@ const Analytics = () => {
       // Create a set of exercise names from all workouts
       const exerciseSet = new Set<string>();
       
-      // For each workout, get its exercises
+      // For each workout, process its exercises
       workouts.forEach(workout => {
-        if (!workout.exercises || !Array.isArray(workout.exercises)) {
+        if (!workout || !workout.exercises || !Array.isArray(workout.exercises)) {
           return;
         }
         
@@ -205,6 +223,7 @@ const Analytics = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                {/* Only render ExerciseSelector if we have exercise names */}
                 {uniqueExerciseNames.length > 0 ? (
                   <ExerciseSelector 
                     exercises={uniqueExerciseNames}
