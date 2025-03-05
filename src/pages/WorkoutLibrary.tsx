@@ -9,7 +9,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Exercise, Workout } from '@/pages/Workouts';
+import { Workout } from '@/pages/Workouts';
+import { Exercise } from '@/pages/WorkoutDetail';
+import { ExerciseSet } from '@/components/ExerciseSetList';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
@@ -21,6 +23,15 @@ const workoutCategories = [
   { id: 'hiit', name: 'HIIT' }
 ];
 
+// Helper function to create exercise sets with consistent IDs
+const createSets = (count: number, reps: number, weight?: number): ExerciseSet[] => {
+  return Array.from({ length: count }, () => ({
+    id: crypto.randomUUID(),
+    reps,
+    weight
+  }));
+};
+
 // Sample pre-defined workouts
 const predefinedWorkouts: Workout[] = [
   {
@@ -30,10 +41,10 @@ const predefinedWorkouts: Workout[] = [
     completed: false,
     category: 'strength',
     exercises: [
-      { id: 'ex1', name: 'Bench Press', sets: 4, reps: 8, weight: 135 },
-      { id: 'ex2', name: 'Pull-ups', sets: 3, reps: 10 },
-      { id: 'ex3', name: 'Shoulder Press', sets: 3, reps: 12, weight: 45 },
-      { id: 'ex4', name: 'Tricep Extensions', sets: 3, reps: 15, weight: 25 }
+      { id: 'ex1', name: 'Bench Press', sets: createSets(4, 8, 135) },
+      { id: 'ex2', name: 'Pull-ups', sets: createSets(3, 10) },
+      { id: 'ex3', name: 'Shoulder Press', sets: createSets(3, 12, 45) },
+      { id: 'ex4', name: 'Tricep Extensions', sets: createSets(3, 15, 25) }
     ]
   },
   {
@@ -43,10 +54,10 @@ const predefinedWorkouts: Workout[] = [
     completed: false,
     category: 'strength',
     exercises: [
-      { id: 'ex5', name: 'Squats', sets: 4, reps: 10, weight: 175 },
-      { id: 'ex6', name: 'Lunges', sets: 3, reps: 12, weight: 30 },
-      { id: 'ex7', name: 'Leg Press', sets: 3, reps: 15, weight: 200 },
-      { id: 'ex8', name: 'Calf Raises', sets: 4, reps: 20, weight: 100 }
+      { id: 'ex5', name: 'Squats', sets: createSets(4, 10, 175) },
+      { id: 'ex6', name: 'Lunges', sets: createSets(3, 12, 30) },
+      { id: 'ex7', name: 'Leg Press', sets: createSets(3, 15, 200) },
+      { id: 'ex8', name: 'Calf Raises', sets: createSets(4, 20, 100) }
     ]
   },
   {
@@ -56,10 +67,10 @@ const predefinedWorkouts: Workout[] = [
     completed: false,
     category: 'hiit',
     exercises: [
-      { id: 'ex9', name: 'Jumping Jacks', sets: 1, reps: 50 },
-      { id: 'ex10', name: 'Mountain Climbers', sets: 1, reps: 40 },
-      { id: 'ex11', name: 'Burpees', sets: 1, reps: 20 },
-      { id: 'ex12', name: 'High Knees', sets: 1, reps: 60 }
+      { id: 'ex9', name: 'Jumping Jacks', sets: createSets(1, 50) },
+      { id: 'ex10', name: 'Mountain Climbers', sets: createSets(1, 40) },
+      { id: 'ex11', name: 'Burpees', sets: createSets(1, 20) },
+      { id: 'ex12', name: 'High Knees', sets: createSets(1, 60) }
     ]
   },
   {
@@ -69,10 +80,10 @@ const predefinedWorkouts: Workout[] = [
     completed: false,
     category: 'strength',
     exercises: [
-      { id: 'ex13', name: 'Planks', sets: 3, reps: 1, notes: 'Hold for 60 seconds' },
-      { id: 'ex14', name: 'Russian Twists', sets: 3, reps: 20, weight: 15 },
-      { id: 'ex15', name: 'Leg Raises', sets: 3, reps: 15 },
-      { id: 'ex16', name: 'Ab Rollouts', sets: 3, reps: 12 }
+      { id: 'ex13', name: 'Planks', sets: createSets(3, 1), notes: 'Hold for 60 seconds' },
+      { id: 'ex14', name: 'Russian Twists', sets: createSets(3, 20, 15) },
+      { id: 'ex15', name: 'Leg Raises', sets: createSets(3, 15) },
+      { id: 'ex16', name: 'Ab Rollouts', sets: createSets(3, 12) }
     ]
   },
   {
@@ -82,10 +93,10 @@ const predefinedWorkouts: Workout[] = [
     completed: false,
     category: 'flexibility',
     exercises: [
-      { id: 'ex17', name: 'Hamstring Stretch', sets: 1, reps: 1, notes: 'Hold for 30 seconds each leg' },
-      { id: 'ex18', name: 'Shoulder Stretch', sets: 1, reps: 1, notes: 'Hold for 30 seconds each side' },
-      { id: 'ex19', name: 'Quad Stretch', sets: 1, reps: 1, notes: 'Hold for 30 seconds each leg' },
-      { id: 'ex20', name: 'Hip Flexor Stretch', sets: 1, reps: 1, notes: 'Hold for 30 seconds each side' }
+      { id: 'ex17', name: 'Hamstring Stretch', sets: createSets(1, 1), notes: 'Hold for 30 seconds each leg' },
+      { id: 'ex18', name: 'Shoulder Stretch', sets: createSets(1, 1), notes: 'Hold for 30 seconds each side' },
+      { id: 'ex19', name: 'Quad Stretch', sets: createSets(1, 1), notes: 'Hold for 30 seconds each leg' },
+      { id: 'ex20', name: 'Hip Flexor Stretch', sets: createSets(1, 1), notes: 'Hold for 30 seconds each side' }
     ]
   }
 ];
@@ -144,6 +155,18 @@ const WorkoutLibrary = () => {
     navigate('/workouts');
     // You could also navigate to a specific "create workout" mode
     // by passing state or query parameters
+  };
+
+  // Helper function to get a summary of an exercise's sets and reps
+  const getExerciseSummary = (exercise: Exercise) => {
+    if (!exercise.sets || !Array.isArray(exercise.sets) || exercise.sets.length === 0) {
+      return 'No sets';
+    }
+    
+    const setCount = exercise.sets.length;
+    const avgReps = Math.round(exercise.sets.reduce((sum, set) => sum + set.reps, 0) / setCount);
+    
+    return `${setCount} sets x ~${avgReps} reps`;
   };
 
   return (
@@ -222,7 +245,7 @@ const WorkoutLibrary = () => {
                           <ul className="list-disc pl-5 space-y-1 text-sm">
                             {workout.exercises.slice(0, 3).map(exercise => (
                               <li key={exercise.id}>
-                                {exercise.name}: {exercise.sets} sets x {exercise.reps} reps
+                                {exercise.name}: {getExerciseSummary(exercise)}
                               </li>
                             ))}
                             {workout.exercises.length > 3 && (
@@ -266,7 +289,7 @@ const WorkoutLibrary = () => {
                           <ul className="list-disc pl-5 space-y-1 text-sm">
                             {workout.exercises.slice(0, 3).map(exercise => (
                               <li key={exercise.id}>
-                                {exercise.name}: {exercise.sets} sets x {exercise.reps} reps
+                                {exercise.name}: {getExerciseSummary(exercise)}
                               </li>
                             ))}
                             {workout.exercises.length > 3 && (
