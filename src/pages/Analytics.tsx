@@ -19,17 +19,17 @@ const placeholderWorkouts: Workout[] = [
       { 
         name: 'Bench Press', 
         sets: [
-          { reps: 10, weight: 135 },
-          { reps: 8, weight: 155 },
-          { reps: 6, weight: 175 }
+          { id: '1-1-1', reps: 10, weight: 135 },
+          { id: '1-1-2', reps: 8, weight: 155 },
+          { id: '1-1-3', reps: 6, weight: 175 }
         ] 
       },
       { 
         name: 'Shoulder Press', 
         sets: [
-          { reps: 10, weight: 85 },
-          { reps: 8, weight: 95 },
-          { reps: 6, weight: 105 }
+          { id: '1-2-1', reps: 10, weight: 85 },
+          { id: '1-2-2', reps: 8, weight: 95 },
+          { id: '1-2-3', reps: 6, weight: 105 }
         ] 
       }
     ]
@@ -42,17 +42,17 @@ const placeholderWorkouts: Workout[] = [
       { 
         name: 'Bench Press', 
         sets: [
-          { reps: 10, weight: 145 },
-          { reps: 8, weight: 165 },
-          { reps: 6, weight: 185 }
+          { id: '2-1-1', reps: 10, weight: 145 },
+          { id: '2-1-2', reps: 8, weight: 165 },
+          { id: '2-1-3', reps: 6, weight: 185 }
         ] 
       },
       { 
         name: 'Shoulder Press', 
         sets: [
-          { reps: 10, weight: 90 },
-          { reps: 8, weight: 100 },
-          { reps: 6, weight: 110 }
+          { id: '2-2-1', reps: 10, weight: 90 },
+          { id: '2-2-2', reps: 8, weight: 100 },
+          { id: '2-2-3', reps: 6, weight: 110 }
         ] 
       }
     ]
@@ -65,17 +65,17 @@ const placeholderWorkouts: Workout[] = [
       { 
         name: 'Bench Press', 
         sets: [
-          { reps: 10, weight: 155 },
-          { reps: 8, weight: 175 },
-          { reps: 6, weight: 195 }
+          { id: '3-1-1', reps: 10, weight: 155 },
+          { id: '3-1-2', reps: 8, weight: 175 },
+          { id: '3-1-3', reps: 6, weight: 195 }
         ] 
       },
       { 
         name: 'Shoulder Press', 
         sets: [
-          { reps: 10, weight: 95 },
-          { reps: 8, weight: 105 },
-          { reps: 6, weight: 115 }
+          { id: '3-2-1', reps: 10, weight: 95 },
+          { id: '3-2-2', reps: 8, weight: 105 },
+          { id: '3-2-3', reps: 6, weight: 115 }
         ] 
       }
     ]
