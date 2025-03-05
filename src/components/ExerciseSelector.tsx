@@ -30,7 +30,7 @@ const ExerciseSelector = ({
   const [open, setOpen] = useState(false);
   
   // Make sure exercises is always a valid array
-  const safeExercises = exercises || [];
+  const safeExercises = Array.isArray(exercises) ? exercises : [];
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

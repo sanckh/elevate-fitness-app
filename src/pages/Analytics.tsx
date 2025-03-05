@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
@@ -115,8 +116,9 @@ const Analytics = () => {
         }));
         
         // If we have valid workouts with exercises, return them
-        if (parsedWorkouts.length > 0 && 
-            parsedWorkouts.some((w: any) => w.exercises && w.exercises.length > 0)) {
+        if (parsedWorkouts && Array.isArray(parsedWorkouts) && 
+            parsedWorkouts.length > 0 && 
+            parsedWorkouts.some((w: any) => w.exercises && Array.isArray(w.exercises) && w.exercises.length > 0)) {
           return parsedWorkouts;
         }
       } catch (error) {
@@ -130,11 +132,13 @@ const Analytics = () => {
 
   const workouts = loadWorkouts();
   
-  // Extract all unique exercise names from all workouts
+  // Extract all unique exercise names from all workouts, with additional validation
   const uniqueExerciseNames = Array.from(
     new Set(
       workouts
+        .filter(workout => workout.exercises && Array.isArray(workout.exercises))
         .flatMap(workout => workout.exercises || [])
+        .filter(exercise => exercise && exercise.name) // Ensure exercises are valid
         .map(exercise => exercise.name)
     )
   ).sort();
