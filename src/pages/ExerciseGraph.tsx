@@ -9,20 +9,24 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Workout } from '@/pages/WorkoutDetail';
 
 type TimeRange = '1m' | '3m' | '6m' | '1y' | 'all';
+type MetricType = 'maxWeight' | 'oneRepMax';
 
 interface DataPoint {
   date: number; // timestamp for sorting
   formattedDate: string;
   weight: number;
+  oneRepMax?: number;
 }
 
 const ExerciseGraph = () => {
   const { exerciseName } = useParams<{ exerciseName: string }>();
   const navigate = useNavigate();
   const [timeRange, setTimeRange] = useState<TimeRange>('all');
+  const [metricType, setMetricType] = useState<MetricType>('maxWeight');
   const [allData, setAllData] = useState<DataPoint[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -59,15 +63,32 @@ const ExerciseGraph = () => {
             e => e.name.toLowerCase() === decodeURIComponent(exerciseName).toLowerCase()
           );
           
-          // Calculate the max weight used in any set of this exercise
-          const maxWeight = exercise?.sets.reduce((max, set) => {
-            return set.weight && set.weight > max ? set.weight : max;
-          }, 0) || 0;
+          // Calculate the max weight and best 1RM for this exercise
+          let maxWeight = 0;
+          let bestOneRepMax = 0;
+          
+          if (exercise && exercise.sets) {
+            exercise.sets.forEach(set => {
+              // Calculate max weight
+              if (set.weight && set.weight > maxWeight) {
+                maxWeight = set.weight;
+              }
+              
+              // Calculate 1RM for each set using the formula: 1RM = (Weight × Reps / 30.48) + Weight
+              if (set.weight && set.reps) {
+                const oneRepMax = (set.weight * set.reps / 30.48) + set.weight;
+                if (oneRepMax > bestOneRepMax) {
+                  bestOneRepMax = oneRepMax;
+                }
+              }
+            });
+          }
           
           return {
             date: workout.date.getTime(),
             formattedDate: format(workout.date, 'MMM d, yyyy'),
-            weight: maxWeight
+            weight: maxWeight,
+            oneRepMax: bestOneRepMax
           };
         });
         
@@ -108,6 +129,10 @@ const ExerciseGraph = () => {
     return allData.filter(dataPoint => isAfter(new Date(dataPoint.date), cutoffDate));
   }, [allData, timeRange]);
 
+  const getYAxisLabel = () => {
+    return metricType === 'oneRepMax' ? 'Estimated 1RM (lbs)' : 'Weight (lbs)';
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -125,22 +150,39 @@ const ExerciseGraph = () => {
           <CardHeader>
             <CardTitle className="text-2xl">Progress Graph</CardTitle>
             <CardDescription>
-              Weight progression for {decodeURIComponent(exerciseName || '')}
+              {metricType === 'oneRepMax' ? 'Estimated 1 Rep Max' : 'Weight progression'} for {decodeURIComponent(exerciseName || '')}
             </CardDescription>
             
-            <Tabs 
-              defaultValue={timeRange} 
-              className="mt-4" 
-              onValueChange={(value) => setTimeRange(value as TimeRange)}
-            >
-              <TabsList className="grid grid-cols-5">
-                <TabsTrigger value="1m">1 Month</TabsTrigger>
-                <TabsTrigger value="3m">3 Months</TabsTrigger>
-                <TabsTrigger value="6m">6 Months</TabsTrigger>
-                <TabsTrigger value="1y">1 Year</TabsTrigger>
-                <TabsTrigger value="all">All Time</TabsTrigger>
-              </TabsList>
-            </Tabs>
+            <div className="flex flex-col md:flex-row md:items-center gap-4 mt-4">
+              <div className="flex-1">
+                <Tabs 
+                  defaultValue={timeRange} 
+                  onValueChange={(value) => setTimeRange(value as TimeRange)}
+                >
+                  <TabsList className="grid grid-cols-5">
+                    <TabsTrigger value="1m">1 Month</TabsTrigger>
+                    <TabsTrigger value="3m">3 Months</TabsTrigger>
+                    <TabsTrigger value="6m">6 Months</TabsTrigger>
+                    <TabsTrigger value="1y">1 Year</TabsTrigger>
+                    <TabsTrigger value="all">All Time</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+              <div className="w-full md:w-60">
+                <Select 
+                  value={metricType} 
+                  onValueChange={(value) => setMetricType(value as MetricType)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select metric" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="maxWeight">Max Weight</SelectItem>
+                    <SelectItem value="oneRepMax">Estimated 1 Rep Max</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -175,7 +217,7 @@ const ExerciseGraph = () => {
                     />
                     <YAxis 
                       label={{ 
-                        value: 'Weight (lbs)', 
+                        value: getYAxisLabel(), 
                         angle: -90, 
                         position: 'insideLeft',
                         style: { textAnchor: 'middle' }
@@ -183,31 +225,64 @@ const ExerciseGraph = () => {
                     />
                     <Tooltip 
                       labelFormatter={(value) => `Date: ${value}`}
-                      formatter={(value: number) => [`${value} lbs`, 'Weight']}
+                      formatter={(value: number, name: string) => {
+                        const formattedName = name === 'oneRepMax' ? 'Estimated 1RM' : 'Max Weight';
+                        return [`${Math.round(value)} lbs`, formattedName];
+                      }}
                     />
                     <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="weight"
-                      name="Max Weight"
-                      stroke="#8884d8"
-                      activeDot={{ r: 8 }}
-                      strokeWidth={2}
-                    />
+                    {metricType === 'maxWeight' ? (
+                      <Line
+                        type="monotone"
+                        dataKey="weight"
+                        name="Max Weight"
+                        stroke="#8884d8"
+                        activeDot={{ r: 8 }}
+                        strokeWidth={2}
+                      />
+                    ) : (
+                      <Line
+                        type="monotone"
+                        dataKey="oneRepMax"
+                        name="Estimated 1RM"
+                        stroke="#82ca9d"
+                        activeDot={{ r: 8 }}
+                        strokeWidth={2}
+                      />
+                    )}
                   </LineChart>
                 </ResponsiveContainer>
               </div>
             )}
             
             <div className="mt-6 text-sm text-muted-foreground">
-              <p>This graph shows your max weight progression for this exercise over time.</p>
+              {metricType === 'oneRepMax' ? (
+                <p>This graph shows your estimated one-rep max progression over time, calculated using the formula: 1RM = (Weight × Reps / 30.48) + Weight</p>
+              ) : (
+                <p>This graph shows your max weight progression for this exercise over time.</p>
+              )}
+              
               {filteredData.length > 0 && (
                 <div className="mt-2">
-                  <span className="font-medium">Starting weight:</span> {filteredData[0].weight} lbs
-                  {filteredData.length > 1 && (
+                  {metricType === 'maxWeight' ? (
                     <>
-                      <span className="ml-4 font-medium">Current weight:</span> {filteredData[filteredData.length - 1].weight} lbs
-                      <span className="ml-4 font-medium">Progress:</span> {filteredData[filteredData.length - 1].weight - filteredData[0].weight} lbs
+                      <span className="font-medium">Starting weight:</span> {filteredData[0].weight} lbs
+                      {filteredData.length > 1 && (
+                        <>
+                          <span className="ml-4 font-medium">Current weight:</span> {filteredData[filteredData.length - 1].weight} lbs
+                          <span className="ml-4 font-medium">Progress:</span> {filteredData[filteredData.length - 1].weight - filteredData[0].weight} lbs
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <span className="font-medium">Starting 1RM:</span> {Math.round(filteredData[0].oneRepMax || 0)} lbs
+                      {filteredData.length > 1 && (
+                        <>
+                          <span className="ml-4 font-medium">Current 1RM:</span> {Math.round(filteredData[filteredData.length - 1].oneRepMax || 0)} lbs
+                          <span className="ml-4 font-medium">Progress:</span> {Math.round((filteredData[filteredData.length - 1].oneRepMax || 0) - (filteredData[0].oneRepMax || 0))} lbs
+                        </>
+                      )}
                     </>
                   )}
                 </div>

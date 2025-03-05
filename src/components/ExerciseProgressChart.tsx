@@ -3,6 +3,8 @@ import { useMemo } from 'react';
 import { format } from 'date-fns';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Workout } from '@/pages/Workouts';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useState } from 'react';
 
 interface ExerciseProgressChartProps {
   exerciseName: string;
@@ -13,9 +15,14 @@ interface ChartDataPoint {
   date: number;
   formattedDate: string;
   weight: number;
+  oneRepMax?: number;
 }
 
+type MetricType = 'maxWeight' | 'oneRepMax';
+
 const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChartProps) => {
+  const [metricType, setMetricType] = useState<MetricType>('maxWeight');
+
   // Process the workout data to extract the progression for the selected exercise
   const chartData = useMemo(() => {
     // Validate inputs
@@ -74,6 +81,21 @@ const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChart
           return set && typeof set.weight === 'number' && set.weight > max ? set.weight : max;
         }, 0) || 0;
         
+        // Calculate best 1RM for this exercise
+        let bestOneRepMax = 0;
+        
+        if (exercise?.sets) {
+          exercise.sets.forEach(set => {
+            // Calculate 1RM for each set using the formula: 1RM = (Weight × Reps / 30.48) + Weight
+            if (set && typeof set.weight === 'number' && typeof set.reps === 'number' && set.weight > 0 && set.reps > 0) {
+              const oneRepMax = (set.weight * set.reps / 30.48) + set.weight;
+              if (oneRepMax > bestOneRepMax) {
+                bestOneRepMax = oneRepMax;
+              }
+            }
+          });
+        }
+        
         // Handle date safely
         let workoutDate;
         try {
@@ -88,7 +110,8 @@ const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChart
         return {
           date: workoutDate.getTime(), // Use timestamp for sorting
           formattedDate: format(workoutDate, 'MMM d, yyyy'),
-          weight: maxWeight
+          weight: maxWeight,
+          oneRepMax: bestOneRepMax
         };
       });
     } catch (error) {
@@ -99,6 +122,10 @@ const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChart
 
   // Check if we have data to display
   const hasData = chartData && chartData.length > 0;
+  
+  const getYAxisLabel = () => {
+    return metricType === 'oneRepMax' ? 'Estimated 1RM (lbs)' : 'Weight (lbs)';
+  };
   
   if (!hasData) {
     return (
@@ -111,46 +138,83 @@ const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChart
   }
 
   return (
-    <div className="w-full h-96">
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart
-          data={chartData}
-          margin={{
-            top: 5,
-            right: 30,
-            left: 20,
-            bottom: 5,
-          }}
+    <div className="w-full">
+      <div className="mb-4 w-full md:w-60">
+        <Select 
+          value={metricType} 
+          onValueChange={(value) => setMetricType(value as MetricType)}
         >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis 
-            dataKey="formattedDate"
-            tick={{ fontSize: 12 }}
-            tickMargin={10}
-          />
-          <YAxis 
-            label={{ 
-              value: 'Weight (lbs)', 
-              angle: -90, 
-              position: 'insideLeft',
-              style: { textAnchor: 'middle' }
+          <SelectTrigger>
+            <SelectValue placeholder="Select metric" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="maxWeight">Max Weight</SelectItem>
+            <SelectItem value="oneRepMax">Estimated 1 Rep Max</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      
+      <div className="h-96">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart
+            data={chartData}
+            margin={{
+              top: 5,
+              right: 30,
+              left: 20,
+              bottom: 5,
             }}
-          />
-          <Tooltip 
-            labelFormatter={(value) => `Date: ${value}`}
-            formatter={(value: number) => [`${value} lbs`, 'Weight']}
-          />
-          <Legend />
-          <Line
-            type="monotone"
-            dataKey="weight"
-            name="Max Weight"
-            stroke="#8884d8"
-            activeDot={{ r: 8 }}
-            strokeWidth={2}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis 
+              dataKey="formattedDate"
+              tick={{ fontSize: 12 }}
+              tickMargin={10}
+            />
+            <YAxis 
+              label={{ 
+                value: getYAxisLabel(), 
+                angle: -90, 
+                position: 'insideLeft',
+                style: { textAnchor: 'middle' }
+              }}
+            />
+            <Tooltip 
+              labelFormatter={(value) => `Date: ${value}`}
+              formatter={(value: number, name: string) => {
+                const formattedName = name === 'oneRepMax' ? 'Estimated 1RM' : 'Weight';
+                return [`${Math.round(value)} lbs`, formattedName];
+              }}
+            />
+            <Legend />
+            {metricType === 'maxWeight' ? (
+              <Line
+                type="monotone"
+                dataKey="weight"
+                name="Max Weight"
+                stroke="#8884d8"
+                activeDot={{ r: 8 }}
+                strokeWidth={2}
+              />
+            ) : (
+              <Line
+                type="monotone"
+                dataKey="oneRepMax"
+                name="Estimated 1RM"
+                stroke="#82ca9d"
+                activeDot={{ r: 8 }}
+                strokeWidth={2}
+              />
+            )}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+      
+      {metricType === 'oneRepMax' && (
+        <div className="mt-2 text-sm text-muted-foreground">
+          <p>Estimated using the formula: 1RM = (Weight × Reps / 30.48) + Weight</p>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,324 +1,282 @@
 
 import { useState, useEffect } from 'react';
-import { Dumbbell, Search, Plus, Filter } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Workout } from '@/pages/Workouts';
-import { Exercise } from '@/pages/WorkoutDetail';
-import { ExerciseSet } from '@/components/ExerciseSetList';
+import { PlusCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
-
-const workoutCategories = [
-  { id: 'all', name: 'All Workouts' },
-  { id: 'strength', name: 'Strength' },
-  { id: 'cardio', name: 'Cardio' },
-  { id: 'flexibility', name: 'Flexibility' },
-  { id: 'hiit', name: 'HIIT' }
-];
-
-// Helper function to create exercise sets with consistent IDs
-const createSets = (count: number, reps: number, weight?: number): ExerciseSet[] => {
-  return Array.from({ length: count }, () => ({
-    id: crypto.randomUUID(),
-    reps,
-    weight
-  }));
-};
-
-// Sample pre-defined workouts
-const predefinedWorkouts: Workout[] = [
-  {
-    id: 'upper-body-1',
-    name: 'Upper Body Power',
-    date: new Date(),
-    completed: false,
-    category: 'strength',
-    exercises: [
-      { id: 'ex1', name: 'Bench Press', sets: createSets(4, 8, 135) },
-      { id: 'ex2', name: 'Pull-ups', sets: createSets(3, 10) },
-      { id: 'ex3', name: 'Shoulder Press', sets: createSets(3, 12, 45) },
-      { id: 'ex4', name: 'Tricep Extensions', sets: createSets(3, 15, 25) }
-    ]
-  },
-  {
-    id: 'lower-body-1',
-    name: 'Leg Day Challenge',
-    date: new Date(),
-    completed: false,
-    category: 'strength',
-    exercises: [
-      { id: 'ex5', name: 'Squats', sets: createSets(4, 10, 175) },
-      { id: 'ex6', name: 'Lunges', sets: createSets(3, 12, 30) },
-      { id: 'ex7', name: 'Leg Press', sets: createSets(3, 15, 200) },
-      { id: 'ex8', name: 'Calf Raises', sets: createSets(4, 20, 100) }
-    ]
-  },
-  {
-    id: 'cardio-1',
-    name: '30-Minute HIIT',
-    date: new Date(),
-    completed: false,
-    category: 'hiit',
-    exercises: [
-      { id: 'ex9', name: 'Jumping Jacks', sets: createSets(1, 50) },
-      { id: 'ex10', name: 'Mountain Climbers', sets: createSets(1, 40) },
-      { id: 'ex11', name: 'Burpees', sets: createSets(1, 20) },
-      { id: 'ex12', name: 'High Knees', sets: createSets(1, 60) }
-    ]
-  },
-  {
-    id: 'core-1',
-    name: 'Core Crusher',
-    date: new Date(),
-    completed: false,
-    category: 'strength',
-    exercises: [
-      { id: 'ex13', name: 'Planks', sets: createSets(3, 1), notes: 'Hold for 60 seconds' },
-      { id: 'ex14', name: 'Russian Twists', sets: createSets(3, 20, 15) },
-      { id: 'ex15', name: 'Leg Raises', sets: createSets(3, 15) },
-      { id: 'ex16', name: 'Ab Rollouts', sets: createSets(3, 12) }
-    ]
-  },
-  {
-    id: 'stretch-1',
-    name: 'Full Body Stretch',
-    date: new Date(),
-    completed: false,
-    category: 'flexibility',
-    exercises: [
-      { id: 'ex17', name: 'Hamstring Stretch', sets: createSets(1, 1), notes: 'Hold for 30 seconds each leg' },
-      { id: 'ex18', name: 'Shoulder Stretch', sets: createSets(1, 1), notes: 'Hold for 30 seconds each side' },
-      { id: 'ex19', name: 'Quad Stretch', sets: createSets(1, 1), notes: 'Hold for 30 seconds each leg' },
-      { id: 'ex20', name: 'Hip Flexor Stretch', sets: createSets(1, 1), notes: 'Hold for 30 seconds each side' }
-    ]
-  }
-];
+import { Workout } from '@/pages/WorkoutDetail';
 
 const WorkoutLibrary = () => {
-  const [userWorkouts, setUserWorkouts] = useState<Workout[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const { toast } = useToast();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [workouts, setWorkouts] = useState<Workout[]>([]);
 
-  // Load user's saved workouts from localStorage
   useEffect(() => {
+    // Load existing workouts or show demo templates
     const storedWorkouts = localStorage.getItem('workouts');
     if (storedWorkouts) {
-      const parsedWorkouts = JSON.parse(storedWorkouts).map((workout: any) => ({
-        ...workout,
-        date: new Date(workout.date)
-      }));
-      setUserWorkouts(parsedWorkouts);
+      setWorkouts(JSON.parse(storedWorkouts));
     }
   }, []);
 
-  // Filter workouts based on search term and category
-  const filteredPredefinedWorkouts = predefinedWorkouts.filter(workout => {
-    const matchesSearch = workout.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || workout.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
-
-  const filteredUserWorkouts = userWorkouts.filter(workout => {
-    return workout.name.toLowerCase().includes(searchTerm.toLowerCase());
-  });
-
-  const handleSelectWorkout = (workout: Workout) => {
-    const today = new Date();
-    const workoutToAdd = {
-      ...workout,
+  const handleAddToCalendar = (template: Workout) => {
+    // Create a new workout based on the template
+    const newWorkout: Workout = {
       id: crypto.randomUUID(),
-      date: today
+      name: template.name,
+      date: new Date(),
+      exercises: template.exercises.map(exercise => ({
+        ...exercise,
+        id: crypto.randomUUID(),
+        sets: exercise.sets.map(set => ({
+          ...set,
+          id: crypto.randomUUID()
+        }))
+      }))
     };
 
-    const updatedWorkouts = [...userWorkouts, workoutToAdd];
-    localStorage.setItem('workouts', JSON.stringify(updatedWorkouts));
-    setUserWorkouts(updatedWorkouts);
+    // Add to existing workouts
+    const storedWorkouts = localStorage.getItem('workouts');
+    const workouts = storedWorkouts ? JSON.parse(storedWorkouts) : [];
+    workouts.push(newWorkout);
+    localStorage.setItem('workouts', JSON.stringify(workouts));
 
     toast({
       title: "Workout Added",
-      description: `${workout.name} has been added to today's schedule.`,
+      description: `${newWorkout.name} added to your calendar`,
     });
 
     navigate('/workouts');
   };
 
-  const handleCreateWorkout = () => {
-    navigate('/workouts');
-    // You could also navigate to a specific "create workout" mode
-    // by passing state or query parameters
+  // Template workouts
+  const upperBodyWorkout: Workout = {
+    id: 'template-upper-body',
+    name: 'Upper Body Workout',
+    date: new Date(),
+    exercises: [
+      {
+        id: 'bench-press',
+        name: 'Bench Press',
+        sets: [
+          { id: 'bp-1', reps: 8, weight: 135 },
+          { id: 'bp-2', reps: 8, weight: 135 },
+          { id: 'bp-3', reps: 8, weight: 135 }
+        ]
+      },
+      {
+        id: 'barbell-row',
+        name: 'Barbell Row',
+        sets: [
+          { id: 'br-1', reps: 8, weight: 95 },
+          { id: 'br-2', reps: 8, weight: 95 },
+          { id: 'br-3', reps: 8, weight: 95 }
+        ]
+      },
+      {
+        id: 'overhead-press',
+        name: 'Overhead Press',
+        sets: [
+          { id: 'op-1', reps: 8, weight: 65 },
+          { id: 'op-2', reps: 8, weight: 65 },
+          { id: 'op-3', reps: 8, weight: 65 }
+        ]
+      }
+    ]
   };
 
-  // Helper function to get a summary of an exercise's sets and reps
-  const getExerciseSummary = (exercise: Exercise) => {
-    if (!exercise.sets || !Array.isArray(exercise.sets) || exercise.sets.length === 0) {
-      return 'No sets';
-    }
-    
-    const setCount = exercise.sets.length;
-    const avgReps = Math.round(exercise.sets.reduce((sum, set) => sum + set.reps, 0) / setCount);
-    
-    return `${setCount} sets x ~${avgReps} reps`;
+  const lowerBodyWorkout: Workout = {
+    id: 'template-lower-body',
+    name: 'Lower Body Workout',
+    date: new Date(),
+    exercises: [
+      {
+        id: 'squat',
+        name: 'Squat',
+        sets: [
+          { id: 'sq-1', reps: 8, weight: 185 },
+          { id: 'sq-2', reps: 8, weight: 185 },
+          { id: 'sq-3', reps: 8, weight: 185 }
+        ]
+      },
+      {
+        id: 'deadlift',
+        name: 'Deadlift',
+        sets: [
+          { id: 'dl-1', reps: 5, weight: 225 },
+          { id: 'dl-2', reps: 5, weight: 225 },
+          { id: 'dl-3', reps: 5, weight: 225 }
+        ]
+      },
+      {
+        id: 'leg-press',
+        name: 'Leg Press',
+        sets: [
+          { id: 'lp-1', reps: 10, weight: 180 },
+          { id: 'lp-2', reps: 10, weight: 180 },
+          { id: 'lp-3', reps: 10, weight: 180 }
+        ]
+      }
+    ]
   };
+
+  const fullBodyWorkout: Workout = {
+    id: 'template-full-body',
+    name: 'Full Body Workout',
+    date: new Date(),
+    exercises: [
+      {
+        id: 'squat',
+        name: 'Squat',
+        sets: [
+          { id: 'sq-1', reps: 5, weight: 185 },
+          { id: 'sq-2', reps: 5, weight: 185 },
+          { id: 'sq-3', reps: 5, weight: 185 }
+        ]
+      },
+      {
+        id: 'bench-press',
+        name: 'Bench Press',
+        sets: [
+          { id: 'bp-1', reps: 5, weight: 135 },
+          { id: 'bp-2', reps: 5, weight: 135 },
+          { id: 'bp-3', reps: 5, weight: 135 }
+        ]
+      },
+      {
+        id: 'barbell-row',
+        name: 'Barbell Row',
+        sets: [
+          { id: 'br-1', reps: 5, weight: 95 },
+          { id: 'br-2', reps: 5, weight: 95 },
+          { id: 'br-3', reps: 5, weight: 95 }
+        ]
+      },
+      {
+        id: 'overhead-press',
+        name: 'Overhead Press',
+        sets: [
+          { id: 'op-1', reps: 5, weight: 65 },
+          { id: 'op-2', reps: 5, weight: 65 },
+          { id: 'op-3', reps: 5, weight: 65 }
+        ]
+      }
+    ]
+  };
+
+  const pushPullLegsWorkout: Workout = {
+    id: 'template-ppl',
+    name: 'Push/Pull/Legs Split',
+    date: new Date(),
+    exercises: [
+      {
+        id: 'bench-press',
+        name: 'Bench Press',
+        sets: [
+          { id: 'bp-1', reps: 8, weight: 135 },
+          { id: 'bp-2', reps: 8, weight: 135 },
+          { id: 'bp-3', reps: 8, weight: 135 }
+        ]
+      },
+      {
+        id: 'incline-press',
+        name: 'Incline Press',
+        sets: [
+          { id: 'ip-1', reps: 8, weight: 115 },
+          { id: 'ip-2', reps: 8, weight: 115 },
+          { id: 'ip-3', reps: 8, weight: 115 }
+        ]
+      },
+      {
+        id: 'tricep-extension',
+        name: 'Tricep Extension',
+        sets: [
+          { id: 'te-1', reps: 12, weight: 30 },
+          { id: 'te-2', reps: 12, weight: 30 },
+          { id: 'te-3', reps: 12, weight: 30 }
+        ]
+      }
+    ]
+  };
+
+  const cardioWorkout: Workout = {
+    id: 'template-cardio',
+    name: 'Cardio Session',
+    date: new Date(),
+    exercises: [
+      {
+        id: 'treadmill',
+        name: 'Treadmill',
+        sets: [
+          { id: 'tm-1', reps: 1, weight: 0, notes: '20 minutes, 6.0 mph' }
+        ]
+      },
+      {
+        id: 'stationary-bike',
+        name: 'Stationary Bike',
+        sets: [
+          { id: 'sb-1', reps: 1, weight: 0, notes: '15 minutes, level 8 resistance' }
+        ]
+      },
+      {
+        id: 'elliptical',
+        name: 'Elliptical',
+        sets: [
+          { id: 'el-1', reps: 1, weight: 0, notes: '10 minutes, moderate intensity' }
+        ]
+      }
+    ]
+  };
+
+  const templates = [upperBodyWorkout, lowerBodyWorkout, fullBodyWorkout, pushPullLegsWorkout, cardioWorkout];
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8 mt-20">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl font-bold mb-2 flex items-center">
-              <Dumbbell className="mr-2 h-8 w-8" />
-              Workout Library
-            </h1>
-            <p className="text-muted-foreground">
-              Browse pre-designed workouts or create your own
-            </p>
-          </div>
-          <Button onClick={handleCreateWorkout} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Create Custom Workout
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Workout Library</h1>
+          <Button onClick={() => navigate('/workouts/new')}>
+            <PlusCircle className="h-4 w-4 mr-2" />
+            Create Workout
           </Button>
         </div>
-
-        <div className="flex flex-col md:flex-row gap-6">
-          {/* Filters Sidebar */}
-          <div className="w-full md:w-64 space-y-6">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search workouts..."
-                className="pl-8"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <h3 className="font-medium mb-2">Categories</h3>
-              <div className="space-y-1">
-                {workoutCategories.map(category => (
-                  <Button
-                    key={category.id}
-                    variant={selectedCategory === category.id ? "default" : "ghost"}
-                    className="w-full justify-start"
-                    onClick={() => setSelectedCategory(category.id)}
-                  >
-                    {category.name}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Workout List */}
-          <div className="flex-1">
-            <Tabs defaultValue="suggested">
-              <TabsList className="mb-4">
-                <TabsTrigger value="suggested">Suggested Workouts</TabsTrigger>
-                <TabsTrigger value="my-workouts">My Workouts ({userWorkouts.length})</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="suggested" className="space-y-4">
-                {filteredPredefinedWorkouts.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {filteredPredefinedWorkouts.map(workout => (
-                      <Card key={workout.id} className="h-full flex flex-col">
-                        <CardHeader>
-                          <CardTitle>{workout.name}</CardTitle>
-                          <CardDescription>
-                            {workout.exercises.length} exercises
-                          </CardDescription>
-                          <Badge className="w-fit">{workout.category}</Badge>
-                        </CardHeader>
-                        <CardContent className="flex-1">
-                          <h4 className="font-medium mb-2">Exercises:</h4>
-                          <ul className="list-disc pl-5 space-y-1 text-sm">
-                            {workout.exercises.slice(0, 3).map(exercise => (
-                              <li key={exercise.id}>
-                                {exercise.name}: {getExerciseSummary(exercise)}
-                              </li>
-                            ))}
-                            {workout.exercises.length > 3 && (
-                              <li className="text-muted-foreground">
-                                +{workout.exercises.length - 3} more
-                              </li>
-                            )}
-                          </ul>
-                        </CardContent>
-                        <CardFooter>
-                          <Button
-                            onClick={() => handleSelectWorkout(workout)}
-                            className="w-full"
-                          >
-                            Add to Calendar
-                          </Button>
-                        </CardFooter>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center p-8 bg-muted/50 rounded-lg">
-                    <p className="text-muted-foreground">No workouts match your search criteria</p>
-                  </div>
-                )}
-              </TabsContent>
-
-              <TabsContent value="my-workouts">
-                {filteredUserWorkouts.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {filteredUserWorkouts.map(workout => (
-                      <Card key={workout.id} className="h-full flex flex-col">
-                        <CardHeader>
-                          <CardTitle>{workout.name}</CardTitle>
-                          <CardDescription>
-                            {workout.exercises.length} exercises
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex-1">
-                          <h4 className="font-medium mb-2">Exercises:</h4>
-                          <ul className="list-disc pl-5 space-y-1 text-sm">
-                            {workout.exercises.slice(0, 3).map(exercise => (
-                              <li key={exercise.id}>
-                                {exercise.name}: {getExerciseSummary(exercise)}
-                              </li>
-                            ))}
-                            {workout.exercises.length > 3 && (
-                              <li className="text-muted-foreground">
-                                +{workout.exercises.length - 3} more
-                              </li>
-                            )}
-                          </ul>
-                        </CardContent>
-                        <CardFooter>
-                          <Button
-                            onClick={() => handleSelectWorkout(workout)}
-                            className="w-full"
-                          >
-                            Add to Calendar
-                          </Button>
-                        </CardFooter>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center p-8 bg-muted/50 rounded-lg">
-                    <p className="text-muted-foreground mb-4">You haven't created any workouts yet</p>
-                    <Button onClick={handleCreateWorkout}>Create Your First Workout</Button>
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
-          </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {templates.map((template) => (
+            <Card key={template.id} className="overflow-hidden">
+              <CardHeader>
+                <CardTitle>{template.name}</CardTitle>
+                <CardDescription>
+                  {template.exercises.length} exercises
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {template.exercises.map((exercise) => (
+                    <div key={exercise.id} className="text-sm">
+                      <span className="font-medium">{exercise.name}</span>
+                      <span className="text-muted-foreground ml-2">
+                        {exercise.sets.length} set{exercise.sets.length !== 1 ? 's' : ''}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button 
+                  variant="default" 
+                  className="w-full"
+                  onClick={() => handleAddToCalendar(template)}
+                >
+                  Add to Your Calendar
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
         </div>
       </main>
       <Footer />
