@@ -1,17 +1,17 @@
 
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { SheetTrigger, SheetContent, Sheet } from '@/components/ui/sheet';
 import { CalendarClock, Home, Menu, X, Dumbbell, BarChart } from 'lucide-react';
-import { AuthContext } from '@/context/AuthContext';
-import { useMobile } from '@/hooks/use-mobile';
+import { useAuth } from '@/context/AuthContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   const location = useLocation();
-  const { user, signOut } = useContext(AuthContext);
+  const { user, signOut } = useAuth();
 
   const handleClose = () => setIsOpen(false);
 
