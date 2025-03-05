@@ -17,12 +17,12 @@ const progressEntries = [
   {
     id: '1',
     date: new Date(2023, 6, 10),
-    weight: 180,
-    bodyFat: 18,
+    weight: 0,
+    bodyFat: 0,
     measurements: {
-      chest: 42,
-      waist: 34,
-      arms: 15,
+      chest: 0,
+      waist: 0,
+      arms: 0,
     },
     photos: [
       '/placeholder.svg',
@@ -32,12 +32,12 @@ const progressEntries = [
   {
     id: '2',
     date: new Date(2023, 7, 10),
-    weight: 175,
-    bodyFat: 16,
+    weight: 0,
+    bodyFat: 0,
     measurements: {
-      chest: 43,
-      waist: 32,
-      arms: 16,
+      chest: 0,
+      waist: 0,
+      arms: 0,
     },
     photos: [
       '/placeholder.svg',
@@ -47,12 +47,12 @@ const progressEntries = [
   {
     id: '3',
     date: new Date(2023, 8, 10),
-    weight: 172,
-    bodyFat: 15,
+    weight: 0,
+    bodyFat: 0,
     measurements: {
-      chest: 44,
-      waist: 31,
-      arms: 16.5,
+      chest: 0,
+      waist: 0,
+      arms: 0,
     },
     photos: [
       '/placeholder.svg',
@@ -80,16 +80,24 @@ const Progression = () => {
     );
     if (entry) {
       setSelectedEntry(entry);
-      setWeight(entry.weight?.toString() || '');
-      setBodyFat(entry.bodyFat?.toString() || '');
-      setChest(entry.measurements?.chest?.toString() || '');
-      setWaist(entry.measurements?.waist?.toString() || '');
-      setArms(entry.measurements?.arms?.toString() || '');
+      setWeight(entry.weight?.toString() || '0');
+      setBodyFat(entry.bodyFat?.toString() || '0');
+      setChest(entry.measurements?.chest?.toString() || '0');
+      setWaist(entry.measurements?.waist?.toString() || '0');
+      setArms(entry.measurements?.arms?.toString() || '0');
     }
   };
 
   // Get dates with entries for highlighting on calendar
   const datesWithEntries = progressEntries.map((entry) => entry.date);
+
+  // Helper to display measurement value or dash if zero/empty
+  const displayMeasurement = (value: number | string | undefined): string => {
+    if (value === undefined || value === null || value === 0 || value === '0' || value === '') {
+      return '0';
+    }
+    return value.toString();
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -160,14 +168,14 @@ const Progression = () => {
                         <div className="bg-secondary/20 p-3 rounded-lg">
                           <div className="text-sm text-muted-foreground">Weight</div>
                           <div className="text-xl font-semibold flex items-center gap-1">
-                            {selectedEntry.weight} 
+                            {displayMeasurement(selectedEntry.weight)} 
                             <span className="text-xs text-muted-foreground">lbs</span>
                           </div>
                         </div>
                         <div className="bg-secondary/20 p-3 rounded-lg">
                           <div className="text-sm text-muted-foreground">Body Fat</div>
                           <div className="text-xl font-semibold flex items-center gap-1">
-                            {selectedEntry.bodyFat}
+                            {displayMeasurement(selectedEntry.bodyFat)}
                             <span className="text-xs text-muted-foreground">%</span>
                           </div>
                         </div>
@@ -178,15 +186,15 @@ const Progression = () => {
                         <div className="grid grid-cols-3 gap-2 text-sm">
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">Chest:</span>
-                            <span>{selectedEntry.measurements.chest}"</span>
+                            <span>{displayMeasurement(selectedEntry.measurements.chest)}"</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">Waist:</span>
-                            <span>{selectedEntry.measurements.waist}"</span>
+                            <span>{displayMeasurement(selectedEntry.measurements.waist)}"</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">Arms:</span>
-                            <span>{selectedEntry.measurements.arms}"</span>
+                            <span>{displayMeasurement(selectedEntry.measurements.arms)}"</span>
                           </div>
                         </div>
                       </div>
@@ -238,7 +246,7 @@ const Progression = () => {
                           <p className="text-muted-foreground mb-4">
                             Add progress photos to track your physical changes
                           </p>
-                          <AnimatedButton variant="outline">
+                          <AnimatedButton variant="primary">
                             <ImagePlus className="h-4 w-4 mr-2" />
                             Upload Photos
                           </AnimatedButton>
@@ -260,6 +268,7 @@ const Progression = () => {
                                   onChange={(e) => setWeight(e.target.value)}
                                   className="pl-10"
                                   type="number"
+                                  placeholder="0"
                                 />
                               </div>
                             </div>
@@ -271,6 +280,7 @@ const Progression = () => {
                               value={bodyFat}
                               onChange={(e) => setBodyFat(e.target.value)}
                               type="number"
+                              placeholder="0"
                             />
                           </div>
                         </div>
@@ -286,6 +296,7 @@ const Progression = () => {
                                 onChange={(e) => setChest(e.target.value)}
                                 type="number"
                                 step="0.25"
+                                placeholder="0"
                               />
                             </div>
                             <div className="space-y-2">
@@ -296,6 +307,7 @@ const Progression = () => {
                                 onChange={(e) => setWaist(e.target.value)}
                                 type="number"
                                 step="0.25"
+                                placeholder="0"
                               />
                             </div>
                             <div className="space-y-2">
@@ -306,6 +318,7 @@ const Progression = () => {
                                 onChange={(e) => setArms(e.target.value)}
                                 type="number"
                                 step="0.25"
+                                placeholder="0"
                               />
                             </div>
                           </div>
@@ -333,3 +346,4 @@ const Progression = () => {
 };
 
 export default Progression;
+
