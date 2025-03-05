@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
-import { ArrowLeft, Calendar, CheckCircle, Edit, Trash2, Save, X } from 'lucide-react';
+import { ArrowLeft, Calendar, CheckCircle, Edit, Trash2, Save, X, History, LineChart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -425,6 +425,27 @@ const WorkoutDetail = () => {
                           )}
                         </div>
                       )}
+                      
+                      <div className="mt-4 flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => navigate(`/exercise/history/${encodeURIComponent(exercise.name)}`)}
+                          className="flex items-center gap-2"
+                        >
+                          <History className="h-4 w-4" />
+                          History
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => navigate(`/exercise/graph/${encodeURIComponent(exercise.name)}`)}
+                          className="flex items-center gap-2"
+                        >
+                          <LineChart className="h-4 w-4" />
+                          Graph
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>

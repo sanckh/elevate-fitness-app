@@ -14,6 +14,8 @@ import WorkoutDetail from "./pages/WorkoutDetail";
 import WorkoutLibrary from "./pages/WorkoutLibrary";
 import Analytics from "./pages/Analytics";
 import Progression from "./pages/Progression";
+import ExerciseHistory from "./pages/ExerciseHistory";
+import ExerciseGraph from "./pages/ExerciseGraph";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -81,6 +83,22 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <WorkoutDetail />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/exercise/history/:exerciseName" 
+              element={
+                <ProtectedRoute>
+                  <ExerciseHistory />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/exercise/graph/:exerciseName" 
+              element={
+                <ProtectedRoute>
+                  <ExerciseGraph />
                 </ProtectedRoute>
               } 
             />
