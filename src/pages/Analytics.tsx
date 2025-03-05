@@ -17,6 +17,7 @@ const placeholderWorkouts: Workout[] = [
     date: new Date('2023-01-05'),
     exercises: [
       { 
+        id: '1-1', // Added id property
         name: 'Bench Press', 
         sets: [
           { id: '1-1-1', reps: 10, weight: 135 },
@@ -25,6 +26,7 @@ const placeholderWorkouts: Workout[] = [
         ] 
       },
       { 
+        id: '1-2', // Added id property
         name: 'Shoulder Press', 
         sets: [
           { id: '1-2-1', reps: 10, weight: 85 },
@@ -40,6 +42,7 @@ const placeholderWorkouts: Workout[] = [
     date: new Date('2023-01-15'),
     exercises: [
       { 
+        id: '2-1', // Added id property
         name: 'Bench Press', 
         sets: [
           { id: '2-1-1', reps: 10, weight: 145 },
@@ -48,6 +51,7 @@ const placeholderWorkouts: Workout[] = [
         ] 
       },
       { 
+        id: '2-2', // Added id property
         name: 'Shoulder Press', 
         sets: [
           { id: '2-2-1', reps: 10, weight: 90 },
@@ -63,6 +67,7 @@ const placeholderWorkouts: Workout[] = [
     date: new Date('2023-01-25'),
     exercises: [
       { 
+        id: '3-1', // Added id property
         name: 'Bench Press', 
         sets: [
           { id: '3-1-1', reps: 10, weight: 155 },
@@ -71,6 +76,7 @@ const placeholderWorkouts: Workout[] = [
         ] 
       },
       { 
+        id: '3-2', // Added id property
         name: 'Shoulder Press', 
         sets: [
           { id: '3-2-1', reps: 10, weight: 95 },
