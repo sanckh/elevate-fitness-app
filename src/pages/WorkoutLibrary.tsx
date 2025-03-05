@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -31,6 +32,7 @@ import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { CalendarIcon } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Exercise } from './WorkoutDetail';
 
 const WorkoutSchema = z.object({
   name: z.string().min(2, {
@@ -103,7 +105,6 @@ const WorkoutLibrary = () => {
       id: newWorkoutId,
       name: 'New Workout',
       date: new Date(),
-      notes: '',
       exercises: [],
     };
 
@@ -132,9 +133,9 @@ const WorkoutLibrary = () => {
       id: newWorkoutId,
       name: 'Full Body Workout',
       date: new Date(),
-      notes: 'A comprehensive full body workout.',
       exercises: [
         {
+          id: crypto.randomUUID(),
           name: 'Squats',
           sets: [
             { id: '1', reps: 10, weight: 135 },
@@ -143,6 +144,7 @@ const WorkoutLibrary = () => {
           ],
         },
         {
+          id: crypto.randomUUID(),
           name: 'Bench Press',
           sets: [
             { id: '4', reps: 12, weight: 95 },
@@ -151,6 +153,7 @@ const WorkoutLibrary = () => {
           ],
         },
         {
+          id: crypto.randomUUID(),
           name: 'Deadlifts',
           sets: [
             { id: '7', reps: 5, weight: 225 },
@@ -169,9 +172,9 @@ const WorkoutLibrary = () => {
       id: newWorkoutId,
       name: 'Push Day',
       date: new Date(),
-      notes: 'Focus on chest, shoulders, and triceps.',
       exercises: [
         {
+          id: crypto.randomUUID(),
           name: 'Incline Dumbbell Press',
           sets: [
             { id: '10', reps: 10, weight: 45 },
@@ -180,6 +183,7 @@ const WorkoutLibrary = () => {
           ],
         },
         {
+          id: crypto.randomUUID(),
           name: 'Overhead Press',
           sets: [
             { id: '13', reps: 12, weight: 65 },
@@ -188,6 +192,7 @@ const WorkoutLibrary = () => {
           ],
         },
         {
+          id: crypto.randomUUID(),
           name: 'Tricep Dips',
           sets: [
             { id: '16', reps: 15 },
@@ -206,9 +211,9 @@ const WorkoutLibrary = () => {
       id: newWorkoutId,
       name: 'Pull Day',
       date: new Date(),
-      notes: 'Focus on back and biceps.',
       exercises: [
         {
+          id: crypto.randomUUID(),
           name: 'Pull-ups',
           sets: [
             { id: '19', reps: 8 },
@@ -217,6 +222,7 @@ const WorkoutLibrary = () => {
           ],
         },
         {
+          id: crypto.randomUUID(),
           name: 'Barbell Rows',
           sets: [
             { id: '22', reps: 10, weight: 135 },
@@ -225,6 +231,7 @@ const WorkoutLibrary = () => {
           ],
         },
         {
+          id: crypto.randomUUID(),
           name: 'Bicep Curls',
           sets: [
             { id: '25', reps: 12, weight: 30 },
