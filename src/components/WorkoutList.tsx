@@ -108,7 +108,7 @@ const WorkoutList = ({ workouts, onEdit, onDelete, onToggleComplete, onView }: W
                           <div className="mt-2 pl-2 border-l-2 border-muted space-y-1">
                             {exercise.sets.map((set, index) => (
                               <div key={set.id} className="text-xs flex items-center gap-2">
-                                <Badge variant="outline" size="sm" className="h-5 min-w-5 flex items-center justify-center px-1">
+                                <Badge variant="outline" className="h-5 min-w-5 flex items-center justify-center px-1">
                                   {index + 1}
                                 </Badge>
                                 <span className="font-medium">{set.reps} reps</span>
