@@ -1,107 +1,157 @@
 
-import { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { cn } from '@/lib/utils';
-import AnimatedButton from './AnimatedButton';
-import { useAuth } from '@/context/AuthContext';
+import { useContext, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { LogOut } from 'lucide-react';
+import { SheetTrigger, SheetContent, Sheet } from '@/components/ui/sheet';
+import { CalendarClock, Home, Menu, X, Dumbbell, BarChart } from 'lucide-react';
+import { AuthContext } from '@/context/AuthContext';
+import { useMobile } from '@/hooks/use-mobile';
 
 const Header = () => {
-  const [scrolled, setScrolled] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const isMobile = useMobile();
   const location = useLocation();
-  const { user, signOut } = useAuth();
-  const navigate = useNavigate();
-  
-  useEffect(() => {
-    const handleScroll = () => {
-      const isScrolled = window.scrollY > 20;
-      if (isScrolled !== scrolled) {
-        setScrolled(isScrolled);
-      }
-    };
-    
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [scrolled]);
-  
-  const navLinks = [
-    { name: 'Calendar', href: '/workouts' },
-    { name: 'Dashboard', href: '/dashboard' },
-    { name: 'Workouts', href: '/workout-library' },
-    { name: 'Nutrition (coming soon)', href: '/nutrition' }
-  ];
-  
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/');
+  const { user, signOut } = useContext(AuthContext);
+
+  const handleClose = () => setIsOpen(false);
+
+  // Helper function to determine if a path is active
+  const isActivePath = (path: string): boolean => {
+    if (path === '/' && location.pathname === '/') return true;
+    if (path !== '/' && location.pathname.startsWith(path)) return true;
+    return false;
   };
-  
-  return (
-    <header className={cn(
-      "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-      scrolled 
-        ? "py-3 bg-white/80 backdrop-blur-lg shadow-subtle" 
-        : "py-5 bg-transparent"
-    )}>
-      <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
-        <Link 
-          to={user ? "/workouts" : "/"} 
-          className="font-display text-xl font-medium tracking-tight transition-opacity hover:opacity-80"
+
+  const navLinks = [
+    {
+      name: 'Home',
+      path: '/',
+      icon: <Home className="h-5 w-5" />,
+    },
+    {
+      name: 'Dashboard',
+      path: '/dashboard',
+      icon: <Home className="h-5 w-5" />,
+      requiresAuth: true,
+    },
+    {
+      name: 'Workouts',
+      path: '/workouts',
+      icon: <CalendarClock className="h-5 w-5" />,
+      requiresAuth: true,
+    },
+    {
+      name: 'Workout Library',
+      path: '/workout-library',
+      icon: <Dumbbell className="h-5 w-5" />,
+      requiresAuth: true,
+    },
+    {
+      name: 'Analytics',
+      path: '/analytics',
+      icon: <BarChart className="h-5 w-5" />,
+      requiresAuth: true,
+    },
+  ];
+
+  const filteredNavLinks = navLinks.filter(
+    (link) => !link.requiresAuth || user
+  );
+
+  const renderNavLinks = () => {
+    return filteredNavLinks.map((link) => (
+      <li key={link.name}>
+        <Link
+          to={link.path}
+          className={`flex items-center gap-2 text-base transition-colors ${
+            isActivePath(link.path)
+              ? 'font-medium text-primary'
+              : 'text-foreground/80 hover:text-foreground'
+          }`}
+          onClick={handleClose}
         >
-          Elevate Fitness
+          {link.icon}
+          {link.name}
         </Link>
-        
-        {user ? (
-          <>
-            <nav className="hidden md:flex items-center space-x-8">
-              {navLinks.map((link) => (
-                <Link 
-                  key={link.name}
-                  to={link.href}
-                  className={cn(
-                    "text-sm font-medium transition-colors",
-                    location.pathname === link.href
-                      ? "text-primary"
-                      : "text-foreground/80 hover:text-foreground"
-                  )}
-                >
-                  {link.name}
-                </Link>
-              ))}
-            </nav>
-            
-            <div className="flex items-center space-x-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleSignOut}
-                className="flex items-center gap-1"
-              >
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Sign Out</span>
+      </li>
+    ));
+  };
+
+  return (
+    <header className="fixed top-0 left-0 right-0 z-40 bg-background border-b">
+      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+        <Link to="/" className="flex items-center">
+          <span className="font-bold text-xl">FitTrack</span>
+        </Link>
+
+        {isMobile ? (
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="md:hidden">
+                <Menu className="h-5 w-5" />
               </Button>
-              
-              <button className="md:hidden p-2 -mr-2 rounded-md hover:bg-accent">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="4" x2="20" y1="12" y2="12"></line>
-                  <line x1="4" x2="20" y1="6" y2="6"></line>
-                  <line x1="4" x2="20" y1="18" y2="18"></line>
-                </svg>
-              </button>
-            </div>
-          </>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[80vw] sm:w-[350px]">
+              <div className="flex flex-col h-full">
+                <div className="flex items-center justify-between mb-6">
+                  <span className="font-bold text-xl">FitTrack</span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleClose}
+                    className="rounded-full"
+                  >
+                    <X className="h-5 w-5" />
+                  </Button>
+                </div>
+                <nav className="flex-1">
+                  <ul className="flex flex-col gap-5">
+                    {renderNavLinks()}
+                  </ul>
+                </nav>
+                <div className="pt-6 mt-auto border-t">
+                  {user ? (
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        signOut();
+                        handleClose();
+                      }}
+                    >
+                      Sign Out
+                    </Button>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      <Link to="/auth" onClick={handleClose}>
+                        <Button variant="default" className="w-full">
+                          Sign In
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
         ) : (
-          <div className="flex items-center space-x-4">
-            <Link to="/auth">
-              <AnimatedButton 
-                variant="primary" 
-                size="sm"
-                className="rounded-full"
-              >
-                Sign In
-              </AnimatedButton>
-            </Link>
+          <div className="flex items-center gap-6">
+            <nav>
+              <ul className="flex items-center gap-6">
+                {renderNavLinks()}
+              </ul>
+            </nav>
+            {user ? (
+              <Button variant="outline" size="sm" onClick={signOut}>
+                Sign Out
+              </Button>
+            ) : (
+              <Link to="/auth">
+                <Button variant="default" size="sm">
+                  Sign In
+                </Button>
+              </Link>
+            )}
           </div>
         )}
       </div>

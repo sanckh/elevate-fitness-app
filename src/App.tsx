@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import Workouts from "./pages/Workouts";
 import WorkoutDetail from "./pages/WorkoutDetail";
 import WorkoutLibrary from "./pages/WorkoutLibrary";
+import Analytics from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,6 +48,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <WorkoutLibrary />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/analytics" 
+              element={
+                <ProtectedRoute>
+                  <Analytics />
                 </ProtectedRoute>
               } 
             />
