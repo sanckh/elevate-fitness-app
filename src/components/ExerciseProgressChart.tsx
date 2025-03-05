@@ -10,47 +10,72 @@ interface ExerciseProgressChartProps {
 }
 
 interface ChartDataPoint {
-  date: string;
-  weight: number;
+  date: number;
   formattedDate: string;
+  weight: number;
 }
 
 const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChartProps) => {
   // Process the workout data to extract the progression for the selected exercise
   const chartData = useMemo(() => {
-    if (!workouts || !exerciseName) return [];
+    if (!workouts || !Array.isArray(workouts) || workouts.length === 0 || !exerciseName) {
+      console.log('No valid workouts or exercise name provided');
+      return [];
+    }
     
-    // Filter workouts that contain the exercise
-    const relevantWorkouts = workouts
-      .filter(workout => 
-        workout.exercises && workout.exercises.some(exercise => 
-          exercise.name.toLowerCase() === exerciseName.toLowerCase()
+    try {
+      // Filter workouts that contain the exercise
+      const relevantWorkouts = workouts
+        .filter(workout => 
+          workout && 
+          workout.exercises && 
+          Array.isArray(workout.exercises) && 
+          workout.exercises.some(exercise => 
+            exercise && 
+            exercise.name && 
+            exercise.name.toLowerCase() === exerciseName.toLowerCase()
+          )
         )
-      )
-      .sort((a, b) => a.date.getTime() - b.date.getTime());
-    
-    // Extract the data points
-    return relevantWorkouts.map(workout => {
-      // Find the exercise in this workout
-      const exercise = workout.exercises?.find(
-        e => e.name.toLowerCase() === exerciseName.toLowerCase()
-      );
+        .sort((a, b) => {
+          if (!(a.date instanceof Date) || !(b.date instanceof Date)) {
+            return 0;
+          }
+          return a.date.getTime() - b.date.getTime();
+        });
       
-      // Calculate the max weight used in any set of this exercise
-      const maxWeight = exercise?.sets?.reduce((max, set) => {
-        return set.weight && set.weight > max ? set.weight : max;
-      }, 0) || 0;
+      if (relevantWorkouts.length === 0) {
+        console.log('No relevant workouts found for this exercise');
+        return [];
+      }
       
-      return {
-        date: workout.date.getTime(), // Use timestamp for sorting
-        formattedDate: format(workout.date, 'MMM d, yyyy'),
-        weight: maxWeight
-      };
-    });
+      // Extract the data points
+      return relevantWorkouts.map(workout => {
+        // Find the exercise in this workout
+        const exercise = workout.exercises?.find(
+          e => e && e.name && e.name.toLowerCase() === exerciseName.toLowerCase()
+        );
+        
+        // Calculate the max weight used in any set of this exercise
+        const maxWeight = exercise?.sets?.reduce((max, set) => {
+          return set && set.weight && set.weight > max ? set.weight : max;
+        }, 0) || 0;
+        
+        const workoutDate = workout.date instanceof Date ? workout.date : new Date(workout.date);
+        
+        return {
+          date: workoutDate.getTime(), // Use timestamp for sorting
+          formattedDate: format(workoutDate, 'MMM d, yyyy'),
+          weight: maxWeight
+        };
+      });
+    } catch (error) {
+      console.error('Error processing chart data:', error);
+      return [];
+    }
   }, [exerciseName, workouts]);
 
   // Check if we have data to display
-  const hasData = chartData.length > 0;
+  const hasData = chartData && chartData.length > 0;
   
   if (!hasData) {
     return (

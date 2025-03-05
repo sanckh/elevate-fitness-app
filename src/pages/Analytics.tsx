@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -107,41 +107,82 @@ const Analytics = () => {
   
   // Load workouts from localStorage or use placeholder data
   const loadWorkouts = (): Workout[] => {
-    const storedWorkouts = localStorage.getItem('workouts');
-    if (storedWorkouts) {
-      try {
-        const parsedWorkouts = JSON.parse(storedWorkouts).map((workout: any) => ({
-          ...workout,
-          date: new Date(workout.date)
-        }));
-        
-        // If we have valid workouts with exercises, return them
-        if (parsedWorkouts && Array.isArray(parsedWorkouts) && 
-            parsedWorkouts.length > 0 && 
-            parsedWorkouts.some((w: any) => w.exercises && Array.isArray(w.exercises) && w.exercises.length > 0)) {
-          return parsedWorkouts;
-        }
-      } catch (error) {
-        console.error('Error parsing workouts:', error);
+    try {
+      const storedWorkouts = localStorage.getItem('workouts');
+      if (!storedWorkouts) {
+        console.log('No workouts found in localStorage, using placeholder data');
+        return placeholderWorkouts;
       }
+      
+      const parsedWorkouts = JSON.parse(storedWorkouts).map((workout: any) => ({
+        ...workout,
+        date: new Date(workout.date)
+      }));
+      
+      // Validate the parsed workouts
+      if (!Array.isArray(parsedWorkouts)) {
+        console.log('Parsed workouts is not an array, using placeholder data');
+        return placeholderWorkouts;
+      }
+      
+      // Additional validation for each workout
+      const validWorkouts = parsedWorkouts.filter((workout: any) => {
+        return (
+          workout && 
+          workout.id && 
+          workout.exercises && 
+          Array.isArray(workout.exercises) &&
+          workout.exercises.length > 0
+        );
+      });
+      
+      if (validWorkouts.length > 0) {
+        return validWorkouts;
+      }
+      
+      console.log('No valid workouts found in localStorage, using placeholder data');
+      return placeholderWorkouts;
+    } catch (error) {
+      console.error('Error loading workouts:', error);
+      return placeholderWorkouts;
     }
-    
-    // Return placeholder data if no valid workouts found
-    return placeholderWorkouts;
   };
 
-  const workouts = loadWorkouts();
+  // Use useMemo to avoid recalculating workouts on each render
+  const workouts = useMemo(() => loadWorkouts(), []);
   
-  // Extract all unique exercise names from all workouts, with additional validation
-  const uniqueExerciseNames = Array.from(
-    new Set(
-      workouts
-        .filter(workout => workout.exercises && Array.isArray(workout.exercises))
-        .flatMap(workout => workout.exercises || [])
-        .filter(exercise => exercise && exercise.name) // Ensure exercises are valid
-        .map(exercise => exercise.name)
-    )
-  ).sort();
+  // Extract all unique exercise names from all workouts, with robust validation
+  const uniqueExerciseNames = useMemo(() => {
+    if (!Array.isArray(workouts) || workouts.length === 0) {
+      console.log('No workouts available for extracting exercise names');
+      return [];
+    }
+    
+    try {
+      // Create a set of exercise names from all workouts
+      const exerciseSet = new Set<string>();
+      
+      // For each workout, get its exercises
+      workouts.forEach(workout => {
+        if (!workout.exercises || !Array.isArray(workout.exercises)) {
+          return;
+        }
+        
+        // For each exercise, add its name to the set if valid
+        workout.exercises.forEach(exercise => {
+          if (exercise && typeof exercise.name === 'string' && exercise.name.trim() !== '') {
+            exerciseSet.add(exercise.name);
+          }
+        });
+      });
+      
+      // Convert set to array and sort
+      return Array.from(exerciseSet).sort();
+    } catch (error) {
+      console.error('Error extracting exercise names:', error);
+      return [];
+    }
+  }, [workouts]);
 
   return (
     <div className="min-h-screen flex flex-col">

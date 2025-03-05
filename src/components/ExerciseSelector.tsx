@@ -29,8 +29,10 @@ const ExerciseSelector = ({
 }: ExerciseSelectorProps) => {
   const [open, setOpen] = useState(false);
   
-  // Make sure exercises is always a valid array
-  const safeExercises = Array.isArray(exercises) ? exercises : [];
+  // Make sure exercises is always a valid array with valid string values
+  const safeExercises = Array.isArray(exercises) 
+    ? exercises.filter(exercise => typeof exercise === 'string' && exercise.trim() !== '') 
+    : [];
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
