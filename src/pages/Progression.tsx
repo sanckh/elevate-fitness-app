@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
@@ -136,17 +135,6 @@ const Progression = () => {
                     }}
                     className="rounded-md border"
                   />
-                  
-                  <div className="mt-4">
-                    <AnimatedButton 
-                      variant="primary" 
-                      size="sm"
-                      className="w-full"
-                    >
-                      <ImagePlus className="h-4 w-4 mr-2" />
-                      Add New Entry
-                    </AnimatedButton>
-                  </div>
                 </CardContent>
               </Card>
               
@@ -346,4 +334,3 @@ const Progression = () => {
 };
 
 export default Progression;
-
