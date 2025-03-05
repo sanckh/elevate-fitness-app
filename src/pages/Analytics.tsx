@@ -6,9 +6,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import ExerciseProgressChart from '@/components/ExerciseProgressChart';
 import ExerciseSelector from '@/components/ExerciseSelector';
+import BodyProgressionChart from '@/components/BodyProgressionChart';
+import BodyMetricSelector from '@/components/BodyMetricSelector';
 import { Workout } from '@/pages/Workouts';
 
-// Placeholder data for testing
 const placeholderWorkouts: Workout[] = [
   {
     id: '1',
@@ -87,11 +88,74 @@ const placeholderWorkouts: Workout[] = [
   }
 ];
 
+const placeholderProgressEntries = [
+  {
+    id: '1',
+    date: new Date('2023-01-05'),
+    weight: 180,
+    bodyFat: 18,
+    measurements: {
+      chest: 42,
+      waist: 34,
+      arms: 15,
+    },
+    photos: [
+      '/placeholder.svg',
+      '/placeholder.svg',
+    ]
+  },
+  {
+    id: '2',
+    date: new Date('2023-02-05'),
+    weight: 178,
+    bodyFat: 17.5,
+    measurements: {
+      chest: 42.5,
+      waist: 33.5,
+      arms: 15.2,
+    },
+    photos: [
+      '/placeholder.svg',
+      '/placeholder.svg',
+    ]
+  },
+  {
+    id: '3',
+    date: new Date('2023-03-05'),
+    weight: 175,
+    bodyFat: 16.8,
+    measurements: {
+      chest: 43,
+      waist: 33,
+      arms: 15.5,
+    },
+    photos: [
+      '/placeholder.svg',
+      '/placeholder.svg',
+    ]
+  },
+  {
+    id: '4',
+    date: new Date('2023-04-05'),
+    weight: 173,
+    bodyFat: 16,
+    measurements: {
+      chest: 43.5,
+      waist: 32.5,
+      arms: 15.8,
+    },
+    photos: [
+      '/placeholder.svg',
+      '/placeholder.svg',
+    ]
+  },
+];
+
 const Analytics = () => {
   const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
+  const [selectedBodyMetric, setSelectedBodyMetric] = useState<'weight' | 'bodyFat'>('weight');
   const navigate = useNavigate();
   
-  // Load workouts from localStorage or use placeholder data with proper validation
   const workouts = useMemo(() => {
     try {
       const storedWorkouts = localStorage.getItem('workouts');
@@ -104,38 +168,31 @@ const Analytics = () => {
       try {
         parsedWorkouts = JSON.parse(storedWorkouts);
         
-        // Check if parsedWorkouts is an array
         if (!Array.isArray(parsedWorkouts)) {
           console.log('Parsed workouts is not an array, using placeholder data');
           return placeholderWorkouts;
         }
         
-        // Validate and transform workouts
         const validWorkouts = parsedWorkouts.map((workout: any) => {
-          // Ensure workout date is properly converted to Date object
           let workoutDate;
           try {
             workoutDate = new Date(workout.date);
-            // Check if date is valid
             if (isNaN(workoutDate.getTime())) {
-              workoutDate = new Date(); // Default to current date if invalid
+              workoutDate = new Date();
             }
           } catch (e) {
-            workoutDate = new Date(); // Default to current date on error
+            workoutDate = new Date();
           }
           
-          // Remove completed property if it exists
           const { completed, ...workoutWithoutCompleted } = workout;
           
           return {
             ...workoutWithoutCompleted,
             date: workoutDate,
-            // Ensure exercises is an array
             exercises: Array.isArray(workout.exercises) ? workout.exercises : []
           };
         });
         
-        // Filter out workouts without valid exercises
         const workoutsWithExercises = validWorkouts.filter((workout: any) => {
           return workout && 
                  workout.exercises && 
@@ -159,7 +216,6 @@ const Analytics = () => {
     }
   }, []);
   
-  // Extract all unique exercise names from workouts with robust validation
   const uniqueExerciseNames = useMemo(() => {
     if (!Array.isArray(workouts) || workouts.length === 0) {
       console.log('No workouts available for extracting exercise names');
@@ -167,16 +223,13 @@ const Analytics = () => {
     }
     
     try {
-      // Create a set of exercise names from all workouts
       const exerciseSet = new Set<string>();
       
-      // For each workout, process its exercises
       workouts.forEach(workout => {
         if (!workout || !workout.exercises || !Array.isArray(workout.exercises)) {
           return;
         }
         
-        // For each exercise, add its name to the set if valid
         workout.exercises.forEach(exercise => {
           if (exercise && typeof exercise.name === 'string' && exercise.name.trim() !== '') {
             exerciseSet.add(exercise.name);
@@ -184,13 +237,66 @@ const Analytics = () => {
         });
       });
       
-      // Convert set to array and sort
       return Array.from(exerciseSet).sort();
     } catch (error) {
       console.error('Error extracting exercise names:', error);
       return [];
     }
   }, [workouts]);
+  
+  const progressEntries = useMemo(() => {
+    try {
+      const storedEntries = localStorage.getItem('progressEntries');
+      if (!storedEntries) {
+        console.log('No progression entries found in localStorage, using placeholder data');
+        return placeholderProgressEntries;
+      }
+      
+      let parsedEntries;
+      try {
+        parsedEntries = JSON.parse(storedEntries);
+        
+        if (!Array.isArray(parsedEntries)) {
+          console.log('Parsed progression entries is not an array, using placeholder data');
+          return placeholderProgressEntries;
+        }
+        
+        const validEntries = parsedEntries.map((entry: any) => {
+          let entryDate;
+          try {
+            entryDate = new Date(entry.date);
+            if (isNaN(entryDate.getTime())) {
+              entryDate = new Date();
+            }
+          } catch (e) {
+            entryDate = new Date();
+          }
+          
+          return {
+            ...entry,
+            date: entryDate,
+            measurements: typeof entry.measurements === 'object' ? entry.measurements : {
+              chest: 0,
+              waist: 0,
+              arms: 0
+            },
+            photos: Array.isArray(entry.photos) ? entry.photos : []
+          };
+        });
+        
+        if (validEntries.length > 0) {
+          return validEntries;
+        }
+      } catch (error) {
+        console.error('Error parsing progression entries:', error);
+      }
+      
+      return placeholderProgressEntries;
+    } catch (error) {
+      console.error('Error loading progression entries:', error);
+      return placeholderProgressEntries;
+    }
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -199,8 +305,9 @@ const Analytics = () => {
         <h1 className="text-3xl font-bold mb-6">Workout Analytics</h1>
         
         <Tabs defaultValue="progress" className="w-full">
-          <TabsList className="grid w-full max-w-md grid-cols-2 mb-6">
+          <TabsList className="grid w-full max-w-md grid-cols-3 mb-6">
             <TabsTrigger value="progress">Exercise Progress</TabsTrigger>
+            <TabsTrigger value="body">Body Progress</TabsTrigger>
             <TabsTrigger value="summary">Workout Summary</TabsTrigger>
           </TabsList>
           
@@ -213,7 +320,6 @@ const Analytics = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Only render ExerciseSelector if we have exercise names */}
                 {uniqueExerciseNames.length > 0 ? (
                   <ExerciseSelector 
                     exercises={uniqueExerciseNames}
@@ -242,6 +348,28 @@ const Analytics = () => {
                     </p>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="body" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Body Progression Tracker</CardTitle>
+                <CardDescription>
+                  Track your body weight and body fat percentage changes over time
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <BodyMetricSelector 
+                  selectedMetric={selectedBodyMetric}
+                  onSelectMetric={setSelectedBodyMetric}
+                />
+                
+                <BodyProgressionChart 
+                  progressEntries={progressEntries}
+                  metricType={selectedBodyMetric}
+                />
               </CardContent>
             </Card>
           </TabsContent>
