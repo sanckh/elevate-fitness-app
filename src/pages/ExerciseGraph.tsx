@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Workout } from '@/pages/WorkoutDetail';
 
 type TimeRange = '1m' | '3m' | '6m' | '1y' | 'all';
-type MetricType = 'maxWeight' | 'oneRepMax' | 'maxReps';
+type MetricType = 'maxWeight' | 'oneRepMax' | 'maxReps' | 'maxVolume';
 
 interface DataPoint {
   date: number; // timestamp for sorting
@@ -21,6 +21,7 @@ interface DataPoint {
   weight: number;
   oneRepMax?: number;
   maxReps?: number;
+  maxVolume?: number;
 }
 
 const ExerciseGraph = () => {
@@ -68,6 +69,7 @@ const ExerciseGraph = () => {
           let maxWeight = 0;
           let bestOneRepMax = 0;
           let maxReps = 0;
+          let maxVolume = 0;
           
           if (exercise && exercise.sets) {
             exercise.sets.forEach(set => {
@@ -87,6 +89,12 @@ const ExerciseGraph = () => {
                 if (oneRepMax > bestOneRepMax) {
                   bestOneRepMax = oneRepMax;
                 }
+                
+                // Calculate volume for each set (weight × reps)
+                const volume = set.weight * set.reps;
+                if (volume > maxVolume) {
+                  maxVolume = volume;
+                }
               }
             });
           }
@@ -96,7 +104,8 @@ const ExerciseGraph = () => {
             formattedDate: format(workout.date, 'MMM d, yyyy'),
             weight: maxWeight,
             oneRepMax: bestOneRepMax,
-            maxReps: maxReps
+            maxReps: maxReps,
+            maxVolume: maxVolume
           };
         });
         
@@ -140,6 +149,7 @@ const ExerciseGraph = () => {
   const getYAxisLabel = () => {
     if (metricType === 'oneRepMax') return 'Estimated 1RM (lbs)';
     if (metricType === 'maxReps') return 'Max Repetitions';
+    if (metricType === 'maxVolume') return 'Max Volume (lbs × reps)';
     return 'Weight (lbs)';
   };
 
@@ -164,7 +174,9 @@ const ExerciseGraph = () => {
                 ? 'Estimated 1 Rep Max' 
                 : metricType === 'maxReps'
                   ? 'Maximum Repetitions'
-                  : 'Weight progression'} for {decodeURIComponent(exerciseName || '')}
+                  : metricType === 'maxVolume'
+                    ? 'Maximum Volume (weight × reps)'
+                    : 'Weight progression'} for {decodeURIComponent(exerciseName || '')}
             </CardDescription>
             
             <div className="flex flex-col md:flex-row md:items-center gap-4 mt-4">
@@ -194,6 +206,7 @@ const ExerciseGraph = () => {
                     <SelectItem value="maxWeight">Max Weight</SelectItem>
                     <SelectItem value="oneRepMax">Estimated 1 Rep Max</SelectItem>
                     <SelectItem value="maxReps">Max Reps</SelectItem>
+                    <SelectItem value="maxVolume">Max Volume</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -251,6 +264,9 @@ const ExerciseGraph = () => {
                           formattedName = 'Max Reps';
                           unit = '';
                           return [`${Math.round(value)}`, formattedName];
+                        } else if (name === 'maxVolume') {
+                          formattedName = 'Max Volume';
+                          unit = 'lbs × reps';
                         }
                         
                         return [`${Math.round(value)} ${unit}`, formattedName];
@@ -287,6 +303,16 @@ const ExerciseGraph = () => {
                         strokeWidth={2}
                       />
                     )}
+                    {metricType === 'maxVolume' && (
+                      <Line
+                        type="monotone"
+                        dataKey="maxVolume"
+                        name="Max Volume"
+                        stroke="#ff8042"
+                        activeDot={{ r: 8 }}
+                        strokeWidth={2}
+                      />
+                    )}
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -297,6 +323,8 @@ const ExerciseGraph = () => {
                 <p>This graph shows your estimated one-rep max progression over time, calculated using the formula: 1RM = (Weight × Reps / 30.48) + Weight</p>
               ) : metricType === 'maxReps' ? (
                 <p>This graph shows your maximum repetitions performed for this exercise over time.</p>
+              ) : metricType === 'maxVolume' ? (
+                <p>This graph shows your maximum volume (weight × reps) achieved for this exercise over time.</p>
               ) : (
                 <p>This graph shows your max weight progression for this exercise over time.</p>
               )}
@@ -323,13 +351,23 @@ const ExerciseGraph = () => {
                         </>
                       )}
                     </>
-                  ) : (
+                  ) : metricType === 'maxReps' ? (
                     <>
                       <span className="font-medium">Starting max reps:</span> {filteredData[0].maxReps || 0}
                       {filteredData.length > 1 && (
                         <>
                           <span className="ml-4 font-medium">Current max reps:</span> {filteredData[filteredData.length - 1].maxReps || 0}
                           <span className="ml-4 font-medium">Progress:</span> {(filteredData[filteredData.length - 1].maxReps || 0) - (filteredData[0].maxReps || 0)} reps
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <span className="font-medium">Starting max volume:</span> {Math.round(filteredData[0].maxVolume || 0)} lbs × reps
+                      {filteredData.length > 1 && (
+                        <>
+                          <span className="ml-4 font-medium">Current max volume:</span> {Math.round(filteredData[filteredData.length - 1].maxVolume || 0)} lbs × reps
+                          <span className="ml-4 font-medium">Progress:</span> {Math.round((filteredData[filteredData.length - 1].maxVolume || 0) - (filteredData[0].maxVolume || 0))} lbs × reps
                         </>
                       )}
                     </>

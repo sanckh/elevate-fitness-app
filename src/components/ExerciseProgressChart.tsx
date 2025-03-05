@@ -16,11 +16,11 @@ interface ChartDataPoint {
   formattedDate: string;
   weight: number;
   oneRepMax?: number;
-  maxWeight?: number;
   maxReps?: number;
+  maxVolume?: number;
 }
 
-type MetricType = 'maxWeight' | 'oneRepMax' | 'maxReps';
+type MetricType = 'maxWeight' | 'oneRepMax' | 'maxReps' | 'maxVolume';
 
 const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChartProps) => {
   const [metricType, setMetricType] = useState<MetricType>('maxWeight');
@@ -91,6 +91,9 @@ const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChart
         // Calculate best 1RM for this exercise
         let bestOneRepMax = 0;
         
+        // Calculate max volume (weight × reps) for this exercise
+        let maxVolume = 0;
+        
         if (exercise?.sets) {
           exercise.sets.forEach(set => {
             // Calculate 1RM for each set using the formula: 1RM = (Weight × Reps / 30.48) + Weight
@@ -98,6 +101,12 @@ const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChart
               const oneRepMax = (set.weight * set.reps / 30.48) + set.weight;
               if (oneRepMax > bestOneRepMax) {
                 bestOneRepMax = oneRepMax;
+              }
+              
+              // Calculate volume for each set (weight × reps)
+              const volume = set.weight * set.reps;
+              if (volume > maxVolume) {
+                maxVolume = volume;
               }
             }
           });
@@ -119,7 +128,8 @@ const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChart
           formattedDate: format(workoutDate, 'MMM d, yyyy'),
           weight: maxWeight,
           oneRepMax: bestOneRepMax,
-          maxReps: maxReps
+          maxReps: maxReps,
+          maxVolume: maxVolume
         };
       });
     } catch (error) {
@@ -134,6 +144,7 @@ const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChart
   const getYAxisLabel = () => {
     if (metricType === 'oneRepMax') return 'Estimated 1RM (lbs)';
     if (metricType === 'maxReps') return 'Max Repetitions';
+    if (metricType === 'maxVolume') return 'Max Volume (lbs × reps)';
     return 'Weight (lbs)';
   };
   
@@ -161,6 +172,7 @@ const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChart
             <SelectItem value="maxWeight">Max Weight</SelectItem>
             <SelectItem value="oneRepMax">Estimated 1 Rep Max</SelectItem>
             <SelectItem value="maxReps">Max Reps</SelectItem>
+            <SelectItem value="maxVolume">Max Volume</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -203,6 +215,9 @@ const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChart
                   formattedName = 'Max Reps';
                   unit = '';
                   return [`${Math.round(value)}`, formattedName];
+                } else if (name === 'maxVolume') {
+                  formattedName = 'Max Volume';
+                  unit = 'lbs × reps';
                 }
                 
                 return [`${Math.round(value)} ${unit}`, formattedName];
@@ -239,6 +254,16 @@ const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChart
                 strokeWidth={2}
               />
             )}
+            {metricType === 'maxVolume' && (
+              <Line
+                type="monotone"
+                dataKey="maxVolume"
+                name="Max Volume"
+                stroke="#ff8042"
+                activeDot={{ r: 8 }}
+                strokeWidth={2}
+              />
+            )}
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -246,6 +271,12 @@ const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChart
       {metricType === 'oneRepMax' && (
         <div className="mt-2 text-sm text-muted-foreground">
           <p>Estimated using the formula: 1RM = (Weight × Reps / 30.48) + Weight</p>
+        </div>
+      )}
+      
+      {metricType === 'maxVolume' && (
+        <div className="mt-2 text-sm text-muted-foreground">
+          <p>Volume calculated as weight × reps for each set</p>
         </div>
       )}
     </div>
