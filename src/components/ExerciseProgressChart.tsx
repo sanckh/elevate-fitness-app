@@ -17,9 +17,10 @@ interface ChartDataPoint {
   weight: number;
   oneRepMax?: number;
   maxWeight?: number;
+  maxReps?: number;
 }
 
-type MetricType = 'maxWeight' | 'oneRepMax';
+type MetricType = 'maxWeight' | 'oneRepMax' | 'maxReps';
 
 const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChartProps) => {
   const [metricType, setMetricType] = useState<MetricType>('maxWeight');
@@ -82,6 +83,11 @@ const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChart
           return set && typeof set.weight === 'number' && set.weight > max ? set.weight : max;
         }, 0) || 0;
         
+        // Calculate the max reps performed in any set of this exercise
+        const maxReps = exercise?.sets?.reduce((max, set) => {
+          return set && typeof set.reps === 'number' && set.reps > max ? set.reps : max;
+        }, 0) || 0;
+        
         // Calculate best 1RM for this exercise
         let bestOneRepMax = 0;
         
@@ -112,7 +118,8 @@ const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChart
           date: workoutDate.getTime(), // Use timestamp for sorting
           formattedDate: format(workoutDate, 'MMM d, yyyy'),
           weight: maxWeight,
-          oneRepMax: bestOneRepMax
+          oneRepMax: bestOneRepMax,
+          maxReps: maxReps
         };
       });
     } catch (error) {
@@ -125,7 +132,9 @@ const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChart
   const hasData = chartData && chartData.length > 0;
   
   const getYAxisLabel = () => {
-    return metricType === 'oneRepMax' ? 'Estimated 1RM (lbs)' : 'Weight (lbs)';
+    if (metricType === 'oneRepMax') return 'Estimated 1RM (lbs)';
+    if (metricType === 'maxReps') return 'Max Repetitions';
+    return 'Weight (lbs)';
   };
   
   if (!hasData) {
@@ -151,6 +160,7 @@ const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChart
           <SelectContent>
             <SelectItem value="maxWeight">Max Weight</SelectItem>
             <SelectItem value="oneRepMax">Estimated 1 Rep Max</SelectItem>
+            <SelectItem value="maxReps">Max Reps</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -183,12 +193,23 @@ const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChart
             <Tooltip 
               labelFormatter={(value) => `Date: ${value}`}
               formatter={(value: number, name: string) => {
-                const formattedName = name === 'oneRepMax' ? 'Estimated 1RM' : 'Max Weight';
-                return [`${Math.round(value)} lbs`, formattedName];
+                let formattedName = 'Max Weight';
+                let unit = 'lbs';
+                
+                if (name === 'oneRepMax') {
+                  formattedName = 'Estimated 1RM';
+                  unit = 'lbs';
+                } else if (name === 'maxReps') {
+                  formattedName = 'Max Reps';
+                  unit = '';
+                  return [`${Math.round(value)}`, formattedName];
+                }
+                
+                return [`${Math.round(value)} ${unit}`, formattedName];
               }}
             />
             <Legend />
-            {metricType === 'maxWeight' ? (
+            {metricType === 'maxWeight' && (
               <Line
                 type="monotone"
                 dataKey="weight"
@@ -197,12 +218,23 @@ const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChart
                 activeDot={{ r: 8 }}
                 strokeWidth={2}
               />
-            ) : (
+            )}
+            {metricType === 'oneRepMax' && (
               <Line
                 type="monotone"
                 dataKey="oneRepMax"
                 name="Estimated 1RM"
                 stroke="#82ca9d"
+                activeDot={{ r: 8 }}
+                strokeWidth={2}
+              />
+            )}
+            {metricType === 'maxReps' && (
+              <Line
+                type="monotone"
+                dataKey="maxReps"
+                name="Max Reps"
+                stroke="#ffc658"
                 activeDot={{ r: 8 }}
                 strokeWidth={2}
               />
