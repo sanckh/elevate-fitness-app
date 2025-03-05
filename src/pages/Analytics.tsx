@@ -15,6 +15,7 @@ const placeholderWorkouts: Workout[] = [
     id: '1',
     name: 'Upper Body Workout',
     date: new Date('2023-01-05'),
+    completed: false, // Added the completed property
     exercises: [
       { 
         id: '1-1', // Added id property
@@ -40,6 +41,7 @@ const placeholderWorkouts: Workout[] = [
     id: '2',
     name: 'Upper Body Workout',
     date: new Date('2023-01-15'),
+    completed: true, // Added the completed property
     exercises: [
       { 
         id: '2-1', // Added id property
@@ -65,6 +67,7 @@ const placeholderWorkouts: Workout[] = [
     id: '3',
     name: 'Upper Body Workout',
     date: new Date('2023-01-25'),
+    completed: false, // Added the completed property
     exercises: [
       { 
         id: '3-1', // Added id property
