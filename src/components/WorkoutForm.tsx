@@ -1,11 +1,12 @@
 
 import { useState } from 'react';
-import { Exercise, Workout } from '@/pages/Workouts';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Trash2, Plus, X } from 'lucide-react';
+import { Exercise, Workout } from '@/pages/WorkoutDetail';
+import ExerciseSetList, { ExerciseSet } from '@/components/ExerciseSetList';
 
 interface WorkoutFormProps {
   initialWorkout?: Partial<Workout>;
@@ -15,14 +16,38 @@ interface WorkoutFormProps {
 
 const WorkoutForm = ({ initialWorkout, onSubmit, onCancel }: WorkoutFormProps) => {
   const [workoutName, setWorkoutName] = useState(initialWorkout?.name || '');
+  
+  // Initialize with default exercise if none provided
+  const defaultExercise = {
+    id: crypto.randomUUID(),
+    name: '',
+    sets: [
+      {
+        id: crypto.randomUUID(),
+        reps: 10,
+        weight: undefined
+      }
+    ]
+  };
+  
   const [exercises, setExercises] = useState<Exercise[]>(
-    initialWorkout?.exercises || [{ id: crypto.randomUUID(), name: '', sets: 3, reps: 10 }]
+    initialWorkout?.exercises || [defaultExercise]
   );
 
   const handleAddExercise = () => {
     setExercises([
       ...exercises,
-      { id: crypto.randomUUID(), name: '', sets: 3, reps: 10 }
+      {
+        id: crypto.randomUUID(),
+        name: '',
+        sets: [
+          {
+            id: crypto.randomUUID(),
+            reps: 10,
+            weight: undefined
+          }
+        ]
+      }
     ]);
   };
 
@@ -35,40 +60,6 @@ const WorkoutForm = ({ initialWorkout, onSubmit, onCancel }: WorkoutFormProps) =
       exercises.map(exercise => 
         exercise.id === id 
           ? { ...exercise, [field]: value } 
-          : exercise
-      )
-    );
-  };
-
-  // Improved function to handle number input changes for each field independently
-  const handleNumberChange = (id: string, field: 'sets' | 'reps' | 'weight', value: string) => {
-    const targetExercise = exercises.find(exercise => exercise.id === id);
-    if (!targetExercise) return;
-
-    let numericValue: number | undefined;
-    
-    // Handle empty values appropriately based on field type
-    if (value === '') {
-      if (field === 'weight') {
-        numericValue = undefined; // Weight can be undefined
-      } else {
-        numericValue = 1; // Sets and reps default to 1
-      }
-    } else {
-      // Convert to number and ensure minimum values
-      const parsedValue = parseInt(value);
-      if (field === 'weight') {
-        numericValue = isNaN(parsedValue) ? undefined : Math.max(0, parsedValue);
-      } else {
-        numericValue = isNaN(parsedValue) ? 1 : Math.max(1, parsedValue);
-      }
-    }
-    
-    // Update only the specific exercise and field
-    setExercises(
-      exercises.map(exercise => 
-        exercise.id === id 
-          ? { ...exercise, [field]: numericValue } 
           : exercise
       )
     );
@@ -154,43 +145,11 @@ const WorkoutForm = ({ initialWorkout, onSubmit, onCancel }: WorkoutFormProps) =
                 />
               </div>
               
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor={`exercise-sets-${exercise.id}`}>Sets</Label>
-                  <Input
-                    id={`exercise-sets-${exercise.id}`}
-                    type="number"
-                    min="1"
-                    value={exercise.sets || 1}
-                    onChange={(e) => handleNumberChange(exercise.id, 'sets', e.target.value)}
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor={`exercise-reps-${exercise.id}`}>Reps</Label>
-                  <Input
-                    id={`exercise-reps-${exercise.id}`}
-                    type="number"
-                    min="1"
-                    value={exercise.reps || 1}
-                    onChange={(e) => handleNumberChange(exercise.id, 'reps', e.target.value)}
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor={`exercise-weight-${exercise.id}`}>Weight (lbs)</Label>
-                  <Input
-                    id={`exercise-weight-${exercise.id}`}
-                    type="number"
-                    min="0"
-                    step="5"
-                    value={exercise.weight !== undefined ? exercise.weight : ''}
-                    onChange={(e) => handleNumberChange(exercise.id, 'weight', e.target.value)}
-                    placeholder="Optional"
-                  />
-                </div>
+              <div>
+                <ExerciseSetList 
+                  sets={exercise.sets}
+                  onSetsChange={(newSets) => handleExerciseChange(exercise.id, 'sets', newSets)}
+                />
               </div>
               
               <div>

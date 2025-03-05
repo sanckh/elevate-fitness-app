@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { ArrowLeft, Calendar, CheckCircle, Edit, Trash2, Save, X } from 'lucide-react';
-import { Workout, Exercise } from '@/pages/Workouts';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +12,22 @@ import Footer from '@/components/Footer';
 import WorkoutForm from '@/components/WorkoutForm';
 import { Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
+import ExerciseSetList, { ExerciseSet } from '@/components/ExerciseSetList';
+
+export interface Exercise {
+  id: string;
+  name: string;
+  sets: ExerciseSet[];
+  notes?: string;
+}
+
+export interface Workout {
+  id: string;
+  name: string;
+  date: Date;
+  exercises: Exercise[];
+  completed: boolean;
+}
 
 const WorkoutDetail = () => {
   const { workoutId, date } = useParams();
@@ -25,42 +40,75 @@ const WorkoutDetail = () => {
   const [editingExerciseId, setEditingExerciseId] = useState<string | null>(null);
   const [editedExercise, setEditedExercise] = useState<Exercise | null>(null);
   
-  const [editingSets, setEditingSets] = useState<string | null>(null);
-  const [editingReps, setEditingReps] = useState<string | null>(null);
-  const [editingWeight, setEditingWeight] = useState<string | null>(null);
-  const [tempSetValue, setTempSetValue] = useState<string>('');
-  const [tempRepValue, setTempRepValue] = useState<string>('');
-  const [tempWeightValue, setTempWeightValue] = useState<string>('');
-  
   useEffect(() => {
     const storedWorkouts = localStorage.getItem('workouts');
     if (storedWorkouts) {
-      const parsedWorkouts = JSON.parse(storedWorkouts).map((w: any) => ({
-        ...w,
-        date: new Date(w.date)
-      }));
-      setAllWorkouts(parsedWorkouts);
-      
-      if (workoutId) {
-        const foundWorkout = parsedWorkouts.find((w: Workout) => w.id === workoutId);
-        if (foundWorkout) {
-          setWorkout(foundWorkout);
-          setDateFormatted(format(new Date(foundWorkout.date), 'MMMM d, yyyy'));
-        }
-      } else if (date) {
-        const targetDate = new Date(date);
-        setDateFormatted(format(targetDate, 'MMMM d, yyyy'));
+      try {
+        const parsedWorkouts = JSON.parse(storedWorkouts).map((w: any) => ({
+          ...w,
+          date: new Date(w.date)
+        }));
         
-        const workoutsForDate = parsedWorkouts.filter((w: Workout) => 
-          format(new Date(w.date), 'yyyy-MM-dd') === format(targetDate, 'yyyy-MM-dd')
-        );
+        const updatedWorkouts = parsedWorkouts.map((w: any) => {
+          const updatedExercises = w.exercises.map((ex: any) => {
+            if (typeof ex.sets === 'number' && !Array.isArray(ex.sets)) {
+              const newSets: ExerciseSet[] = [];
+              for (let i = 0; i < ex.sets; i++) {
+                newSets.push({
+                  id: crypto.randomUUID(),
+                  reps: ex.reps || 10,
+                  weight: ex.weight
+                });
+              }
+              return {
+                ...ex,
+                sets: newSets,
+              };
+            }
+            return {
+              ...ex,
+              sets: Array.isArray(ex.sets) ? ex.sets : []
+            };
+          });
+          
+          return {
+            ...w,
+            exercises: updatedExercises
+          };
+        });
         
-        if (workoutsForDate.length > 0) {
-          setWorkout(workoutsForDate[0]);
+        setAllWorkouts(updatedWorkouts);
+        
+        if (workoutId) {
+          const foundWorkout = updatedWorkouts.find((w: Workout) => w.id === workoutId);
+          if (foundWorkout) {
+            setWorkout(foundWorkout);
+            setDateFormatted(format(new Date(foundWorkout.date), 'MMMM d, yyyy'));
+          }
+        } else if (date) {
+          const targetDate = new Date(date);
+          setDateFormatted(format(targetDate, 'MMMM d, yyyy'));
+          
+          const workoutsForDate = updatedWorkouts.filter((w: Workout) => 
+            format(new Date(w.date), 'yyyy-MM-dd') === format(targetDate, 'yyyy-MM-dd')
+          );
+          
+          if (workoutsForDate.length > 0) {
+            setWorkout(workoutsForDate[0]);
+          }
         }
+        
+        localStorage.setItem('workouts', JSON.stringify(updatedWorkouts));
+      } catch (error) {
+        console.error("Error parsing workouts:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load workout data",
+          variant: "destructive",
+        });
       }
     }
-  }, [workoutId, date]);
+  }, [workoutId, date, toast]);
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -134,6 +182,31 @@ const WorkoutDetail = () => {
     setEditedExercise({...editedExercise, [field]: value});
   };
 
+  const handleSetsChange = (exerciseId: string, newSets: ExerciseSet[]) => {
+    if (!workout) return;
+    
+    const updatedExercises = workout.exercises.map(ex => {
+      if (ex.id === exerciseId) {
+        return { ...ex, sets: newSets };
+      }
+      return ex;
+    });
+    
+    const updatedWorkout = { ...workout, exercises: updatedExercises };
+    const updatedWorkouts = allWorkouts.map(w => 
+      w.id === workout.id ? updatedWorkout : w
+    );
+    
+    localStorage.setItem('workouts', JSON.stringify(updatedWorkouts));
+    setWorkout(updatedWorkout);
+    setAllWorkouts(updatedWorkouts);
+    
+    toast({
+      title: "Sets Updated",
+      description: "Exercise sets have been updated.",
+    });
+  };
+
   const handleSaveExercise = () => {
     if (!workout || !editedExercise) return;
 
@@ -158,64 +231,14 @@ const WorkoutDetail = () => {
     });
   };
 
-  const startEditingField = (exerciseId: string, field: 'sets' | 'reps' | 'weight', currentValue: any) => {
-    if (field === 'sets') {
-      setEditingSets(exerciseId);
-      setTempSetValue(currentValue?.toString() || '');
-    } else if (field === 'reps') {
-      setEditingReps(exerciseId);
-      setTempRepValue(currentValue?.toString() || '');
-    } else if (field === 'weight') {
-      setEditingWeight(exerciseId);
-      setTempWeightValue(currentValue?.toString() || '');
-    }
+  const calculateExerciseVolume = (exercise: Exercise) => {
+    return exercise.sets.reduce((total, set) => {
+      return total + (set.reps * (set.weight || 0));
+    }, 0);
   };
 
-  const saveEditedField = (exerciseId: string, field: 'sets' | 'reps' | 'weight') => {
-    if (!workout) return;
-    
-    let tempValue = '';
-    if (field === 'sets') tempValue = tempSetValue;
-    else if (field === 'reps') tempValue = tempRepValue;
-    else if (field === 'weight') tempValue = tempWeightValue;
-    
-    const updatedExercises = workout.exercises.map(ex => {
-      if (ex.id === exerciseId) {
-        let value: any = tempValue;
-        if (field === 'sets' || field === 'reps') {
-          value = parseInt(tempValue) || 1;
-        } else if (field === 'weight') {
-          value = tempValue ? parseInt(tempValue) : undefined;
-        }
-        return { ...ex, [field]: value };
-      }
-      return ex;
-    });
-    
-    const updatedWorkout = { ...workout, exercises: updatedExercises };
-    const updatedWorkouts = allWorkouts.map(w => 
-      w.id === workout.id ? updatedWorkout : w
-    );
-    
-    localStorage.setItem('workouts', JSON.stringify(updatedWorkouts));
-    setWorkout(updatedWorkout);
-    setAllWorkouts(updatedWorkouts);
-    
-    cancelFieldEditing();
-    
-    toast({
-      title: "Exercise Updated",
-      description: `Exercise ${field} has been updated.`,
-    });
-  };
-
-  const cancelFieldEditing = () => {
-    setEditingSets(null);
-    setEditingReps(null);
-    setEditingWeight(null);
-    setTempSetValue('');
-    setTempRepValue('');
-    setTempWeightValue('');
+  const getTotalSets = (exercises: Exercise[]) => {
+    return exercises.reduce((total, ex) => total + ex.sets.length, 0);
   };
 
   if (isEditing && workout) {
@@ -279,7 +302,7 @@ const WorkoutDetail = () => {
                       )}
                     </CardTitle>
                     <CardDescription>
-                      {dateFormatted} • {workout.exercises.length} exercise{workout.exercises.length !== 1 ? 's' : ''}
+                      {dateFormatted} • {workout.exercises.length} exercise{workout.exercises.length !== 1 ? 's' : ''} • {getTotalSets(workout.exercises)} total sets
                     </CardDescription>
                   </div>
                   <div className="flex space-x-2">
@@ -354,126 +377,25 @@ const WorkoutDetail = () => {
                       
                       <Separator className="my-3" />
                       
-                      <div className="grid grid-cols-3 gap-4 mt-4">
-                        <div className="bg-muted/50 rounded-md p-3 text-center cursor-pointer" onClick={() => startEditingField(exercise.id, 'sets', exercise.sets)}>
-                          <div className="text-sm text-muted-foreground mb-1">Sets</div>
-                          {editingSets === exercise.id ? (
-                            <div className="flex items-center justify-center">
-                              <Input
-                                type="number"
-                                min="1"
-                                value={tempSetValue}
-                                onChange={(e) => setTempSetValue(e.target.value)}
-                                className="h-8 text-center font-semibold w-16"
-                                autoFocus
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') saveEditedField(exercise.id, 'sets');
-                                  if (e.key === 'Escape') cancelFieldEditing();
-                                }}
-                              />
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                onClick={() => saveEditedField(exercise.id, 'sets')}
-                                className="h-8 p-0 ml-1"
-                              >
-                                <Save className="h-4 w-4" />
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                onClick={cancelFieldEditing}
-                                className="h-8 p-0"
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          ) : (
-                            <div className="font-semibold text-lg hover:bg-muted/80 rounded-md transition-colors">
-                              {exercise.sets}
-                            </div>
-                          )}
-                        </div>
-                        <div className="bg-muted/50 rounded-md p-3 text-center cursor-pointer" onClick={() => startEditingField(exercise.id, 'reps', exercise.reps)}>
-                          <div className="text-sm text-muted-foreground mb-1">Reps</div>
-                          {editingReps === exercise.id ? (
-                            <div className="flex items-center justify-center">
-                              <Input
-                                type="number"
-                                min="1"
-                                value={tempRepValue}
-                                onChange={(e) => setTempRepValue(e.target.value)}
-                                className="h-8 text-center font-semibold w-16"
-                                autoFocus
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') saveEditedField(exercise.id, 'reps');
-                                  if (e.key === 'Escape') cancelFieldEditing();
-                                }}
-                              />
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                onClick={() => saveEditedField(exercise.id, 'reps')}
-                                className="h-8 p-0 ml-1"
-                              >
-                                <Save className="h-4 w-4" />
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                onClick={cancelFieldEditing}
-                                className="h-8 p-0"
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          ) : (
-                            <div className="font-semibold text-lg hover:bg-muted/80 rounded-md transition-colors">
-                              {exercise.reps}
-                            </div>
-                          )}
-                        </div>
-                        <div className="bg-muted/50 rounded-md p-3 text-center cursor-pointer" onClick={() => startEditingField(exercise.id, 'weight', exercise.weight || '')}>
-                          <div className="text-sm text-muted-foreground mb-1">Weight</div>
-                          {editingWeight === exercise.id ? (
-                            <div className="flex items-center justify-center">
-                              <Input
-                                type="number"
-                                min="0"
-                                step="5"
-                                value={tempWeightValue}
-                                onChange={(e) => setTempWeightValue(e.target.value)}
-                                className="h-8 text-center font-semibold w-16"
-                                autoFocus
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') saveEditedField(exercise.id, 'weight');
-                                  if (e.key === 'Escape') cancelFieldEditing();
-                                }}
-                              />
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                onClick={() => saveEditedField(exercise.id, 'weight')}
-                                className="h-8 p-0 ml-1"
-                              >
-                                <Save className="h-4 w-4" />
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                onClick={cancelFieldEditing}
-                                className="h-8 p-0"
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          ) : (
-                            <div className="font-semibold text-lg hover:bg-muted/80 rounded-md transition-colors">
-                              {exercise.weight ? `${exercise.weight} lbs` : 'N/A'}
-                            </div>
-                          )}
-                        </div>
+                      <div className="mt-4">
+                        {editingExerciseId === exercise.id ? (
+                          <ExerciseSetList 
+                            sets={editedExercise?.sets || []}
+                            onSetsChange={(newSets) => handleExerciseFieldChange('sets', newSets)}
+                          />
+                        ) : (
+                          <ExerciseSetList 
+                            sets={exercise.sets} 
+                            onSetsChange={(newSets) => handleSetsChange(exercise.id, newSets)}
+                          />
+                        )}
                       </div>
+                      
+                      {exercise.sets.some(set => set.weight) && (
+                        <div className="mt-4 bg-secondary/10 rounded-md p-2 text-sm text-secondary-foreground">
+                          <span className="font-medium">Volume:</span> {calculateExerciseVolume(exercise)} lbs
+                        </div>
+                      )}
                       
                       {(exercise.notes || editingExerciseId === exercise.id) && (
                         <div className="mt-4 bg-secondary/20 p-3 rounded-md">
