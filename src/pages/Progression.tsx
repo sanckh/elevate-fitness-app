@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,8 +10,8 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AnimatedButton from '@/components/AnimatedButton';
 import { Ruler, ImagePlus, Weight, Image, TrendingUp, Calendar as CalendarIcon } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
 
-// Dummy data for progress entries
 const progressEntries = [
   {
     id: '1',
@@ -69,11 +69,12 @@ const Progression = () => {
   const [chest, setChest] = useState(selectedEntry?.measurements?.chest?.toString() || '');
   const [waist, setWaist] = useState(selectedEntry?.measurements?.waist?.toString() || '');
   const [arms, setArms] = useState(selectedEntry?.measurements?.arms?.toString() || '');
+  const [photos, setPhotos] = useState(selectedEntry?.photos || []);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
-  // Handle date selection
   const handleDateSelect = (date: Date | undefined) => {
     setSelectedDate(date);
-    // In a real app, we would fetch the entry for this date
     const entry = progressEntries.find(
       (e) => e.date.toDateString() === date?.toDateString()
     );
@@ -87,10 +88,8 @@ const Progression = () => {
     }
   };
 
-  // Get dates with entries for highlighting on calendar
   const datesWithEntries = progressEntries.map((entry) => entry.date);
 
-  // Helper to display measurement value or dash if zero/empty
   const displayMeasurement = (value: number | string | undefined): string => {
     if (value === undefined || value === null || value === 0 || value === '0' || value === '') {
       return '0';
@@ -98,10 +97,58 @@ const Progression = () => {
     return value.toString();
   };
 
+  const handlePhotoClick = (index: number) => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+      fileInputRef.current.dataset.photoIndex = index.toString();
+    }
+  };
+
+  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      const file = event.target.files[0];
+      
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid file type",
+          description: "Please upload an image file (JPEG, PNG, etc.)",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "Image must be less than 5MB in size",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const photoIndex = parseInt(event.target.dataset.photoIndex || '0', 10);
+      const newUrl = URL.createObjectURL(file);
+      
+      const updatedPhotos = [...photos];
+      updatedPhotos[photoIndex] = newUrl;
+      
+      setPhotos(updatedPhotos);
+      
+      toast({
+        title: "Photo uploaded",
+        description: "Your progress photo has been updated",
+        variant: "default"
+      });
+    }
+    
+    if (event.target) {
+      event.target.value = '';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
-      {/* Page Header */}
       <div className="bg-primary text-primary-foreground py-8 mt-20">
         <div className="container mx-auto px-4 md:px-6">
           <div className="max-w-4xl mx-auto">
@@ -111,11 +158,9 @@ const Progression = () => {
         </div>
       </div>
       
-      {/* Page Content */}
       <div className="container mx-auto px-4 md:px-6 py-8 flex-1">
         <div className="max-w-5xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-            {/* Calendar Column */}
             <div className="md:col-span-5">
               <Card>
                 <CardHeader>
@@ -138,7 +183,6 @@ const Progression = () => {
                 </CardContent>
               </Card>
               
-              {/* Stats Card */}
               {selectedEntry && (
                 <Card className="mt-4">
                   <CardHeader>
@@ -192,7 +236,6 @@ const Progression = () => {
               )}
             </div>
             
-            {/* Tabs Column */}
             <div className="md:col-span-7">
               <Card>
                 <CardHeader>
@@ -215,15 +258,30 @@ const Progression = () => {
                     </TabsList>
                     
                     <TabsContent value="photos">
-                      {selectedEntry?.photos?.length > 0 ? (
+                      <input 
+                        type="file" 
+                        ref={fileInputRef} 
+                        onChange={handlePhotoUpload} 
+                        accept="image/*" 
+                        className="hidden" 
+                      />
+                      
+                      {photos.length > 0 ? (
                         <div className="grid grid-cols-2 gap-4">
-                          {selectedEntry.photos.map((photo, index) => (
-                            <div key={index} className="relative aspect-square rounded-md overflow-hidden border bg-muted">
+                          {photos.map((photo, index) => (
+                            <div 
+                              key={index} 
+                              className="relative aspect-square rounded-md overflow-hidden border bg-muted cursor-pointer hover:opacity-90 transition-opacity"
+                              onClick={() => handlePhotoClick(index)}
+                            >
                               <img 
                                 src={photo} 
                                 alt={`Progress photo ${index + 1}`} 
                                 className="w-full h-full object-cover"
                               />
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity">
+                                <ImagePlus className="h-12 w-12 text-white" />
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -234,7 +292,10 @@ const Progression = () => {
                           <p className="text-muted-foreground mb-4">
                             Add progress photos to track your physical changes
                           </p>
-                          <AnimatedButton variant="primary">
+                          <AnimatedButton 
+                            variant="primary"
+                            onClick={() => handlePhotoClick(0)}
+                          >
                             <ImagePlus className="h-4 w-4 mr-2" />
                             Upload Photos
                           </AnimatedButton>
