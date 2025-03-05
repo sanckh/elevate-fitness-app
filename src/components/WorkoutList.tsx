@@ -31,34 +31,6 @@ const WorkoutList = ({ workouts, onEdit, onDelete, onToggleComplete, onView }: W
     return `${exercise.sets.length} set${exercise.sets.length !== 1 ? 's' : ''}`;
   };
 
-  // Helper function to get average reps across all sets
-  const getAverageReps = (exercise: Exercise) => {
-    if (!exercise.sets || !Array.isArray(exercise.sets) || exercise.sets.length === 0) {
-      return 'N/A';
-    }
-    
-    const totalReps = exercise.sets.reduce((sum, set) => sum + set.reps, 0);
-    return Math.round(totalReps / exercise.sets.length);
-  };
-
-  // Helper function to get weight range
-  const getWeightRange = (exercise: Exercise) => {
-    if (!exercise.sets || !Array.isArray(exercise.sets) || exercise.sets.length === 0) {
-      return 'N/A';
-    }
-    
-    const weights = exercise.sets
-      .map(set => set.weight)
-      .filter((weight): weight is number => weight !== undefined);
-    
-    if (weights.length === 0) return 'bodyweight';
-    
-    const min = Math.min(...weights);
-    const max = Math.max(...weights);
-    
-    return min === max ? `${min} lbs` : `${min}-${max} lbs`;
-  };
-
   return (
     <div className="space-y-4">
       {workouts.map((workout) => (
@@ -129,9 +101,25 @@ const WorkoutList = ({ workouts, onEdit, onDelete, onToggleComplete, onView }: W
                         <div className="font-medium">{exercise.name}</div>
                         <div className="text-sm text-muted-foreground flex gap-3 mt-1">
                           <span>{getSetsSummary(exercise)}</span>
-                          <span>~{getAverageReps(exercise)} reps</span>
-                          <span>{getWeightRange(exercise)}</span>
                         </div>
+                        
+                        {/* Display each set with its reps and weight */}
+                        {exercise.sets && exercise.sets.length > 0 && (
+                          <div className="mt-2 pl-2 border-l-2 border-muted space-y-1">
+                            {exercise.sets.map((set, index) => (
+                              <div key={set.id} className="text-xs flex items-center gap-2">
+                                <Badge variant="outline" size="sm" className="h-5 min-w-5 flex items-center justify-center px-1">
+                                  {index + 1}
+                                </Badge>
+                                <span className="font-medium">{set.reps} reps</span>
+                                <span className="text-muted-foreground">
+                                  {set.weight ? `${set.weight} lbs` : 'bodyweight'}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        
                         {exercise.notes && (
                           <div className="text-sm mt-2 italic">
                             Note: {exercise.notes}
