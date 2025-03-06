@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { Exercise, Workout } from '@/pages/WorkoutDetail';
 import ExerciseSetList, { ExerciseSet } from '@/components/ExerciseSetList';
+import { getExercisesByName } from '@/api/exercisedbapi';
 
 const ExerciseSearch = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -27,20 +28,9 @@ const ExerciseSearch = () => {
     
     setIsLoading(true);
     try {
-      const response = await fetch(`https://exercisedb.p.rapidapi.com/exercises/name/${searchQuery}`, {
-        method: 'GET',
-        headers: {
-          'X-RapidAPI-Key': '/* You need to get a key from RapidAPI */',
-          'X-RapidAPI-Host': 'exercisedb.p.rapidapi.com'
-        }
-      });
+      const response = await getExercisesByName(searchQuery);
       
-      if (!response.ok) {
-        throw new Error('Failed to fetch exercises');
-      }
-      
-      const data = await response.json();
-      setSearchResults(data.slice(0, 10)); // Limit to first 10 results
+      setSearchResults(response.slice(0, 10));
     } catch (error) {
       console.error('Error searching exercises:', error);
       toast({
@@ -48,15 +38,7 @@ const ExerciseSearch = () => {
         description: "Failed to search exercises. Please try again.",
         variant: "destructive",
       });
-      
-      // Use mock data if API fails
-      setSearchResults([
-        { id: "1", name: "Barbell Bench Press", bodyPart: "chest", equipment: "barbell" },
-        { id: "2", name: "Dumbbell Bench Press", bodyPart: "chest", equipment: "dumbbell" },
-        { id: "3", name: "Incline Bench Press", bodyPart: "chest", equipment: "barbell" },
-        { id: "4", name: "Push-up", bodyPart: "chest", equipment: "body weight" },
-        { id: "5", name: "Dumbbell Fly", bodyPart: "chest", equipment: "dumbbell" }
-      ]);
+
     } finally {
       setIsLoading(false);
     }
