@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, Location } from 'react-router-dom';
 import { format } from 'date-fns';
 import { ArrowLeft, Calendar, Edit, Trash2, Save, X, History, LineChart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,6 +12,10 @@ import WorkoutForm from '@/components/WorkoutForm';
 import { Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import ExerciseSetList, { ExerciseSet } from '@/components/ExerciseSetList';
+
+interface LocationState {
+  from?: string;
+}
 
 export interface Exercise {
   id: string;
@@ -31,6 +34,7 @@ export interface Workout {
 const WorkoutDetail = () => {
   const { workoutId, date } = useParams();
   const navigate = useNavigate();
+  const location = useLocation() as Location & { state: LocationState };
   const { toast } = useToast();
   const [workout, setWorkout] = useState<Workout | null>(null);
   const [allWorkouts, setAllWorkouts] = useState<Workout[]>([]);
@@ -121,7 +125,12 @@ const WorkoutDetail = () => {
   };
 
   const handleBack = () => {
-    navigate('/workouts');
+    // Check if we came from workout-library
+    if (location.state?.from === 'workout-library') {
+      navigate('/workout-library');
+    } else {
+      navigate('/workouts');
+    }
   };
 
   const handleDelete = () => {

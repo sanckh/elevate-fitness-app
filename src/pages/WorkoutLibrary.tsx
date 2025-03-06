@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, NavigateOptions } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -49,6 +48,10 @@ const WorkoutSchema = z.object({
     }))
   }))
 })
+
+interface NavigationState {
+  from: string;
+}
 
 const WorkoutLibrary = () => {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
@@ -116,7 +119,10 @@ const WorkoutLibrary = () => {
   };
 
   const handleEditWorkout = (workoutId: string) => {
-    navigate(`/workout/${workoutId}`);
+    const navigationOptions: NavigateOptions = {
+      state: { from: 'workout-library' } as NavigationState
+    };
+    navigate(`/workouts/${workoutId}`, navigationOptions);
   };
 
   const handleDeleteWorkout = (workoutId: string) => {
