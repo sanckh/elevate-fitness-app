@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, NavigateOptions } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -14,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Plus, Edit, Trash2, Search } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Dumbbell } from 'lucide-react';
 import { Header } from "@/components/Header";
 import { Footer } from '@/components/Footer';
 import { Workout } from './Workouts';
@@ -273,13 +274,23 @@ const WorkoutLibrary = () => {
           </div>
         </div>
 
-        <div className="mb-4">
-          <Input
-            type="text"
-            placeholder="Search workouts..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex-1 mr-4">
+            <Input
+              type="text"
+              placeholder="Search workouts..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <Button 
+            variant="default" 
+            onClick={() => navigate('/exercise-search')}
+            className="flex items-center gap-2"
+          >
+            <Dumbbell className="h-4 w-4" />
+            Create Custom Workout
+          </Button>
         </div>
 
         <Card>
