@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Header } from "@/components/Header";
-import Footer from '@/components/Footer';
+import { Footer } from '@/components/Footer';
 import AnimatedButton from '@/components/AnimatedButton';
 import { Ruler, ImagePlus, Weight, Image, TrendingUp, Calendar as CalendarIcon } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";

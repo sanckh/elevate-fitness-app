@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/table"
 import { Plus, Edit, Trash2, Search } from 'lucide-react';
 import { Header } from "@/components/Header";
-import Footer from '@/components/Footer';
+import { Footer } from '@/components/Footer';
 import { Workout } from './Workouts';
 import { ExerciseSet } from '@/components/ExerciseSetList';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from '@/components/ui/dialog';

@@ -1,9 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Header } from "@/components/Header";
-import Footer from '@/components/Footer';
+import { Footer} from '@/components/Footer';
 import AnimatedButton from '@/components/AnimatedButton';
-import ProductShowcase from '@/components/ProductShowcase';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 
@@ -130,9 +129,6 @@ const Index = () => {
           </div>
         </div>
       </section>
-      
-      {/* Product showcase section */}
-      <ProductShowcase />
       
       {/* Testimonial section */}
       <section className="py-16 md:py-24 bg-secondary/50">

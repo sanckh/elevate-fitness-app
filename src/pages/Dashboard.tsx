@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import AnimatedButton from '@/components/AnimatedButton';
 import { cn } from '@/lib/utils';
 import { Header } from "@/components/Header";
-import Footer from '@/components/Footer';
+import { Footer } from '@/components/Footer';
 
 // Dashboard sections
 const sections = [

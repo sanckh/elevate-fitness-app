@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Header } from "@/components/Header";
-import Footer from '@/components/Footer';
+import { Footer } from '@/components/Footer';
 import { ExerciseSet } from '@/components/ExerciseSetList';
 import { Workout } from '@/pages/WorkoutDetail';
 
