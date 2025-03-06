@@ -87,7 +87,7 @@ export const Header = () => {
     <header className="fixed top-0 left-0 right-0 z-40 bg-background border-b">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <Link to="/" className="flex items-center">
-          <span className="font-bold text-xl">FitTrack</span>
+          <span className="font-bold text-xl">Elevate Fitness</span>
         </Link>
 
         {isMobile ? (
@@ -100,7 +100,7 @@ export const Header = () => {
             <SheetContent side="right" className="w-[80vw] sm:w-[350px]">
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between mb-6">
-                  <span className="font-bold text-xl">FitTrack</span>
+                  <span className="font-bold text-xl">Elevate Fitness</span>
                   <Button
                     variant="ghost"
                     size="icon"
