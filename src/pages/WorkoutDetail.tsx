@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import Header from '@/components/Header';
+import { Header } from "@/components/Header";
 import Footer from '@/components/Footer';
 import WorkoutForm from '@/components/WorkoutForm';
 import { Link } from 'react-router-dom';

@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Plus, Edit, Trash2, Search } from 'lucide-react';
-import Header from '@/components/Header';
+import { Header } from "@/components/Header";
 import Footer from '@/components/Footer';
 import { Workout } from './Workouts';
 import { ExerciseSet } from '@/components/ExerciseSetList';

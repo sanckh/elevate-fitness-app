@@ -7,7 +7,7 @@ import { CalendarClock, Home, Menu, X, Dumbbell, BarChart, TrendingUp } from 'lu
 import { useAuth } from '@/context/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 
-const Header = () => {
+export const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const isMobile = useIsMobile();
   const location = useLocation();
@@ -164,5 +164,3 @@ const Header = () => {
     </header>
   );
 };
-
-export default Header;
