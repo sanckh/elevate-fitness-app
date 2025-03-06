@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
@@ -13,6 +12,7 @@ import WorkoutForm from '@/components/WorkoutForm';
 import { Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import ExerciseSetList, { ExerciseSet } from '@/components/ExerciseSetList';
+import WorkoutSelectionDialog from '@/components/WorkoutSelectionDialog';
 
 export interface Exercise {
   id: string;
@@ -38,6 +38,7 @@ const WorkoutDetail = () => {
   const [dateFormatted, setDateFormatted] = useState<string>('');
   const [editingExerciseId, setEditingExerciseId] = useState<string | null>(null);
   const [editedExercise, setEditedExercise] = useState<Exercise | null>(null);
+  const [workoutDialogOpen, setWorkoutDialogOpen] = useState(false);
   
   useEffect(() => {
     const storedWorkouts = localStorage.getItem('workouts');
@@ -227,6 +228,22 @@ const WorkoutDetail = () => {
 
   const getTotalSets = (exercises: Exercise[]) => {
     return exercises.reduce((total, ex) => total + ex.sets.length, 0);
+  };
+
+  const handleSelectWorkout = (selectedWorkout: Workout) => {
+    const newWorkout = {
+      ...selectedWorkout,
+      id: crypto.randomUUID(),
+      date: new Date()
+    };
+    
+    setAllWorkouts([...allWorkouts, newWorkout]);
+    setWorkout(newWorkout);
+    
+    toast({
+      title: "Workout Added",
+      description: `${selectedWorkout.name} has been added to your calendar.`,
+    });
   };
 
   if (isEditing && workout) {
@@ -426,13 +443,30 @@ const WorkoutDetail = () => {
                 {dateFormatted ? `No workout scheduled for ${dateFormatted}` : 'The requested workout was not found.'}
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex justify-center p-8">
-              <Button onClick={() => navigate('/workouts')}>
-                Return to Workout Calendar
-              </Button>
+            <CardContent className="flex flex-col items-center gap-4 p-8">
+              <p className="text-center text-muted-foreground mb-4">
+                Would you like to add a workout for this day?
+              </p>
+              <div className="flex gap-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate('/workouts')}
+                >
+                  Return to Calendar
+                </Button>
+                <Button onClick={() => setWorkoutDialogOpen(true)}>
+                  Add Workout
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}
+        
+        <WorkoutSelectionDialog 
+          open={workoutDialogOpen}
+          onOpenChange={setWorkoutDialogOpen}
+          onSelectWorkout={handleSelectWorkout}
+        />
       </main>
       <Footer />
     </div>

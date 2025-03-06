@@ -16,6 +16,7 @@ import Analytics from "./pages/Analytics";
 import Progression from "./pages/Progression";
 import ExerciseHistory from "./pages/ExerciseHistory";
 import ExerciseGraph from "./pages/ExerciseGraph";
+import ExerciseSearch from "./pages/ExerciseSearch";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -99,6 +100,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <ExerciseGraph />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/exercise-search" 
+              element={
+                <ProtectedRoute>
+                  <ExerciseSearch />
                 </ProtectedRoute>
               } 
             />
