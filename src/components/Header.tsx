@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { SheetTrigger, SheetContent, Sheet } from '@/components/ui/sheet';
-import { CalendarClock, Home, Menu, X, Dumbbell, BarChart, TrendingUp } from 'lucide-react';
+import { CalendarClock, Home, Menu, X, Dumbbell, BarChart, TrendingUp, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -31,7 +31,7 @@ export const Header = () => {
     {
       name: 'Dashboard',
       path: '/dashboard',
-      icon: <Home className="h-5 w-5" />,
+      icon: <LayoutDashboard className="h-5 w-5" />,
       requiresAuth: true,
     },
     {
