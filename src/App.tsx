@@ -40,7 +40,7 @@ const App = () => (
               } 
             />
             <Route 
-              path="/workouts" 
+              path="/calendar" 
               element={
                 <ProtectedRoute>
                   <Workouts />

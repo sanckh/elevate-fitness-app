@@ -35,8 +35,8 @@ export const Header = () => {
       requiresAuth: true,
     },
     {
-      name: 'Workouts',
-      path: '/workouts',
+      name: 'Calendar',
+      path: '/calendar',
       icon: <CalendarClock className="h-5 w-5" />,
       requiresAuth: true,
     },
