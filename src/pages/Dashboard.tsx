@@ -130,8 +130,9 @@ const Dashboard = () => {
                         variant="outline"
                         size="sm"
                         className="text-xs"
+                        disabled={section.id === 'nutrition' || section.id === 'goals'}
                       >
-                        Open {section.title}
+                        {section.id === 'nutrition' || section.id === 'goals' ? `${section.title} (Coming Soon)` : `Open ${section.title}`}
                       </AnimatedButton>
                     </Link>
                   </div>
