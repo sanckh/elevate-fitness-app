@@ -11,6 +11,7 @@ import { Footer } from '@/components/Footer';
 import AnimatedButton from '@/components/AnimatedButton';
 import { Ruler, ImagePlus, Weight, Image, TrendingUp, Calendar as CalendarIcon } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { useSearchParams } from 'react-router-dom';
 
 const progressEntries = [
   {
@@ -61,9 +62,10 @@ const progressEntries = [
 ];
 
 const Progression = () => {
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'photos'); // Default to 'photos' tab
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedEntry, setSelectedEntry] = useState(progressEntries[2]);
-  const [activeTab, setActiveTab] = useState('photos');
   const [weight, setWeight] = useState(selectedEntry?.weight?.toString() || '');
   const [bodyFat, setBodyFat] = useState(selectedEntry?.bodyFat?.toString() || '');
   const [chest, setChest] = useState(selectedEntry?.measurements?.chest?.toString() || '');
