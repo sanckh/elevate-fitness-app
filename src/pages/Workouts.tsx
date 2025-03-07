@@ -182,11 +182,11 @@ const Workouts = () => {
             </div>
 
             <Tabs defaultValue="workouts" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsList className="grid w-full grid-cols-1 mb-4">
                 <TabsTrigger value="workouts">Workouts</TabsTrigger>
-                <TabsTrigger value="manage" disabled={!isAddingWorkout && !editingWorkout}>
+                {/* <TabsTrigger value="manage" disabled={!isAddingWorkout && !editingWorkout}>
                   {editingWorkout ? 'Edit Workout' : isAddingWorkout ? 'Add Workout' : 'Manage'}
-                </TabsTrigger>
+                </TabsTrigger> */}
               </TabsList>
               
               <TabsContent value="workouts" className="space-y-4">
@@ -223,7 +223,7 @@ const Workouts = () => {
                 )}
               </TabsContent>
               
-              <TabsContent value="manage">
+              {/* <TabsContent value="manage">
                 {(isAddingWorkout || editingWorkout) && (
                   <WorkoutForm 
                     initialWorkout={editingWorkout || undefined}
@@ -234,7 +234,7 @@ const Workouts = () => {
                     }}
                   />
                 )}
-              </TabsContent>
+              </TabsContent> */}
             </Tabs>
           </Card>
         </div>
