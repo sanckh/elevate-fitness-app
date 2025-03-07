@@ -18,6 +18,9 @@ import ExerciseHistory from "./pages/ExerciseHistory";
 import ExerciseGraph from "./pages/ExerciseGraph";
 import ExerciseSearch from "./pages/ExerciseSearch";
 import NotFound from "./pages/NotFound";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import RefundPolicy from "./pages/RefundPolicy";
 
 const queryClient = new QueryClient();
 
@@ -29,8 +32,14 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            {/* Public Routes */}
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/terms" element={<TermsOfService />} /> 
+            <Route path="/privacy" element={<PrivacyPolicy />} /> 
+            <Route path="/refund" element={<RefundPolicy />} /> 
+
+            {/* Protected Routes */}
             <Route
               path="/dashboard"
               element={
@@ -111,7 +120,8 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+
+            {/* Catch-all Route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
