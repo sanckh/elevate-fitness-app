@@ -3,17 +3,8 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Trash2, Save, X } from 'lucide-react';
-
-export interface ExerciseSet {
-  id: string;
-  reps: number;
-  weight?: number;
-}
-
-interface ExerciseSetListProps {
-  sets: ExerciseSet[];
-  onSetsChange: (sets: ExerciseSet[]) => void;
-}
+import { ExerciseSet } from '@/interfaces/exercise';
+import { ExerciseSetListProps } from '@/interfaces/exercise';
 
 const ExerciseSetList = ({ sets, onSetsChange }: ExerciseSetListProps) => {
   const [editingSetId, setEditingSetId] = useState<string | null>(null);

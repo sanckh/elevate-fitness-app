@@ -8,15 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator';
 import { Header } from "@/components/Header";
 import { Footer } from '@/components/Footer';
-import { ExerciseSet } from '@/components/ExerciseSetList';
-import { Workout } from '@/pages/WorkoutDetail';
-
-interface ExerciseHistoryItem {
-  date: Date;
-  workoutId: string;
-  workoutName: string;
-  sets: ExerciseSet[];
-}
+import { Workout } from '@/interfaces/workout';
+import { ExerciseHistoryItem } from '@/interfaces/exercise';
 
 const ExerciseHistory = () => {
   const { exerciseName } = useParams<{ exerciseName: string }>();
@@ -38,7 +31,7 @@ const ExerciseHistory = () => {
           return;
         }
         
-        const parsedWorkouts: Workout[] = JSON.parse(storedWorkouts).map((w: any) => ({
+        const parsedWorkouts: Workout[] = JSON.parse(storedWorkouts).map((w: Workout) => ({
           ...w,
           date: new Date(w.date)
         }));

@@ -1,5 +1,5 @@
 
-import { Workout } from '@/pages/Workouts';
+import { Workout } from '@/interfaces/workout';
 import { Button } from '@/components/ui/button';
 import { 
   Card, 
@@ -12,7 +12,8 @@ import {
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Edit, Trash2, Eye } from 'lucide-react';
-import { Exercise } from '@/pages/WorkoutDetail';
+import { Exercise } from '@/interfaces/exercise';
+// import { Exercise } from '@/pages/WorkoutDetail';
 
 interface WorkoutListProps {
   workouts: Workout[];

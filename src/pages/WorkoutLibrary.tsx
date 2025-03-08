@@ -18,8 +18,6 @@ import {
 import { Plus, Edit, Trash2, Search, Dumbbell } from 'lucide-react';
 import { Header } from "@/components/Header";
 import { Footer } from '@/components/Footer';
-import { Workout } from './Workouts';
-import { ExerciseSet } from '@/components/ExerciseSetList';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { useForm } from "react-hook-form"
@@ -31,8 +29,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { CalendarIcon } from "lucide-react"
+import { Workout } from '@/interfaces/workout';
+import { ExerciseSet } from '@/interfaces/exercise';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Exercise } from './WorkoutDetail';
+import { Exercise } from '@/interfaces/exercise';
 
 const WorkoutSchema = z.object({
   name: z.string().min(2, {
@@ -80,7 +80,7 @@ const WorkoutLibrary = () => {
     // Load workouts from local storage on component mount
     const storedWorkouts = localStorage.getItem('workouts');
     if (storedWorkouts) {
-      setWorkouts(JSON.parse(storedWorkouts).map((w: any) => ({
+      setWorkouts(JSON.parse(storedWorkouts).map((w: Workout) => ({
         ...w,
         date: new Date(w.date)
       })));

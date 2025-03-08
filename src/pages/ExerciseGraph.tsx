@@ -10,19 +10,11 @@ import { Footer } from '@/components/Footer';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Workout } from '@/pages/WorkoutDetail';
+import { DataPoint } from '@/interfaces/dataPoint';
+import { Workout } from '@/interfaces/workout';
 
 type TimeRange = '1m' | '3m' | '6m' | '1y' | 'all';
 type MetricType = 'maxWeight' | 'oneRepMax' | 'maxReps' | 'maxVolume';
-
-interface DataPoint {
-  date: number; // timestamp for sorting
-  formattedDate: string;
-  weight: number;
-  oneRepMax?: number;
-  maxReps?: number;
-  maxVolume?: number;
-}
 
 const ExerciseGraph = () => {
   const { exerciseName } = useParams<{ exerciseName: string }>();
@@ -46,7 +38,7 @@ const ExerciseGraph = () => {
           return;
         }
         
-        const parsedWorkouts: Workout[] = JSON.parse(storedWorkouts).map((w: any) => ({
+        const parsedWorkouts: Workout[] = JSON.parse(storedWorkouts).map((w: Workout) => ({
           ...w,
           date: new Date(w.date)
         }));

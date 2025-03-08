@@ -1,13 +1,7 @@
 
 import { useState } from 'react';
 import { cn } from "@/lib/utils";
-
-interface AnimatedButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline';
-  size?: 'default' | 'sm' | 'lg' | 'icon';
-  children: React.ReactNode;
-  className?: string;
-}
+import { AnimatedButtonProps } from '@/interfaces/buttonProp';
 
 const AnimatedButton = ({
   variant = 'primary',

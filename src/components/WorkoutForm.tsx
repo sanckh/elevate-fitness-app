@@ -4,8 +4,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Trash2, Plus } from 'lucide-react';
-import { Exercise, Workout } from '@/pages/WorkoutDetail';
-import ExerciseSetList, { ExerciseSet } from '@/components/ExerciseSetList';
+// import { Exercise, Workout } from '@/pages/WorkoutDetail';
+import { Exercise } from '@/interfaces/exercise';
+import { Workout } from '@/interfaces/workout';
+import { ExerciseSet } from '@/interfaces/exercise';
+import ExerciseSetList from '@/components/ExerciseSetList';
 
 interface WorkoutFormProps {
   initialWorkout?: Partial<Workout>;
@@ -84,7 +87,8 @@ const WorkoutForm = ({ initialWorkout, onSubmit, onCancel }: WorkoutFormProps) =
       date: initialWorkout?.date || new Date(),
     };
     
-    onSubmit(workout as any);
+    onSubmit(workout as Workout);
+    //onSubmit(workout as any);
   };
 
   return (

@@ -11,16 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Search, FolderPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Exercise } from '@/pages/WorkoutDetail';
+import { Workout } from '@/interfaces/workout';
 import WorkoutSelectionDialog from '@/components/WorkoutSelectionDialog';
-
-export type Workout = {
-  id: string;
-  date: Date;
-  name: string;
-  exercises: Exercise[];
-  category?: string;
-};
 
 const Workouts = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -35,7 +27,7 @@ const Workouts = () => {
     const storedWorkouts = localStorage.getItem('workouts');
     if (storedWorkouts) {
       try {
-        const parsedWorkouts = JSON.parse(storedWorkouts).map((workout: any) => {
+        const parsedWorkouts = JSON.parse(storedWorkouts).map((workout: Workout) => {
           const workoutDate = new Date(workout.date);
           const { completed, ...workoutWithoutCompleted } = workout;
           return {

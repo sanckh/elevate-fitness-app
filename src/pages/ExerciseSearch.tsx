@@ -9,8 +9,10 @@ import { Header } from "@/components/Header";
 import { Footer } from '@/components/Footer';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
-import { Exercise, Workout } from '@/pages/WorkoutDetail';
-import ExerciseSetList, { ExerciseSet } from '@/components/ExerciseSetList';
+import { Exercise } from '@/interfaces/exercise';
+import { Workout } from '@/interfaces/workout';
+import { ExerciseSet } from '@/interfaces/exercise';
+import ExerciseSetList from '@/components/ExerciseSetList';
 import { getExercisesByName } from '@/api/exercisedbapi';
 
 const ExerciseSearch = () => {
@@ -44,7 +46,7 @@ const ExerciseSearch = () => {
     }
   };
 
-  const handleAddExercise = (exercise: any) => {
+  const handleAddExercise = (exercise: Exercise) => {
     const newExercise: Exercise = {
       id: crypto.randomUUID(),
       name: exercise.name,
