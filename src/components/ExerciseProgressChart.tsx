@@ -2,23 +2,10 @@
 import { useMemo } from 'react';
 import { format } from 'date-fns';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Workout } from '@/pages/Workouts';
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useState } from 'react';
-
-interface ExerciseProgressChartProps {
-  exerciseName: string;
-  workouts: Workout[];
-}
-
-interface ChartDataPoint {
-  date: number;
-  formattedDate: string;
-  weight: number;
-  oneRepMax?: number;
-  maxReps?: number;
-  maxVolume?: number;
-}
+import { ExerciseProgressChartProps } from '@/interfaces/exercise';
 
 type MetricType = 'maxWeight' | 'oneRepMax' | 'maxReps' | 'maxVolume';
 

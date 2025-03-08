@@ -69,7 +69,7 @@ const sections = [
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState<string | null>(null);
-  
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
@@ -82,7 +82,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Dashboard Content */}
       <div className="container mx-auto px-4 md:px-6 py-8 flex-1">
         <div className="max-w-4xl mx-auto">
@@ -94,8 +94,8 @@ const Dashboard = () => {
               { label: 'Calories Burned', value: '0', change: '+0%' },
               { label: 'Goals Met', value: '0', change: '+0%' }
             ].map((stat, index) => (
-              <div 
-                key={stat.label} 
+              <div
+                key={stat.label}
                 className="bg-white border border-border/50 rounded-xl p-4 shadow-subtle"
               >
                 <p className="text-sm text-muted-foreground mb-1">{stat.label}</p>
@@ -106,12 +106,12 @@ const Dashboard = () => {
               </div>
             ))}
           </div>
-          
+
           {/* Dashboard Sections */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             {sections.map((section) => (
-              <div 
-                key={section.id} 
+              <div
+                key={section.id}
                 className={cn(
                   "bg-white border border-border/50 rounded-xl p-6 shadow-subtle cursor-pointer transition-all duration-300",
                   activeSection === section.id ? "ring-2 ring-primary/20" : "hover:shadow-elevated"
@@ -126,12 +126,13 @@ const Dashboard = () => {
                     <h3 className="text-lg font-medium mb-1">{section.title}</h3>
                     <p className="text-muted-foreground text-sm mb-4">{section.description}</p>
                     <Link to={section.link}>
-                      <AnimatedButton 
-                        variant="outline" 
+                      <AnimatedButton
+                        variant="outline"
                         size="sm"
                         className="text-xs"
+                        disabled={section.id === 'nutrition' || section.id === 'goals'}
                       >
-                        Open {section.title}
+                        {section.id === 'nutrition' || section.id === 'goals' ? `${section.title} (Coming Soon)` : `Open ${section.title}`}
                       </AnimatedButton>
                     </Link>
                   </div>
@@ -139,34 +140,40 @@ const Dashboard = () => {
               </div>
             ))}
           </div>
-          
+
           {/* Quick Actions */}
           <div className="bg-white border border-border/50 rounded-xl p-6 shadow-subtle mb-8">
             <h3 className="text-lg font-medium mb-4">Quick Actions</h3>
             <div className="flex flex-wrap gap-3">
               <Link to="/workouts">
-                <AnimatedButton 
-                  variant="primary" 
+                <AnimatedButton
+                  variant="primary"
                   size="sm"
                 >
                   Log Workout
                 </AnimatedButton>
               </Link>
-              <AnimatedButton 
-                variant="outline" 
+              {/* <Link to=""> */}
+              <AnimatedButton
+                variant="outline"
                 size="sm"
+                disabled
               >
-                Track Meal
+                Track Meal (Comming Soon)
               </AnimatedButton>
-              <AnimatedButton 
-                variant="outline" 
-                size="sm"
-              >
-                Record Weight
-              </AnimatedButton>
+              {/* </Link> */}
+
+              <Link to="/progression?tab=measurements">
+                <AnimatedButton
+                  variant="outline"
+                  size="sm"
+                >
+                  Record Weight
+                </AnimatedButton>
+              </Link>
               <Link to="/progression">
-                <AnimatedButton 
-                  variant="outline" 
+                <AnimatedButton
+                  variant="outline"
                   size="sm"
                 >
                   Add Progress Photo
@@ -174,11 +181,11 @@ const Dashboard = () => {
               </Link>
             </div>
           </div>
-          
+
           {/* Return to Home */}
           <div className="text-center">
-            <Link 
-              to="/workouts" 
+            <Link
+              to="/workouts"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Return to Workouts

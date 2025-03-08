@@ -8,7 +8,9 @@ import ExerciseProgressChart from '@/components/ExerciseProgressChart';
 import ExerciseSelector from '@/components/ExerciseSelector';
 import BodyProgressionChart from '@/components/BodyProgressionChart';
 import BodyMetricSelector from '@/components/BodyMetricSelector';
-import { Workout } from '@/pages/Workouts';
+import { Workout } from '@/interfaces/workout';
+import { ProgressEntry } from '@/interfaces/progression';
+import { Exercise } from '@/interfaces/exercise';
 
 const placeholderWorkouts: Workout[] = [
   {
@@ -156,7 +158,7 @@ const Analytics = () => {
   const [selectedBodyMetric, setSelectedBodyMetric] = useState<'weight' | 'bodyFat'>('weight');
   const navigate = useNavigate();
   
-  const workouts = useMemo(() => {
+  const workouts = useMemo<Workout[]>(() => {
     try {
       const storedWorkouts = localStorage.getItem('workouts');
       if (!storedWorkouts) {
@@ -173,7 +175,7 @@ const Analytics = () => {
           return placeholderWorkouts;
         }
         
-        const validWorkouts = parsedWorkouts.map((workout: any) => {
+        const validWorkouts = parsedWorkouts.map((workout: Workout) => {
           let workoutDate;
           try {
             workoutDate = new Date(workout.date);
@@ -193,11 +195,11 @@ const Analytics = () => {
           };
         });
         
-        const workoutsWithExercises = validWorkouts.filter((workout: any) => {
+        const workoutsWithExercises = validWorkouts.filter((workout: Workout) => {
           return workout && 
                  workout.exercises && 
                  Array.isArray(workout.exercises) &&
-                 workout.exercises.some((exercise: any) => 
+                 workout.exercises.some((exercise: Exercise) => 
                    exercise && typeof exercise.name === 'string' && exercise.name.trim() !== ''
                  );
         });
@@ -244,7 +246,7 @@ const Analytics = () => {
     }
   }, [workouts]);
   
-  const progressEntries = useMemo(() => {
+  const progressEntries = useMemo<ProgressEntry[]>(() => {
     try {
       const storedEntries = localStorage.getItem('progressEntries');
       if (!storedEntries) {
@@ -261,7 +263,7 @@ const Analytics = () => {
           return placeholderProgressEntries;
         }
         
-        const validEntries = parsedEntries.map((entry: any) => {
+        const validEntries = parsedEntries.map((entry: ProgressEntry) => {
           let entryDate;
           try {
             entryDate = new Date(entry.date);
@@ -397,3 +399,138 @@ const Analytics = () => {
 };
 
 export default Analytics;
+
+
+// import { useState, useMemo } from 'react';
+// import { useNavigate } from 'react-router-dom';
+// import { Header } from "@/components/Header";
+// import { Footer } from '@/components/Footer';
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+// import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+// import ExerciseProgressChart from '@/components/ExerciseProgressChart';
+// import ExerciseSelector from '@/components/ExerciseSelector';
+// import BodyProgressionChart from '@/components/BodyProgressionChart';
+// import BodyMetricSelector from '@/components/BodyMetricSelector';
+// import { Workout } from '@/interfaces/workout';
+// import { ProgressEntry } from '@/interfaces/progression';
+
+// const placeholderWorkouts: Workout[] = [
+//   // Existing data
+// ];
+
+// const placeholderProgressEntries: ProgressEntry[] = [
+//   // Existing data
+// ];
+
+// const Analytics = () => {
+//   const [selectedExercise, setSelectedExercise] = useState<string | null>(null);
+//   const [selectedBodyMetric, setSelectedBodyMetric] = useState<'weight' | 'bodyFat'>('weight');
+//   const navigate = useNavigate();
+  
+//   const workouts = useMemo<Workout[]>(() => {
+//     // Existing logic
+//   }, []);
+  
+//   const progressEntries = useMemo<ProgressEntry[]>(() => {
+//     // Existing logic
+//   }, []);
+
+//   return (
+//     <div className="min-h-screen flex flex-col">
+//       <Header />
+//       <main className="flex-1 container mx-auto px-4 py-8 mt-20">
+//         <h1 className="text-3xl font-bold mb-6">Workout Analytics</h1>
+        
+//         <Tabs defaultValue="progress" className="w-full">
+//           <TabsList className="grid w-full max-w-md grid-cols-3 mb-6">
+//             <TabsTrigger value="progress">Exercise Progress</TabsTrigger>
+//             <TabsTrigger value="body">Body Progress</TabsTrigger>
+//             <TabsTrigger value="summary">Workout Summary</TabsTrigger>
+//           </TabsList>
+          
+//           <TabsContent value="progress" className="space-y-6">
+//             <Card>
+//               <CardHeader>
+//                 <CardTitle>Exercise Progress Tracker</CardTitle>
+//                 <CardDescription>
+//                   Track your progression for specific exercises over time
+//                 </CardDescription>
+//               </CardHeader>
+//               <CardContent className="space-y-4">
+//                 {uniqueExerciseNames.length > 0 ? (
+//                   <ExerciseSelector 
+//                     exercises={uniqueExerciseNames}
+//                     selectedExercise={selectedExercise}
+//                     onSelectExercise={setSelectedExercise}
+//                   />
+//                 ) : (
+//                   <div className="text-center p-4 bg-secondary/20 rounded-lg">
+//                     <p className="text-muted-foreground">
+//                       No exercises found. Add workouts with exercises to see analytics.
+//                     </p>
+//                   </div>
+//                 )}
+                
+//                 {selectedExercise ? (
+//                   <ExerciseProgressChart 
+//                     exerciseName={selectedExercise}
+//                     workouts={workouts}
+//                   />
+//                 ) : (
+//                   <div className="text-center p-8 bg-secondary/20 rounded-lg">
+//                     <p className="text-muted-foreground">
+//                       {uniqueExerciseNames.length > 0 
+//                         ? "Select an exercise to view your progress over time" 
+//                         : "Add workouts with exercises to see progress charts"}
+//                     </p>
+//                   </div>
+//                 )}
+//               </CardContent>
+//             </Card>
+//           </TabsContent>
+          
+//           <TabsContent value="body" className="space-y-6">
+//             <Card>
+//               <CardHeader>
+//                 <CardTitle>Body Progression Tracker</CardTitle>
+//                 <CardDescription>
+//                   Track your body weight and body fat percentage changes over time
+//                 </CardDescription>
+//               </CardHeader>
+//               <CardContent className="space-y-4">
+//                 <BodyMetricSelector 
+//                   selectedMetric={selectedBodyMetric}
+//                   onSelectMetric={setSelectedBodyMetric}
+//                 />
+                
+//                 <BodyProgressionChart 
+//                   progressEntries={progressEntries}
+//                   metricType={selectedBodyMetric}
+//                 />
+//               </CardContent>
+//             </Card>
+//           </TabsContent>
+          
+//           <TabsContent value="summary" className="space-y-6">
+//             <Card>
+//               <CardHeader>
+//                 <CardTitle>Coming Soon</CardTitle>
+//                 <CardDescription>
+//                   More detailed analytics will be available in future updates
+//                 </CardDescription>
+//               </CardHeader>
+//               <CardContent className="p-8 text-center bg-secondary/20 rounded-lg">
+//                 <p className="text-muted-foreground">
+//                   Workout summaries, volume tracking, and more analytics features are coming soon!
+//                 </p>
+//               </CardContent>
+//             </Card>
+//           </TabsContent>
+//         </Tabs>
+//       </main>
+//       <Footer />
+//     </div>
+//   );
+// };
+
+// export default Analytics;

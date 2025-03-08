@@ -18,6 +18,9 @@ import ExerciseHistory from "./pages/ExerciseHistory";
 import ExerciseGraph from "./pages/ExerciseGraph";
 import ExerciseSearch from "./pages/ExerciseSearch";
 import NotFound from "./pages/NotFound";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import RefundPolicy from "./pages/RefundPolicy";
 
 const queryClient = new QueryClient();
 
@@ -29,89 +32,96 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            {/* Public Routes */}
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
-            <Route 
-              path="/dashboard" 
+            <Route path="/terms" element={<TermsOfService />} /> 
+            <Route path="/privacy" element={<PrivacyPolicy />} /> 
+            <Route path="/refund" element={<RefundPolicy />} /> 
+
+            {/* Protected Routes */}
+            <Route
+              path="/dashboard"
               element={
                 <ProtectedRoute>
                   <Dashboard />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/workouts" 
+            <Route
+              path="/workouts"
               element={
                 <ProtectedRoute>
                   <Workouts />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/workout-library" 
+            <Route
+              path="/workout-library"
               element={
                 <ProtectedRoute>
                   <WorkoutLibrary />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/analytics" 
+            <Route
+              path="/analytics"
               element={
                 <ProtectedRoute>
                   <Analytics />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/progression" 
+            <Route
+              path="/progression"
               element={
                 <ProtectedRoute>
                   <Progression />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/workouts/:workoutId" 
+            <Route
+              path="/workouts/:workoutId"
               element={
                 <ProtectedRoute>
                   <WorkoutDetail />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/workouts/date/:date" 
+            <Route
+              path="/workouts/date/:date"
               element={
                 <ProtectedRoute>
                   <WorkoutDetail />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/exercise/history/:exerciseName" 
+            <Route
+              path="/exercise/history/:exerciseName"
               element={
                 <ProtectedRoute>
                   <ExerciseHistory />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/exercise/graph/:exerciseName" 
+            <Route
+              path="/exercise/graph/:exerciseName"
               element={
                 <ProtectedRoute>
                   <ExerciseGraph />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/exercise-search" 
+            <Route
+              path="/exercise-search"
               element={
                 <ProtectedRoute>
                   <ExerciseSearch />
                 </ProtectedRoute>
-              } 
+              }
             />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+
+            {/* Catch-all Route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

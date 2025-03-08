@@ -11,26 +11,12 @@ import { Footer } from '@/components/Footer';
 import WorkoutForm from '@/components/WorkoutForm';
 import { Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
-import ExerciseSetList, { ExerciseSet } from '@/components/ExerciseSetList';
+import ExerciseSetList from '@/components/ExerciseSetList';
 import WorkoutSelectionDialog from '@/components/WorkoutSelectionDialog';
-
-interface LocationState {
-  from?: string;
-}
-
-export interface Exercise {
-  id: string;
-  name: string;
-  sets: ExerciseSet[];
-  notes?: string;
-}
-
-export interface Workout {
-  id: string;
-  name: string;
-  date: Date;
-  exercises: Exercise[];
-}
+import { LocationState } from '@/interfaces/locationState';
+import { Exercise } from '@/interfaces/exercise';
+import { Workout } from '@/interfaces/workout';
+import { ExerciseSet } from '@/interfaces/exercise';
 
 const WorkoutDetail = () => {
   const { workoutId, date } = useParams();
@@ -49,7 +35,7 @@ const WorkoutDetail = () => {
     const storedWorkouts = localStorage.getItem('workouts');
     if (storedWorkouts) {
       try {
-        const parsedWorkouts = JSON.parse(storedWorkouts).map((w: any) => {
+        const parsedWorkouts = JSON.parse(storedWorkouts).map((w: Workout) => {
           const workoutDate = new Date(w.date);
           // Remove completed property if it exists
           const { completed, ...workoutWithoutCompleted } = w;
@@ -59,16 +45,16 @@ const WorkoutDetail = () => {
           };
         });
         
-        const updatedWorkouts = parsedWorkouts.map((w: any) => {
+        const updatedWorkouts = parsedWorkouts.map((w: Workout) => {
           const workoutDate = new Date(w.date);
-          const updatedExercises = w.exercises.map((ex: any) => {
+          const updatedExercises = w.exercises.map((ex: Exercise) => {
             if (typeof ex.sets === 'number' && !Array.isArray(ex.sets)) {
               const newSets: ExerciseSet[] = [];
               for (let i = 0; i < ex.sets; i++) {
                 newSets.push({
                   id: crypto.randomUUID(),
                   reps: ex.reps || 10,
-                  weight: ex.weight
+                  weight: ex.weight,
                 });
               }
               return {

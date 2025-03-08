@@ -11,16 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Search, FolderPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Exercise } from '@/pages/WorkoutDetail';
+import { Workout } from '@/interfaces/workout';
 import WorkoutSelectionDialog from '@/components/WorkoutSelectionDialog';
-
-export type Workout = {
-  id: string;
-  date: Date;
-  name: string;
-  exercises: Exercise[];
-  category?: string;
-};
 
 const Workouts = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -35,7 +27,7 @@ const Workouts = () => {
     const storedWorkouts = localStorage.getItem('workouts');
     if (storedWorkouts) {
       try {
-        const parsedWorkouts = JSON.parse(storedWorkouts).map((workout: any) => {
+        const parsedWorkouts = JSON.parse(storedWorkouts).map((workout: Workout) => {
           const workoutDate = new Date(workout.date);
           const { completed, ...workoutWithoutCompleted } = workout;
           return {
@@ -182,11 +174,11 @@ const Workouts = () => {
             </div>
 
             <Tabs defaultValue="workouts" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsList className="grid w-full grid-cols-1 mb-4">
                 <TabsTrigger value="workouts">Workouts</TabsTrigger>
-                <TabsTrigger value="manage" disabled={!isAddingWorkout && !editingWorkout}>
+                {/* <TabsTrigger value="manage" disabled={!isAddingWorkout && !editingWorkout}>
                   {editingWorkout ? 'Edit Workout' : isAddingWorkout ? 'Add Workout' : 'Manage'}
-                </TabsTrigger>
+                </TabsTrigger> */}
               </TabsList>
               
               <TabsContent value="workouts" className="space-y-4">
@@ -223,7 +215,7 @@ const Workouts = () => {
                 )}
               </TabsContent>
               
-              <TabsContent value="manage">
+              {/* <TabsContent value="manage">
                 {(isAddingWorkout || editingWorkout) && (
                   <WorkoutForm 
                     initialWorkout={editingWorkout || undefined}
@@ -234,7 +226,7 @@ const Workouts = () => {
                     }}
                   />
                 )}
-              </TabsContent>
+              </TabsContent> */}
             </Tabs>
           </Card>
         </div>

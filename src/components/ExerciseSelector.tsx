@@ -7,7 +7,7 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
-} from "@/components/ui/command";
+} from "@/components/ui/commandDialogProps";
 import {
   Popover,
   PopoverContent,
@@ -15,12 +15,8 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { ExerciseSelectorProps } from "@/interfaces/exercise";
 
-interface ExerciseSelectorProps {
-  exercises: string[];
-  selectedExercise: string | null;
-  onSelectExercise: (exercise: string) => void;
-}
 
 const ExerciseSelector = ({ 
   exercises, 

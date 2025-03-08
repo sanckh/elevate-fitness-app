@@ -6,7 +6,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import { Folder, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Workout } from '@/pages/WorkoutDetail';
+// import { Workout } from '@/pages/WorkoutDetail';
+import { Workout } from '@/interfaces/workout';
 
 interface WorkoutSelectionDialogProps {
   open: boolean;
@@ -22,7 +23,7 @@ const WorkoutSelectionDialog = ({ open, onOpenChange, onSelectWorkout }: Workout
     const storedWorkouts = localStorage.getItem('workouts');
     if (storedWorkouts) {
       try {
-        const parsedWorkouts = JSON.parse(storedWorkouts).map((w: any) => ({
+        const parsedWorkouts = JSON.parse(storedWorkouts).map((w: Workout) => ({
           ...w,
           date: new Date(w.date)
         }));
