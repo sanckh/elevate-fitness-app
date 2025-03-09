@@ -182,15 +182,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Return to Home */}
-          <div className="text-center">
-            <Link
-              to="/workouts"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Return to Workouts
-            </Link>
-          </div>
         </div>
       </div>
       <Footer />
