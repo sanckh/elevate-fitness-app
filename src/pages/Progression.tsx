@@ -180,7 +180,7 @@ const Progression = () => {
                     modifiers={{
                       hasEntry: datesWithEntries,
                     }}
-                    className="rounded-md border"
+                    className="rounded-md border w-full flex justify-center"
                   />
                 </CardContent>
               </Card>
