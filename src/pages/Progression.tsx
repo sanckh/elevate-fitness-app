@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,56 +12,12 @@ import AnimatedButton from '@/components/AnimatedButton';
 import { Ruler, ImagePlus, Weight, Image, TrendingUp, Calendar as CalendarIcon } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useSearchParams } from 'react-router-dom';
-
-const progressEntries = [
-  {
-    id: '1',
-    date: new Date(2023, 6, 10),
-    weight: 0,
-    bodyFat: 0,
-    measurements: {
-      chest: 0,
-      waist: 0,
-      arms: 0,
-    },
-    photos: [
-      '/placeholder.svg',
-      '/placeholder.svg',
-    ]
-  },
-  {
-    id: '2',
-    date: new Date(2023, 7, 10),
-    weight: 0,
-    bodyFat: 0,
-    measurements: {
-      chest: 0,
-      waist: 0,
-      arms: 0,
-    },
-    photos: [
-      '/placeholder.svg',
-      '/placeholder.svg',
-    ]
-  },
-  {
-    id: '3',
-    date: new Date(2023, 8, 10),
-    weight: 0,
-    bodyFat: 0,
-    measurements: {
-      chest: 0,
-      waist: 0,
-      arms: 0,
-    },
-    photos: [
-      '/placeholder.svg',
-      '/placeholder.svg',
-    ]
-  },
-];
+import { ProgressEntry } from '@/interfaces/progression';
+import { useAuth } from '@/context/AuthContext';
+import axios from 'axios'
 
 const Progression = () => {
+  const [progressEntries, setProgressEntries] = useState<ProgressEntry[]>([]);
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'photos'); // Default to 'photos' tab
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
@@ -71,25 +27,127 @@ const Progression = () => {
   const [chest, setChest] = useState(selectedEntry?.measurements?.chest?.toString() || '');
   const [waist, setWaist] = useState(selectedEntry?.measurements?.waist?.toString() || '');
   const [arms, setArms] = useState(selectedEntry?.measurements?.arms?.toString() || '');
-  const [photos, setPhotos] = useState(selectedEntry?.photos || []);
+  const [photos, setPhotos] = useState(selectedEntry?.photos || ['/placeholder.svg',
+    '/placeholder.svg',]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const [dataUpdated, setDataUpdated] = useState(false);
+  const { user } = useAuth();
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const userId = user?.uid;
+        if (userId) {
+          const response = await axios.get(`http://localhost:3000/api/progressions`);
+          console.log(response.data);
+
+          // Filter the entries based on the current user's userId
+          const allEntries = Object.values(response.data) as ProgressEntry[];
+          const userEntries = allEntries.filter(entry => entry.userId === userId);
+
+          setProgressEntries(userEntries);
+
+          // Set the selected entry to the most recent entry by default
+          if (userEntries.length > 0) {
+            const mostRecentEntry = userEntries[userEntries.length - 1];
+            setSelectedDate(new Date(mostRecentEntry.date));
+            setSelectedEntry(mostRecentEntry);
+            updateFormFields(mostRecentEntry);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching progress entries:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to fetch progress entries',
+          variant: 'destructive',
+        });
+      }
+    };
+
+    fetchData();
+  }, [user, dataUpdated]);
+
+  // Update form fields based on the selected entry
+  const updateFormFields = (entry: ProgressEntry) => {
+    setWeight(entry.weight?.toString() || '0');
+    setBodyFat(entry.bodyFat?.toString() || '0');
+    setChest(entry.measurements?.chest?.toString() || '0');
+    setWaist(entry.measurements?.waist?.toString() || '0');
+    setArms(entry.measurements?.arms?.toString() || '0');
+    setPhotos(entry.photos || ['/placeholder.svg',
+      '/placeholder.svg',]);
+  };
+
+  // Handle Date Selection
   const handleDateSelect = (date: Date | undefined) => {
     setSelectedDate(date);
-    const entry = progressEntries.find(
-      (e) => e.date.toDateString() === date?.toDateString()
-    );
-    if (entry) {
-      setSelectedEntry(entry);
-      setWeight(entry.weight?.toString() || '0');
-      setBodyFat(entry.bodyFat?.toString() || '0');
-      setChest(entry.measurements?.chest?.toString() || '0');
-      setWaist(entry.measurements?.waist?.toString() || '0');
-      setArms(entry.measurements?.arms?.toString() || '0');
+    if (date) {
+      const entry = progressEntries.find(
+        (e) => new Date(e.date).toDateString() === date.toDateString()
+      );
+      if (entry) {
+        setSelectedEntry(entry);
+        updateFormFields(entry);
+      } else {
+        // If no entry exists for the selected date, reset the form fields
+        setSelectedEntry(null);
+        setWeight('0');
+        setBodyFat('0');
+        setChest('0');
+        setWaist('0');
+        setArms('0');
+        setPhotos([
+          '/placeholder.svg',
+          '/placeholder.svg',
+        ]);
+      }
     }
   };
 
+  // Handle Form Submit
+  const handleFormSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const payload = {
+      progression: {
+        id: crypto.randomUUID(),
+        userId: user?.uid,
+        date: selectedDate.toISOString(), // Ensure this is a Date object
+        weight: parseFloat(weight),
+        bodyFat: parseFloat(bodyFat),
+        measurements: {
+          chest: parseFloat(chest),
+          waist: parseFloat(waist),
+          arms: parseFloat(arms),
+        },
+        photos: [...photos], // Ensure this is an array of valid URLs
+      },
+    };
+    // console.log("Payload being sent:", JSON.stringify(payload, null, 2));
+    try {
+      const response = await axios.post('http://localhost:3000/api/progressions/save', payload, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log('Progress saved successfully:', response.data);
+      toast({
+        title: 'Success',
+        description: 'Progress saved successfully',
+        variant: 'default',
+      });
+      setDataUpdated((prev) => !prev); // To rerender after from submission
+
+    } catch (error) {
+      console.error('Error saving progress:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save progress',
+        variant: 'destructive',
+      });
+    }
+  };
   const datesWithEntries = progressEntries.map((entry) => entry.date);
 
   const displayMeasurement = (value: number | string | undefined): string => {
@@ -109,7 +167,7 @@ const Progression = () => {
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
-      
+
       if (!file.type.startsWith('image/')) {
         toast({
           title: "Invalid file type",
@@ -118,7 +176,7 @@ const Progression = () => {
         });
         return;
       }
-      
+
       if (file.size > 5 * 1024 * 1024) {
         toast({
           title: "File too large",
@@ -130,19 +188,19 @@ const Progression = () => {
 
       const photoIndex = parseInt(event.target.dataset.photoIndex || '0', 10);
       const newUrl = URL.createObjectURL(file);
-      
+
       const updatedPhotos = [...photos];
       updatedPhotos[photoIndex] = newUrl;
-      
+
       setPhotos(updatedPhotos);
-      
+
       toast({
         title: "Photo uploaded",
         description: "Your progress photo has been updated",
         variant: "default"
       });
     }
-    
+
     if (event.target) {
       event.target.value = '';
     }
@@ -159,7 +217,7 @@ const Progression = () => {
           </div>
         </div>
       </div>
-      
+
       <div className="container mx-auto px-4 md:px-6 py-8 flex-1">
         <div className="max-w-5xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
@@ -184,7 +242,7 @@ const Progression = () => {
                   />
                 </CardContent>
               </Card>
-              
+
               {selectedEntry && (
                 <Card className="mt-4">
                   <CardHeader>
@@ -202,7 +260,7 @@ const Progression = () => {
                         <div className="bg-secondary/20 p-3 rounded-lg">
                           <div className="text-sm text-muted-foreground">Weight</div>
                           <div className="text-xl font-semibold flex items-center gap-1">
-                            {displayMeasurement(selectedEntry.weight)} 
+                            {displayMeasurement(selectedEntry.weight)}
                             <span className="text-xs text-muted-foreground">lbs</span>
                           </div>
                         </div>
@@ -214,7 +272,7 @@ const Progression = () => {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="pt-2 border-t">
                         <h4 className="text-sm font-medium mb-2">Measurements</h4>
                         <div className="grid grid-cols-3 gap-2 text-sm">
@@ -237,7 +295,7 @@ const Progression = () => {
                 </Card>
               )}
             </div>
-            
+
             <div className="md:col-span-7">
               <Card>
                 <CardHeader>
@@ -258,27 +316,27 @@ const Progression = () => {
                         <span>Measurements</span>
                       </TabsTrigger>
                     </TabsList>
-                    
+
                     <TabsContent value="photos">
-                      <input 
-                        type="file" 
-                        ref={fileInputRef} 
-                        onChange={handlePhotoUpload} 
-                        accept="image/*" 
-                        className="hidden" 
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handlePhotoUpload}
+                        accept="image/*"
+                        className="hidden"
                       />
-                      
+
                       {photos.length > 0 ? (
                         <div className="grid grid-cols-2 gap-4">
                           {photos.map((photo, index) => (
-                            <div 
-                              key={index} 
+                            <div
+                              key={index}
                               className="relative aspect-square rounded-md overflow-hidden border bg-muted cursor-pointer hover:opacity-90 transition-opacity"
                               onClick={() => handlePhotoClick(index)}
                             >
-                              <img 
-                                src={photo} 
-                                alt={`Progress photo ${index + 1}`} 
+                              <img
+                                src={photo}
+                                alt={`Progress photo ${index + 1}`}
                                 className="w-full h-full object-cover"
                               />
                               <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity">
@@ -294,7 +352,7 @@ const Progression = () => {
                           <p className="text-muted-foreground mb-4">
                             Add progress photos to track your physical changes
                           </p>
-                          <AnimatedButton 
+                          <AnimatedButton
                             variant="primary"
                             onClick={() => handlePhotoClick(0)}
                           >
@@ -304,7 +362,7 @@ const Progression = () => {
                         </div>
                       )}
                     </TabsContent>
-                    
+
                     <TabsContent value="measurements">
                       <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
@@ -335,7 +393,7 @@ const Progression = () => {
                             />
                           </div>
                         </div>
-                        
+
                         <div className="pt-4 border-t">
                           <h4 className="text-sm font-medium mb-3">Body Measurements (inches)</h4>
                           <div className="grid grid-cols-3 gap-4">
@@ -374,10 +432,11 @@ const Progression = () => {
                             </div>
                           </div>
                         </div>
-                        
+
                         <div className="flex justify-end mt-4 pt-4 border-t">
-                          <AnimatedButton 
+                          <AnimatedButton
                             variant="primary"
+                            onClick={handleFormSubmit}
                           >
                             Save Changes
                           </AnimatedButton>
