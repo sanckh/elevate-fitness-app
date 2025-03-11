@@ -12,11 +12,21 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@firebase/database": "^1.0.13",
+    "@firebase/storage": "^0.13.7",
     "@types/express": "^5.0.0",
     "@types/node": "^22.13.9",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "firebase": "^11.4.0",
+    "multer": "^1.4.5-lts.1",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2"
+  },
+  "devDependencies": {
+    "@types/multer": "^1.4.12",
+    "tsconfig-paths": "^4.2.0"
   }
 }
