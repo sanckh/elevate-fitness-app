@@ -6,4 +6,5 @@ export interface Workout {
   exercises: Exercise[];
   category?: string;
   completed?: boolean;
+  userId?: string;
 }

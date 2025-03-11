@@ -13,6 +13,9 @@ import { PlusCircle, Search, FolderPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Workout } from '@/interfaces/workout';
 import WorkoutSelectionDialog from '@/components/WorkoutSelectionDialog';
+import { useAuth } from '@/context/AuthContext';
+import axios from 'axios';
+import { saveWorkout,deleteWorkout } from '@/api/workout';
 
 const Workouts = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -22,25 +25,31 @@ const Workouts = () => {
   const [workoutDialogOpen, setWorkoutDialogOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
-    const storedWorkouts = localStorage.getItem('workouts');
-    if (storedWorkouts) {
-      try {
-        const parsedWorkouts = JSON.parse(storedWorkouts).map((workout: Workout) => {
-          const workoutDate = new Date(workout.date);
-          const { completed, ...workoutWithoutCompleted } = workout;
-          return {
-            ...workoutWithoutCompleted,
-            date: workoutDate
-          };
-        });
-        setWorkouts(parsedWorkouts);
-      } catch (error) {
-        console.error('Error parsing workouts:', error);
+    const fetchWorkouts = async () => {
+      if (user?.uid) {
+        try {
+          const response = await axios.get(`http://localhost:3000/api/workout/get/${user.uid}`);
+          const fetchedWorkouts = response.data.map((workout: Workout) => ({
+            ...workout,
+            date: new Date(workout.date), // Ensure the date is a Date object
+          }));
+          setWorkouts(fetchedWorkouts);
+        } catch (error) {
+          console.error('Error fetching workouts:', error);
+          toast({
+            title: 'Error',
+            description: 'Failed to fetch workouts',
+            variant: 'destructive',
+          });
+        }
       }
-    }
-  }, []);
+    };
+
+    fetchWorkouts();
+  }, [user]);
 
   useEffect(() => {
     localStorage.setItem('workouts', JSON.stringify(workouts));
@@ -64,8 +73,16 @@ const Workouts = () => {
     const newWorkout = {
       ...selectedWorkout,
       id: crypto.randomUUID(),
-      date: selectedDate
+      date: selectedDate,
+      userId: user.uid
     };
+
+    const payload={
+      workout:newWorkout
+    }
+
+     //Save to database
+     saveWorkout(payload)
     
     setWorkouts([...workouts, newWorkout]);
     
@@ -110,6 +127,10 @@ const Workouts = () => {
   };
 
   const handleDeleteWorkout = (workoutId: string) => {
+     //Delete from database
+     deleteWorkout(workoutId);
+
+     //update the local storage
     const workoutToDelete = workouts.find(w => w.id === workoutId);
     setWorkouts(workouts.filter(workout => workout.id !== workoutId));
     toast({

@@ -17,6 +17,7 @@ import { LocationState } from '@/interfaces/locationState';
 import { Exercise } from '@/interfaces/exercise';
 import { Workout } from '@/interfaces/workout';
 import { ExerciseSet } from '@/interfaces/exercise';
+import { editWorkout,deleteWorkout } from '@/api/workout';
 
 const WorkoutDetail = () => {
   const { workoutId, date } = useParams();
@@ -124,6 +125,9 @@ const WorkoutDetail = () => {
   const handleDelete = () => {
     if (!workout) return;
     
+     //delete from db
+     deleteWorkout(workout.id)
+
     const updatedWorkouts = allWorkouts.filter(w => w.id !== workout.id);
     localStorage.setItem('workouts', JSON.stringify(updatedWorkouts));
     
@@ -140,7 +144,12 @@ const WorkoutDetail = () => {
     const newWorkouts = allWorkouts.map(w => 
       w.id === updatedWorkout.id ? updatedWorkout : w
     );
-    
+  
+     //update in db also
+     const payload={
+      workout: updatedWorkout
+    }
+    editWorkout(payload)
     localStorage.setItem('workouts', JSON.stringify(newWorkouts));
     setWorkout(updatedWorkout);
     setAllWorkouts(newWorkouts);
