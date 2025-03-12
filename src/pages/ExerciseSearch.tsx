@@ -14,6 +14,9 @@ import { Workout } from '@/interfaces/workout';
 import { ExerciseSet } from '@/interfaces/exercise';
 import ExerciseSetList from '@/components/ExerciseSetList';
 import { getExercisesByName } from '@/api/exercisedbapi';
+import { useAuth } from '@/context/AuthContext';
+import axios from 'axios';
+import { saveWorkout } from '@/api/workout';
 
 const ExerciseSearch = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -24,6 +27,7 @@ const ExerciseSearch = () => {
   
   const navigate = useNavigate();
   const { toast } = useToast();
+  const {user} = useAuth();
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -106,24 +110,17 @@ const ExerciseSearch = () => {
       exercises: selectedExercises,
     };
     
-    const storedWorkouts = localStorage.getItem('workouts');
-    let workouts: Workout[] = [];
-    
-    if (storedWorkouts) {
-      try {
-        workouts = JSON.parse(storedWorkouts);
-      } catch (error) {
-        console.error('Error parsing workouts:', error);
-      }
-    }
-    
     const workoutWithId = {
       ...newWorkout,
-      id: crypto.randomUUID()
+      id: crypto.randomUUID(),
+      userId: user?.uid,
     };
-    
-    workouts.push(workoutWithId);
-    localStorage.setItem('workouts', JSON.stringify(workouts));
+
+    const payload={
+      workout:workoutWithId
+    }
+
+    saveWorkout(payload)
     
     toast({
       title: "Workout Saved",

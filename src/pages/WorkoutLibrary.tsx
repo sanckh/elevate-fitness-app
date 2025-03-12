@@ -33,6 +33,8 @@ import { Workout } from '@/interfaces/workout';
 import { ExerciseSet } from '@/interfaces/exercise';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Exercise } from '@/interfaces/exercise';
+import { deleteWorkout, saveWorkout,fetchWorkouts } from '@/api/workout';
+import { useAuth } from '@/context/AuthContext';
 
 const WorkoutSchema = z.object({
   name: z.string().min(2, {
@@ -59,6 +61,7 @@ const WorkoutLibrary = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
+  const {user} =useAuth()
   
   const form = useForm<z.infer<typeof WorkoutSchema>>({
     resolver: zodResolver(WorkoutSchema),
@@ -127,6 +130,9 @@ const WorkoutLibrary = () => {
   };
 
   const handleDeleteWorkout = (workoutId: string) => {
+
+     //delete from db
+     deleteWorkout(workoutId);
     // Filter out the workout with the given ID
     const updatedWorkouts = workouts.filter(workout => workout.id !== workoutId);
 
@@ -140,6 +146,7 @@ const WorkoutLibrary = () => {
       id: newWorkoutId,
       name: 'Full Body Workout',
       date: new Date(),
+      userId: user.uid,
       exercises: [
         {
           id: crypto.randomUUID(),
@@ -170,6 +177,12 @@ const WorkoutLibrary = () => {
         },
       ],
     };
+
+    const payload={
+      workout: defaultWorkout
+    }
+    //Save to database
+    saveWorkout(payload)
     setWorkouts([...workouts, defaultWorkout]);
   };
   
@@ -179,6 +192,7 @@ const WorkoutLibrary = () => {
       id: newWorkoutId,
       name: 'Push Day',
       date: new Date(),
+      userId: user.uid,
       exercises: [
         {
           id: crypto.randomUUID(),
@@ -209,6 +223,13 @@ const WorkoutLibrary = () => {
         },
       ],
     };
+
+    const payload={
+      workout: pushWorkout
+    }
+    //Save to db
+    saveWorkout(payload)
+    
     setWorkouts([...workouts, pushWorkout]);
   };
   
@@ -218,6 +239,7 @@ const WorkoutLibrary = () => {
       id: newWorkoutId,
       name: 'Pull Day',
       date: new Date(),
+      userId: user.uid,
       exercises: [
         {
           id: crypto.randomUUID(),
@@ -248,6 +270,12 @@ const WorkoutLibrary = () => {
         },
       ],
     };
+
+    const payload={
+      workout: pullWorkout
+    }
+    //Save to db
+    saveWorkout(payload)
     setWorkouts([...workouts, pullWorkout]);
   };
 

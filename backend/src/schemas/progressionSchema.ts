@@ -1,7 +1,5 @@
 
 import { z } from 'zod';
-
-
 const progressionSchema = z.object({
   id: z.string().min(1, "Progression ID is required"),
   userId: z.string().min(1, "User ID is required"),
@@ -20,7 +18,14 @@ const progressionSchema = z.object({
 
 export const saveProgressionRequestSchema = z.object({
   body: z.object({
-    progression: progressionSchema, 
+    progression: progressionSchema,
+  }),
+});
+
+// Schema for the /get/:userId route
+export const getProgressionByUserSchema = z.object({
+  params: z.object({
+      userId: z.string().min(1, "User ID is required"), // Assuming userId is a string
   }),
 });
 
