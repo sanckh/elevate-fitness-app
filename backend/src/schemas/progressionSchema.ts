@@ -22,3 +22,10 @@ export const saveProgressionRequestSchema = z.object({
   }),
 });
 
+// Schema for the /get/:userId route
+export const getProgressionByUserSchema = z.object({
+  params: z.object({
+      userId: z.string().min(1, "User ID is required"), // Assuming userId is a string
+  }),
+});
+

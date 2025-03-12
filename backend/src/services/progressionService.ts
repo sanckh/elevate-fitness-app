@@ -12,19 +12,19 @@ export const saveProgressEntry = async (entry: ProgressEntry) => {
   }
 }
 
-export const fetchAllProgressEntries = async (): Promise<ProgressEntry[] | null> => {
+export const fetchProgressionEnteriesByUserId = async (userId: string): Promise<ProgressEntry[] | null> => {
   try {
-    const progressionsRef = collection(firestore, "progressions"); 
-    const querySnapshot = await getDocs(progressionsRef);
+    const progressionsRef = collection(firestore, "progressions");
+    const q = query(progressionsRef, where('userId', '==', userId))
+    const querySnapshot = await getDocs(q);
+
     if (!querySnapshot.empty) {
       const progressions: ProgressEntry[] = querySnapshot.docs.map((doc) => ({
-        id: doc.id, 
-        ...doc.data(), 
+        ...doc.data(),
       })) as ProgressEntry[];
-
       return progressions;
     } else {
-      return null;
+      return [];
     }
   } catch (error) {
     console.error("Failed to fetch progression data:", error);
