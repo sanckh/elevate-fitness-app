@@ -39,13 +39,9 @@ const Progression = () => {
       try {
         const userId = user?.uid;
         if (userId) {
-          const response = await axios.get(`http://localhost:3000/api/progressions`);
-          console.log(response.data);
+          const response = await axios.get(`http://localhost:3000/api/progressions/get/${userId}`);
 
-          // Filter the entries based on the current user's userId
-          const allEntries = Object.values(response.data) as ProgressEntry[];
-          const userEntries = allEntries.filter(entry => entry.userId === userId);
-
+          const userEntries = Object.values(response.data) as ProgressEntry[];
           setProgressEntries(userEntries);
 
           // Set the selected entry to the most recent entry by default
@@ -124,7 +120,6 @@ const Progression = () => {
         photos: [...photos], // Ensure this is an array of valid URLs
       },
     };
-    // console.log("Payload being sent:", JSON.stringify(payload, null, 2));
     try {
       const response = await axios.post('http://localhost:3000/api/progressions/save', payload, {
         headers: {
