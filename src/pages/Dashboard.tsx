@@ -1,10 +1,11 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AnimatedButton from '@/components/AnimatedButton';
 import { cn } from '@/lib/utils';
 import { Header } from "@/components/Header";
 import { Footer } from '@/components/Footer';
+import { Workout } from '@/interfaces/workout';
 
 // Dashboard sections
 const sections = [
@@ -69,6 +70,47 @@ const sections = [
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [totalWorkouts, setTotalWorkouts] = useState<number>(0);
+  const [activeDays, setActiveDays] = useState<number>(0);
+
+    // Fetch user workouts from localStorage
+    useEffect(() => {
+      const fetchWorkouts = () => {
+        try {
+          const storedWorkouts = localStorage.getItem('workouts');
+          if (!storedWorkouts) {
+            console.log('No workouts found in localStorage');
+            return;
+          }
+  
+          const parsedWorkouts: Workout[] = JSON.parse(storedWorkouts);
+          if (!Array.isArray(parsedWorkouts)) {
+            console.log('Parsed workouts is not an array');
+            return;
+          }
+  
+          // Calculate total workouts
+          setTotalWorkouts(parsedWorkouts.length);
+  
+          // Calculate active days in the current year
+          const currentYear = new Date().getFullYear();
+          const activeDaysSet = new Set<string>();
+  
+          parsedWorkouts.forEach((workout) => {
+            const workoutDate = new Date(workout.date);
+            if (workoutDate.getFullYear() === currentYear) {
+              activeDaysSet.add(workoutDate.toISOString().split('T')[0]);
+            }
+          });
+  
+          setActiveDays(activeDaysSet.size);
+        } catch (error) {
+          console.error('Error loading workouts:', error);
+        }
+      };
+  
+      fetchWorkouts();
+    }, []);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -87,12 +129,12 @@ const Dashboard = () => {
       <div className="container mx-auto px-4 md:px-6 py-8 flex-1">
         <div className="max-w-4xl mx-auto">
           {/* Dashboard Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-3 md:grid-cols-3 gap-4 mb-8">
             {[
-              { label: 'Workouts', value: '0', change: '+0%' },
-              { label: 'Active Days', value: '0', change: '+0%' },
-              { label: 'Calories Burned', value: '0', change: '+0%' },
-              { label: 'Goals Met', value: '0', change: '+0%' }
+              { label: 'Workouts', value: totalWorkouts, change: '' },
+              { label: 'Active Days', value:  `${activeDays}/365`, change: '' },
+              // { label: 'Calories Burned', value: '0', change: '+0%' },
+              { label: 'Goals Met', value: '0', change: '' }
             ].map((stat, index) => (
               <div
                 key={stat.label}
