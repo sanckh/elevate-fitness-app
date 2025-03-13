@@ -65,6 +65,11 @@ const Progression = () => {
     fetchData();
   }, [user, dataUpdated]);
 
+  // Adding Progress Enteries to Database
+  useEffect(() => {
+    localStorage.setItem("progressEntries", JSON.stringify(progressEntries))
+  }, [progressEntries])
+
   // Update form fields based on the selected entry
   const updateFormFields = (entry: ProgressEntry) => {
     setWeight(entry.weight?.toString() || '0');
