@@ -9,8 +9,6 @@ export const saveWorkoutEntry = async (entry: Workout) => {
 
         // Save the workout entry to Firestore
         await setDoc(entryRef, entry);
-
-        console.log("Workout entry saved successfully in Firestore");
     } catch (error) {
         console.error("Failed to save workout data:", error);
         throw new Error("Failed to save workout data: " + error);
@@ -44,8 +42,6 @@ export const deleteWorkoutEntry = async (workoutId: string): Promise<void> => {
      
       const workoutRef = doc(db, `workouts/${workoutId}`);
       await deleteDoc(workoutRef);
-
-      console.log(`Workout entry with ID ${workoutId} deleted successfully`);
   } catch (error) {
       console.error("Failed to delete workout:", error);
       throw new Error("Failed to delete workout: " + error);
@@ -61,8 +57,6 @@ export const editWorkoutEntry = async (entry: Workout): Promise<void> => {
 
         // Update the workout entry in Firestore, merging with existing data
         await setDoc(entryRef, entry, { merge: true });
-
-        console.log("Workout entry updated successfully in Firestore");
     } catch (error) {
         console.error("Failed to update workout data:", error);
         throw new Error("Failed to update workout data: " + error);
