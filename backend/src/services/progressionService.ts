@@ -27,7 +27,6 @@ export const fetchProgressionEnteriesByUserId = async (userId: string): Promise<
       return [];
     }
   } catch (error) {
-    console.error("Failed to fetch progression data:", error);
     throw new Error("Failed to fetch progression data");
   }
 };

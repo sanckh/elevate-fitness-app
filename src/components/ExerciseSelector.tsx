@@ -55,7 +55,7 @@ const ExerciseSelector = ({
               {safeExercises.map((exercise) => (
                 <CommandItem
                   key={exercise}
-                  value={exercise}
+                  value={exercise || ''}
                   onSelect={() => {
                     onSelectExercise(exercise);
                     setOpen(false);
