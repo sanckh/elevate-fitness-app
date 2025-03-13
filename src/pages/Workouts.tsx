@@ -205,31 +205,33 @@ const Workouts = () => {
           </Card>
 
           <Card className="p-4 col-span-1 md:col-span-2 shadow-md">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-medium">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-4">
+              <h2 className="text-xl font-medium mb-4 md:mb-0">
                 {format(selectedDate, "MMMM d, yyyy")}
               </h2>
               {!isAddingWorkout && !editingWorkout && (
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setWorkoutDialogOpen(true)}
-                    className="flex items-center gap-1"
-                  >
-                    <FolderPlus className="h-4 w-4" />
-                    Add Existing
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setCopyWorkoutDialogOpen(true)} // New button
-                    className="flex items-center gap-1"
-                  >
-                    {/* Add the Copy icon from Lucide */}
-                    Copy Previous Workout
-                  </Button>
+                <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+                  <div className="flex flex-row gap-2 w-full md:w-auto">
+                    <Button
+                      variant="outline"
+                      onClick={() => setWorkoutDialogOpen(true)}
+                      className="flex items-center justify-center gap-1 w-full md:w-auto"
+                    >
+                      <FolderPlus className="h-4 w-4" />
+                      Add Existing
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setCopyWorkoutDialogOpen(true)}
+                      className="flex items-center justify-center gap-1 w-full md:w-auto"
+                    >
+                      {/* Add the Copy icon from Lucide */}
+                      Copy Previous Workout
+                    </Button>
+                  </div>
                   <Button
                     onClick={handleCreateNewWorkout}
-                    className="flex items-center gap-1"
+                    className="flex items-center justify-center gap-1 w-full md:w-auto"
                   >
                     <PlusCircle className="h-4 w-4" />
                     Create New
