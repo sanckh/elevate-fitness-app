@@ -13,7 +13,6 @@ export const deleteWorkout = async (workoutId: string) => {
         throw new Error("Failed to delete workout from the database");
       }
 
-      console.log(`Workout with ID ${workoutId} deleted successfully from DB`);
     } catch (error) {
       console.error("Error deleting workout:", error);
     }

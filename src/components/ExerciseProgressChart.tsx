@@ -16,12 +16,10 @@ const ExerciseProgressChart = ({ exerciseName, workouts }: ExerciseProgressChart
   const chartData = useMemo(() => {
     // Validate inputs
     if (!exerciseName || typeof exerciseName !== 'string' || exerciseName.trim() === '') {
-      console.log('Invalid exercise name provided');
       return [];
     }
     
     if (!workouts || !Array.isArray(workouts) || workouts.length === 0) {
-      console.log('No valid workouts provided');
       return [];
     }
     

@@ -29,7 +29,6 @@ export const getWorkoutByUser = async (req: Request, res: Response) => {
 
 export const deleteWorkout = async (req: Request, res: Response) => {
     const { workoutId } = req.params; // Extract workoutId from the route parameters
-    console.log(workoutId)
     try {
         await deleteWorkoutEntry(workoutId); // Call the service function to delete the workout
         res.status(200).json({ message: 'Workout deleted successfully' });

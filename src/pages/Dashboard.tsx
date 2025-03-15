@@ -79,13 +79,11 @@ const Dashboard = () => {
         try {
           const storedWorkouts = localStorage.getItem('workouts');
           if (!storedWorkouts) {
-            console.log('No workouts found in localStorage');
             return;
           }
   
           const parsedWorkouts: Workout[] = JSON.parse(storedWorkouts);
           if (!Array.isArray(parsedWorkouts)) {
-            console.log('Parsed workouts is not an array');
             return;
           }
   

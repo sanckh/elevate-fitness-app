@@ -76,7 +76,6 @@ const WorkoutLibrary = () => {
   function onSubmit(values: z.infer<typeof WorkoutSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    console.log(values)
   }
 
   useEffect(() => {

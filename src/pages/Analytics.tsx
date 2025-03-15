@@ -22,7 +22,6 @@ const Analytics = () => {
     try {
       const storedWorkouts = localStorage.getItem('workouts');
       if (!storedWorkouts) {
-        console.log('No workouts found in localStorage, using placeholder data');
         return [];
       }
       
@@ -31,7 +30,6 @@ const Analytics = () => {
         parsedWorkouts = JSON.parse(storedWorkouts);
         
         if (!Array.isArray(parsedWorkouts)) {
-          console.log('Parsed workouts is not an array, using placeholder data');
           return [];
         }
         
@@ -79,7 +77,6 @@ const Analytics = () => {
   
   const uniqueExerciseNames = useMemo(() => {
     if (!Array.isArray(workouts) || workouts.length === 0) {
-      console.log('No workouts available for extracting exercise names');
       return [];
     }
     
@@ -109,7 +106,6 @@ const Analytics = () => {
     try {
       const storedEntries = localStorage.getItem('progressEntries');
       if (!storedEntries) {
-        console.log('No progression entries found in localStorage, using placeholder data');
         return [];
       }
       
@@ -118,7 +114,6 @@ const Analytics = () => {
         parsedEntries = JSON.parse(storedEntries);
         
         if (!Array.isArray(parsedEntries)) {
-          console.log('Parsed progression entries is not an array, using placeholder data');
           return [];
         }
         
