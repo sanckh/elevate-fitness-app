@@ -58,14 +58,6 @@ const WorkoutList = ({ workouts, onEdit, onDelete, onView }: WorkoutListProps) =
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="h-8 w-8 p-0"
-                  onClick={() => onEdit(workout)}
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
                   className="h-8 w-8 p-0 text-destructive"
                   onClick={() => onDelete(workout.id)}
                 >
