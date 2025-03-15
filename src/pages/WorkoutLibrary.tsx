@@ -287,9 +287,9 @@ const WorkoutLibrary = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8 mt-20">
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold">Workout Library</h1>
-          <div className="space-x-2">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-4 ">
+          <h1 className="text-2xl font-bold mb-4 md:mb-0 ">Workout Library</h1>
+          <div className="flex flex-row gap-2 overflow-x-auto w-full md:w-auto">
             <Button variant="outline" size="sm" onClick={createDefaultWorkout}>
               Full Body
             </Button>
