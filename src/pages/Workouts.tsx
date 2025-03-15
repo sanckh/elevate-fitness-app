@@ -142,11 +142,11 @@ const Workouts = () => {
     navigate(`/workouts/${workoutId}`);
   };
 
-  const handleCopyWorkout = (selectedWorkout: Workout) => {
+  const handleCopyWorkout = (selectedWorkout: Workout, targetDate: Date) => {
     const newWorkout = {
       ...selectedWorkout,
       id: crypto.randomUUID(),
-      date: new Date(),
+      date: targetDate,
       userId: user?.uid,
     };
 
@@ -161,7 +161,7 @@ const Workouts = () => {
     toast({
       title: "Workout Copied",
       description: `${selectedWorkout.name} has been copied to ${format(
-        selectedDate,
+        targetDate,
         "MMMM d, yyyy"
       )}.`,
     });
@@ -213,7 +213,6 @@ const Workouts = () => {
                       onClick={() => setCopyWorkoutDialogOpen(true)}
                       className="flex items-center justify-center gap-1 w-full md:w-auto"
                     >
-                      {/* Add the Copy icon from Lucide */}
                       Copy Previous Workout
                     </Button>
                   </div>
@@ -289,6 +288,7 @@ const Workouts = () => {
           onOpenChange={setCopyWorkoutDialogOpen}
           workouts={workouts}
           onSelectWorkout={handleCopyWorkout}
+          targetDate={selectedDate}
         />
       </main>
       <Footer />
