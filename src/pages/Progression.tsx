@@ -42,12 +42,36 @@ const Progression = () => {
           const userEntries = await fetchProgressions(userId);
           setProgressEntries(userEntries);
 
-          // Set the selected entry to the most recent entry by default
-          if (userEntries.length > 0) {
-            const mostRecentEntry = userEntries[userEntries.length - 1];
-            setSelectedDate(new Date(mostRecentEntry.date));
-            setSelectedEntry(mostRecentEntry);
-            updateFormFields(mostRecentEntry);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0); // Normalize to start of day
+
+          // Try to find an entry for today first
+          const todayEntry = userEntries.find(
+            (e) => new Date(e.date).toDateString() === today.toDateString()
+          );
+
+          if (todayEntry) {
+            // If there's an entry for today, use it
+            setSelectedDate(today);
+            setSelectedEntry(todayEntry);
+            updateFormFields(todayEntry);
+          } else {
+            // If no entry for today, create empty state for today
+            setSelectedDate(today);
+            setSelectedEntry(null);
+            updateFormFields({
+              id: '',
+              userId: user.uid,
+              date: today,
+              weight: 0,
+              bodyFat: 0,
+              measurements: {
+                chest: 0,
+                waist: 0,
+                arms: 0,
+              },
+              photos: ['/placeholder.svg', '/placeholder.svg'],
+            });
           }
         }
       } catch (error) {
@@ -138,7 +162,6 @@ const Progression = () => {
       });
     }
   };
-  const datesWithEntries = progressEntries.map((entry) => entry.date);
 
   const displayMeasurement = (value: number | string | undefined): string => {
     if (value === undefined || value === null || value === 0 || value === '0' || value === '') {
@@ -187,9 +210,29 @@ const Progression = () => {
         updatedPhotos[photoIndex] = photoUrl;
         setPhotos(updatedPhotos);
 
+        // Save the updated progression entry with the new photo URL
+        const payload = {
+          progression: {
+            id: selectedEntry?.id || crypto.randomUUID(),
+            userId: user?.uid,
+            date: selectedDate,
+            weight: parseFloat(weight) || 0,
+            bodyFat: parseFloat(bodyFat) || 0,
+            measurements: {
+              chest: parseFloat(chest) || 0,
+              waist: parseFloat(waist) || 0,
+              arms: parseFloat(arms) || 0,
+            },
+            photos: updatedPhotos,
+          },
+        };
+
+        await saveProgression(payload);
+        setDataUpdated(prev => !prev); // Trigger a refresh of the data
+
         toast({
           title: "Photo uploaded",
-          description: "Your progress photo has been updated",
+          description: "Your progress photo has been updated and saved",
           variant: "default"
         });
       } catch (error) {
@@ -237,7 +280,12 @@ const Progression = () => {
                     selected={selectedDate}
                     onSelect={handleDateSelect}
                     modifiers={{
-                      hasEntry: datesWithEntries,
+                      hasEntry: progressEntries.map(entry => new Date(entry.date))
+                    }}
+                    modifiersStyles={{
+                      hasEntry: {
+                        backgroundColor: 'hsl(var(--primary) / 0.2)'
+                      }
                     }}
                     className="rounded-md border w-full flex justify-center"
                   />
