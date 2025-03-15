@@ -16,6 +16,24 @@ export const fetchProgressions = async (userId: string): Promise<ProgressEntry[]
   }
 };
 
+export const uploadProgressionPhoto = async (file: File, userId: string, photoIndex: number): Promise<string> => {
+  try {
+    const formData = new FormData();
+    formData.append('photo', file);
+    formData.append('photoIndex', photoIndex.toString());
+    
+    const response = await axios.post(`${API_URL}/progressions/upload-photo/${userId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data.photoUrl;
+  } catch (error) {
+    console.error('Error uploading photo:', error);
+    throw error;
+  }
+};
+
 export const saveProgression = async (payload: { progression: ProgressEntry }): Promise<ProgressEntry> => {
   try {
     const response = await axios.post(`${API_URL}/progressions/save`, payload, {

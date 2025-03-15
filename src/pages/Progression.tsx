@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSearchParams } from 'react-router-dom';
 import { ProgressEntry } from '@/interfaces/progression';
 import { useAuth } from '@/context/AuthContext';
-import { fetchProgressions, saveProgression } from '@/api/progression';
+import { fetchProgressions, saveProgression, uploadProgressionPhoto } from '@/api/progression';
 
 const Progression = () => {
   const [progressEntries, setProgressEntries] = useState<ProgressEntry[]>([]);
@@ -154,7 +154,7 @@ const Progression = () => {
     }
   };
 
-  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
 
@@ -177,18 +177,29 @@ const Progression = () => {
       }
 
       const photoIndex = parseInt(event.target.dataset.photoIndex || '0', 10);
-      const newUrl = URL.createObjectURL(file);
 
-      const updatedPhotos = [...photos];
-      updatedPhotos[photoIndex] = newUrl;
+      try {
+        // Upload the photo and get the URL
+        const photoUrl = await uploadProgressionPhoto(file, user.uid, photoIndex);
 
-      setPhotos(updatedPhotos);
+        // Update the photos array with the new URL
+        const updatedPhotos = [...photos];
+        updatedPhotos[photoIndex] = photoUrl;
+        setPhotos(updatedPhotos);
 
-      toast({
-        title: "Photo uploaded",
-        description: "Your progress photo has been updated",
-        variant: "default"
-      });
+        toast({
+          title: "Photo uploaded",
+          description: "Your progress photo has been updated",
+          variant: "default"
+        });
+      } catch (error) {
+        console.error('Error uploading photo:', error);
+        toast({
+          title: "Upload failed",
+          description: "Failed to upload the photo. Please try again.",
+          variant: "destructive"
+        });
+      }
     }
 
     if (event.target) {

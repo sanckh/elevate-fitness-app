@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
-import { saveProgressEntry, fetchProgressionEnteriesByUserId } from '../services/progressionService';
+import { saveProgressEntry, fetchProgressionEnteriesByUserId, uploadProgressionImage } from '../services/progressionService';
 
-
-export const saveProgressionData = async (req: Request, res: Response) => {
+export const saveProgressionData = async (req: Request, res: Response): Promise<void> => {
     const { progression } = req.body;
     try {
         await saveProgressEntry(progression);
@@ -12,7 +11,7 @@ export const saveProgressionData = async (req: Request, res: Response) => {
     }
 };
 
-export const getProgressionData = async (req: Request, res: Response) => {
+export const getProgressionData = async (req: Request, res: Response): Promise<void> => {
     try {
         const { userId } = req.params;
         const progression = await fetchProgressionEnteriesByUserId(userId);
@@ -22,3 +21,26 @@ export const getProgressionData = async (req: Request, res: Response) => {
     }
 };
 
+export const uploadProgressionPhoto = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { userId } = req.params;
+        const photoIndex = parseInt(req.body.photoIndex, 10);
+        const file = req.file;
+
+        if (!file) {
+            res.status(400).json({ error: 'No file uploaded' });
+            return;
+        }
+
+        if (!file.mimetype.startsWith('image/')) {
+            res.status(400).json({ error: 'Invalid file type. Please upload an image.' });
+            return;
+        }
+
+        const photoUrl = await uploadProgressionImage(userId, file, photoIndex);
+        res.status(200).json({ photoUrl });
+    } catch (error) {
+        console.error('Error in uploadProgressionPhoto:', error);
+        res.status(500).json({ error: 'Failed to upload photo' });
+    }
+};

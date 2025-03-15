@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, doc, setDoc, getDocs, query, where } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
@@ -14,5 +15,7 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const firestore = getFirestore(app); // Initialize Firestore
-export { firestore, collection, doc, setDoc, getDocs, query, where };
+const firestore = getFirestore(app);
+const storage = getStorage(app);
+
+export { firestore, storage, collection, doc, setDoc, getDocs, query, where };

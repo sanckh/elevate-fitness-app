@@ -1,6 +1,6 @@
 import { ProgressEntry } from "../interfaces/progression";
-import { firestore, collection, doc, setDoc, getDocs, query, where } from "../config/firebase";
-import { addDoc } from "firebase/firestore";
+import { firestore, collection, doc, setDoc, getDocs, query, where, storage } from "../config/firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export const saveProgressEntry = async (entry: ProgressEntry) => {
   try {
@@ -31,4 +31,22 @@ export const fetchProgressionEnteriesByUserId = async (userId: string): Promise<
   }
 };
 
+export const uploadProgressionImage = async (userId: string, file: Express.Multer.File, photoIndex: number): Promise<string> => {
+  try {
+    const timestamp = Date.now();
+    const fileName = `progression_photos/${userId}/${timestamp}_${photoIndex}.jpg`;
+    const storageRef = ref(storage, fileName);
 
+    // Upload the file to Firebase Storage
+    await uploadBytes(storageRef, file.buffer, {
+      contentType: file.mimetype,
+    });
+
+    // Get the download URL
+    const downloadUrl = await getDownloadURL(storageRef);
+    return downloadUrl;
+  } catch (error) {
+    console.error("Failed to upload progression image:", error);
+    throw new Error("Failed to upload progression image");
+  }
+};
