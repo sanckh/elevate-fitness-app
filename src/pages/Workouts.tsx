@@ -15,8 +15,7 @@ import { Workout } from "@/interfaces/workout";
 import WorkoutSelectionDialog from "@/components/WorkoutSelectionDialog";
 import CopyWorkoutDialog from "@/components/CopyWorkoutDialog";
 import { useAuth } from "@/context/AuthContext";
-import axios from "axios";
-import { saveWorkout, deleteWorkout } from "@/api/workout";
+import { saveWorkout, deleteWorkout, fetchWorkouts } from "@/api/workout";
 
 const Workouts = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -30,16 +29,10 @@ const Workouts = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    const fetchWorkouts = async () => {
+    const loadWorkouts = async () => {
       if (user?.uid) {
         try {
-          const response = await axios.get(
-            `http://localhost:3000/api/workout/get/${user.uid}`
-          );
-          const fetchedWorkouts = response.data.map((workout: Workout) => ({
-            ...workout,
-            date: new Date(workout.date), // Ensure the date is a Date object
-          }));
+          const fetchedWorkouts = await fetchWorkouts(user.uid);
           setWorkouts(fetchedWorkouts);
         } catch (error) {
           console.error("Error fetching workouts:", error);
@@ -52,8 +45,8 @@ const Workouts = () => {
       }
     };
 
-    fetchWorkouts();
-  }, [user]);
+    loadWorkouts();
+  }, [user, toast]);
 
   useEffect(() => {
     localStorage.setItem("workouts", JSON.stringify(workouts));
@@ -87,7 +80,6 @@ const Workouts = () => {
       workout: newWorkout,
     };
 
-    //Save to database
     saveWorkout(payload);
 
     setWorkouts([...workouts, newWorkout]);
@@ -133,10 +125,8 @@ const Workouts = () => {
   };
 
   const handleDeleteWorkout = (workoutId: string) => {
-    //Delete from database
     deleteWorkout(workoutId);
 
-    //update the local storage
     const workoutToDelete = workouts.find((w) => w.id === workoutId);
     setWorkouts(workouts.filter((workout) => workout.id !== workoutId));
     toast({
@@ -155,7 +145,7 @@ const Workouts = () => {
   const handleCopyWorkout = (selectedWorkout: Workout) => {
     const newWorkout = {
       ...selectedWorkout,
-      id: crypto.randomUUID(), // Generate a new ID for the copied workout
+      id: crypto.randomUUID(),
       date: new Date(),
       userId: user?.uid,
     };
@@ -164,10 +154,8 @@ const Workouts = () => {
       workout: newWorkout,
     };
 
-    // Save to database
     saveWorkout(payload);
 
-    // Update local state
     setWorkouts([...workouts, newWorkout]);
 
     toast({
@@ -221,10 +209,9 @@ const Workouts = () => {
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => setCopyWorkoutDialogOpen(true)} // New button
+                    onClick={() => setCopyWorkoutDialogOpen(true)}
                     className="flex items-center gap-1"
                   >
-                    {/* Add the Copy icon from Lucide */}
                     Copy Previous Workout
                   </Button>
                   <Button
@@ -241,9 +228,6 @@ const Workouts = () => {
             <Tabs defaultValue="workouts" className="w-full">
               <TabsList className="grid w-full grid-cols-1 mb-4">
                 <TabsTrigger value="workouts">Workouts</TabsTrigger>
-                {/* <TabsTrigger value="manage" disabled={!isAddingWorkout && !editingWorkout}>
-                  {editingWorkout ? 'Edit Workout' : isAddingWorkout ? 'Add Workout' : 'Manage'}
-                </TabsTrigger> */}
               </TabsList>
 
               <TabsContent value="workouts" className="space-y-4">
@@ -271,10 +255,9 @@ const Workouts = () => {
                         </Button>
                         <Button
                           variant="outline"
-                          onClick={() => setCopyWorkoutDialogOpen(true)} // New button
+                          onClick={() => setCopyWorkoutDialogOpen(true)}
                           className="flex items-center gap-1"
                         >
-                          {/* Add the Copy icon from Lucide */}
                           Copy Previous Workout
                         </Button>
                         <Button
@@ -289,19 +272,6 @@ const Workouts = () => {
                   </div>
                 )}
               </TabsContent>
-
-              {/* <TabsContent value="manage">
-                {(isAddingWorkout || editingWorkout) && (
-                  <WorkoutForm 
-                    initialWorkout={editingWorkout || undefined}
-                    onSubmit={editingWorkout ? handleEditWorkout : handleAddWorkout}
-                    onCancel={() => {
-                      setIsAddingWorkout(false);
-                      setEditingWorkout(null);
-                    }}
-                  />
-                )}
-              </TabsContent> */}
             </Tabs>
           </Card>
         </div>

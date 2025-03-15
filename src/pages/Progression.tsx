@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSearchParams } from 'react-router-dom';
 import { ProgressEntry } from '@/interfaces/progression';
 import { useAuth } from '@/context/AuthContext';
-import axios from 'axios'
+import { fetchProgressions, saveProgression } from '@/api/progression';
 
 const Progression = () => {
   const [progressEntries, setProgressEntries] = useState<ProgressEntry[]>([]);
@@ -35,13 +35,11 @@ const Progression = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    const fetchData = async () => {
+    const loadProgressions = async () => {
       try {
         const userId = user?.uid;
         if (userId) {
-          const response = await axios.get(`http://localhost:3000/api/progressions/get/${userId}`);
-
-          const userEntries = Object.values(response.data) as ProgressEntry[];
+          const userEntries = await fetchProgressions(userId);
           setProgressEntries(userEntries);
 
           // Set the selected entry to the most recent entry by default
@@ -62,15 +60,13 @@ const Progression = () => {
       }
     };
 
-    fetchData();
+    loadProgressions();
   }, [user, dataUpdated]);
 
-  // Adding Progress Enteries to Database
   useEffect(() => {
     localStorage.setItem("progressEntries", JSON.stringify(progressEntries))
   }, [progressEntries])
 
-  // Update form fields based on the selected entry
   const updateFormFields = (entry: ProgressEntry) => {
     setWeight(entry.weight?.toString() || '0');
     setBodyFat(entry.bodyFat?.toString() || '0');
@@ -81,7 +77,6 @@ const Progression = () => {
       '/placeholder.svg',]);
   };
 
-  // Handle Date Selection
   const handleDateSelect = (date: Date | undefined) => {
     setSelectedDate(date);
     if (date) {
@@ -92,7 +87,6 @@ const Progression = () => {
         setSelectedEntry(entry);
         updateFormFields(entry);
       } else {
-        // If no entry exists for the selected date, reset the form fields
         setSelectedEntry(null);
         setWeight('0');
         setBodyFat('0');
@@ -107,37 +101,33 @@ const Progression = () => {
     }
   };
 
-  // Handle Form Submit
   const handleFormSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (!selectedDate) return;
+
     const payload = {
       progression: {
         id: crypto.randomUUID(),
         userId: user?.uid,
-        date: selectedDate.toISOString(), // Ensure this is a Date object
-        weight: parseFloat(weight),
-        bodyFat: parseFloat(bodyFat),
+        date: selectedDate,
+        weight: parseFloat(weight) || 0,
+        bodyFat: parseFloat(bodyFat) || 0,
         measurements: {
-          chest: parseFloat(chest),
-          waist: parseFloat(waist),
-          arms: parseFloat(arms),
+          chest: parseFloat(chest) || 0,
+          waist: parseFloat(waist) || 0,
+          arms: parseFloat(arms) || 0,
         },
-        photos: [...photos], // Ensure this is an array of valid URLs
+        photos: [...photos],
       },
     };
     try {
-      const response = await axios.post('http://localhost:3000/api/progressions/save', payload, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      console.log('Progress saved successfully:', response.data);
+      await saveProgression(payload);
       toast({
         title: 'Success',
         description: 'Progress saved successfully',
         variant: 'default',
       });
-      setDataUpdated((prev) => !prev); // To rerender after from submission
+      setDataUpdated((prev) => !prev);
 
     } catch (error) {
       console.error('Error saving progress:', error);

@@ -57,7 +57,7 @@ export const Footer = () => {
           </div>
         </div>
         <div className="text-center text-sm text-muted-foreground border-t pt-8">
-          <p> {new Date().getFullYear()} TheResumeProAI. All rights reserved.</p>
+          <p> {new Date().getFullYear()} The Tech Talent Blueprint. All rights reserved.</p>
         </div>
       </div>
     </footer>

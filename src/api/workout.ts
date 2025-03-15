@@ -1,12 +1,11 @@
-
 import { Workout } from "@/interfaces/workout";
 import axios from "axios";
 
-
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const deleteWorkout = async (workoutId: string) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/workout/delete/${workoutId}`, {
+      const response = await fetch(`${API_URL}/workout/delete/${workoutId}`, {
         method: "DELETE",
       });
 
@@ -23,7 +22,7 @@ export const deleteWorkout = async (workoutId: string) => {
 
   export const saveWorkout = async (payload: {workout: Workout}) => { 
     try {
-      const response = await axios.post('http://localhost:3000/api/workout/save', payload, {
+      const response = await axios.post(`${API_URL}/workout/save`, payload, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -35,18 +34,20 @@ export const deleteWorkout = async (workoutId: string) => {
   }
 
 
-   export const fetchWorkouts = async (userId: string) => {
-        if (userId) {
-          try {
-            const response = await axios.get(`http://localhost:3000/api/workout/get/${userId}`);
-            const fetchedWorkouts = response.data.map((workout: Workout) => ({
-              ...workout,
-              date: new Date(workout.date), // Ensure the date is a Date object
-            }));
-            console.log(fetchWorkouts)
-          } catch (error) {
-            console.error('Error fetching workouts:', error);
-          }
+   export const fetchWorkouts = async (userId: string): Promise<Workout[]> => {
+        if (!userId) {
+          return [];
+        }
+        try {
+          const response = await axios.get(`${API_URL}/workout/get/${userId}`);
+          const fetchedWorkouts = response.data.map((workout: Workout) => ({
+            ...workout,
+            date: new Date(workout.date), 
+          }));
+          return fetchedWorkouts;
+        } catch (error) {
+          console.error('Error fetching workouts:', error);
+          throw error;
         }
       };
 
@@ -54,7 +55,7 @@ export const deleteWorkout = async (workoutId: string) => {
       export const editWorkout= async (payload: {workout: Workout})=>{
     
         try {
-          const response = await axios.put('http://localhost:3000/api/workout/edit', payload, {
+          const response = await axios.put(`${API_URL}/workout/edit`, payload, {
             headers: {
               'Content-Type': 'application/json',
             },

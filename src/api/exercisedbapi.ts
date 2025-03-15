@@ -1,6 +1,6 @@
 // ExerciseDB API endpoints (from RapidAPI)
 const RAPID_API_KEY = import.meta.env.VITE_RAPID_API_KEY;
-const RAPID_API_HOST = import.meta.env.VITE_RAPID_API_HOST || 'exercisedb.p.rapidapi.com';
+const RAPID_API_HOST = import.meta.env.VITE_RAPID_API_HOST;
 
 const headers = {
   'X-RapidAPI-Key': RAPID_API_KEY,
@@ -21,7 +21,7 @@ interface Exercise {
 // Get all exercises
 export const getAllExercises = async (): Promise<Exercise[]> => {
   try {
-    const response = await fetch('https://exercisedb.p.rapidapi.com/exercises', {
+    const response = await fetch(`${RAPID_API_HOST}/exercises`, {
       headers,
     });
     
@@ -39,7 +39,7 @@ export const getAllExercises = async (): Promise<Exercise[]> => {
 // Get exercises by body part
 export const getExercisesByBodyPart = async (bodyPart: string): Promise<Exercise[]> => {
   try {
-    const response = await fetch(`https://exercisedb.p.rapidapi.com/exercises/bodyPart/${bodyPart}`, {
+    const response = await fetch(`${RAPID_API_HOST}/exercises/bodyPart/${bodyPart}`, {
       headers,
     });
     
@@ -57,7 +57,7 @@ export const getExercisesByBodyPart = async (bodyPart: string): Promise<Exercise
 // Get list of all body parts
 export const getBodyPartsList = async (): Promise<string[]> => {
   try {
-    const response = await fetch('https://exercisedb.p.rapidapi.com/exercises/bodyPartList', {
+    const response = await fetch(`${RAPID_API_HOST}/exercises/bodyPartList`, {
       headers,
     });
     
@@ -75,7 +75,7 @@ export const getBodyPartsList = async (): Promise<string[]> => {
 // Get list of all equipment
 export const getEquipmentList = async (): Promise<string[]> => {
   try {
-    const response = await fetch('https://exercisedb.p.rapidapi.com/exercises/equipmentList', {
+    const response = await fetch(`${RAPID_API_HOST}/exercises/equipmentList`, {
       headers,
     });
     
@@ -93,7 +93,7 @@ export const getEquipmentList = async (): Promise<string[]> => {
 // Get list of all target muscles
 export const getTargetList = async (): Promise<string[]> => {
   try {
-    const response = await fetch('https://exercisedb.p.rapidapi.com/exercises/targetList', {
+    const response = await fetch(`${RAPID_API_HOST}/exercises/targetList`, {
       headers,
     });
     
@@ -111,7 +111,7 @@ export const getTargetList = async (): Promise<string[]> => {
 // Get exercises by equipment type
 export const getExercisesByEquipment = async (equipment: string): Promise<Exercise[]> => {
   try {
-    const response = await fetch(`https://exercisedb.p.rapidapi.com/exercises/equipment/${equipment}`, {
+    const response = await fetch(`${RAPID_API_HOST}/exercises/equipment/${equipment}`, {
       headers,
     });
     
@@ -129,7 +129,7 @@ export const getExercisesByEquipment = async (equipment: string): Promise<Exerci
 // Get exercises by target muscle
 export const getExercisesByTarget = async (target: string): Promise<Exercise[]> => {
   try {
-    const response = await fetch(`https://exercisedb.p.rapidapi.com/exercises/target/${target}`, {
+    const response = await fetch(`${RAPID_API_HOST}/exercises/target/${target}`, {
       headers,
     });
     
@@ -147,7 +147,7 @@ export const getExercisesByTarget = async (target: string): Promise<Exercise[]> 
 // Get exercise by ID
 export const getExerciseById = async (id: string): Promise<Exercise> => {
   try {
-    const response = await fetch(`https://exercisedb.p.rapidapi.com/exercises/exercise/${id}`, {
+    const response = await fetch(`${RAPID_API_HOST}/exercises/exercise/${id}`, {
       headers,
     });
     
@@ -165,7 +165,7 @@ export const getExerciseById = async (id: string): Promise<Exercise> => {
 // Get exercises by name
 export const getExercisesByName = async (name: string): Promise<Exercise[]> => {
   try {
-    const response = await fetch(`https://exercisedb.p.rapidapi.com/exercises/name/${name}`, {
+    const response = await fetch(`${RAPID_API_HOST}/exercises/name/${name}`, {
       headers,
     });
     

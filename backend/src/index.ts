@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 import express, { Express, Request, Response } from 'express';
 import progressionRoutes from './routes/progressionRoute';
 import workoutRoutes from './routes/workoutRoutes'
-var cors = require('cors')
+const cors = require('cors')
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
