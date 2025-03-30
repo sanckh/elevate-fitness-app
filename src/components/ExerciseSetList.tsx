@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,19 +23,45 @@ const ExerciseSetList = ({ sets, onSetsChange }: ExerciseSetListProps) => {
     onSetsChange(sets.filter(set => set.id !== setId));
   };
 
-  const startEditing = (set: ExerciseSet) => {
+  const startEditing = (set: ExerciseSet, field: 'reps' | 'weight') => {
+    // Don't restart editing if we're already editing this set
+    if (editingSetId === set.id) return;
+    
     setEditingSetId(set.id);
     setTempReps(set.reps.toString());
     setTempWeight(set.weight?.toString() || '');
+    
+    // Let the render cycle complete before focusing
+    setTimeout(() => {
+      const input = document.querySelector(`[data-set-id="${set.id}"][data-field="${field}"]`) as HTMLInputElement;
+      input?.focus();
+    }, 0);
   };
 
   const saveSetEdit = (setId: string) => {
+    const currentSet = sets.find(set => set.id === setId);
+    if (!currentSet) return;
+
+    const newReps = parseInt(tempReps) || 1;
+    const newWeight = tempWeight === '' ? undefined : (parseInt(tempWeight) || undefined);
+
+    const repsChanged = currentSet.reps !== newReps;
+    const weightChanged = 
+      (currentSet.weight === undefined && newWeight !== undefined) ||
+      (currentSet.weight !== undefined && newWeight === undefined) ||
+      (currentSet.weight !== newWeight);
+
+    if (!repsChanged && !weightChanged) {
+      cancelEditing();
+      return;
+    }
+
     const updatedSets = sets.map(set => {
       if (set.id === setId) {
         return {
           ...set,
-          reps: parseInt(tempReps) || 1,
-          weight: tempWeight ? (parseInt(tempWeight) || undefined) : undefined
+          reps: newReps,
+          weight: newWeight
         };
       }
       return set;
@@ -44,6 +69,15 @@ const ExerciseSetList = ({ sets, onSetsChange }: ExerciseSetListProps) => {
     
     onSetsChange(updatedSets);
     cancelEditing();
+  };
+
+  const handleInputBlur = (setId: string, e: React.FocusEvent) => {
+    // Don't save if we're moving focus between inputs in the same set
+    const relatedTarget = e.relatedTarget as HTMLElement;
+    if (relatedTarget?.tagName === 'INPUT' && relatedTarget.closest('.exercise-set-inputs')) {
+      return;
+    }
+    saveSetEdit(setId);
   };
 
   const cancelEditing = () => {
@@ -91,25 +125,30 @@ const ExerciseSetList = ({ sets, onSetsChange }: ExerciseSetListProps) => {
               
               {editingSetId === set.id ? (
                 <>
-                  <div className="col-span-4">
+                  <div className="col-span-4 exercise-set-inputs">
                     <Input
                       type="number"
                       min="1"
                       value={tempReps}
                       onChange={(e) => setTempReps(e.target.value)}
+                      onBlur={(e) => handleInputBlur(set.id, e)}
                       className="h-8 text-sm"
-                      autoFocus
+                      data-set-id={set.id}
+                      data-field="reps"
                     />
                   </div>
-                  <div className="col-span-5">
+                  <div className="col-span-5 exercise-set-inputs">
                     <Input
                       type="number"
                       min="0"
                       step="5"
                       value={tempWeight}
                       onChange={(e) => setTempWeight(e.target.value)}
+                      onBlur={(e) => handleInputBlur(set.id, e)}
                       className="h-8 text-sm"
                       placeholder="Optional"
+                      data-set-id={set.id}
+                      data-field="weight"
                     />
                   </div>
                   <div className="col-span-2 flex justify-end gap-1">
@@ -135,13 +174,13 @@ const ExerciseSetList = ({ sets, onSetsChange }: ExerciseSetListProps) => {
                 <>
                   <div 
                     className="col-span-4 cursor-pointer hover:bg-muted/70 rounded p-1 text-sm"
-                    onClick={() => startEditing(set)}
+                    onClick={() => startEditing(set, 'reps')}
                   >
                     {set.reps}
                   </div>
                   <div 
                     className="col-span-5 cursor-pointer hover:bg-muted/70 rounded p-1 text-sm"
-                    onClick={() => startEditing(set)}
+                    onClick={() => startEditing(set, 'weight')}
                   >
                     {set.weight ? `${set.weight} lbs` : 'N/A'}
                   </div>
