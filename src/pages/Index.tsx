@@ -50,9 +50,11 @@ const Index = () => {
                   {user ? "My Workouts" : "Get Started"}
                 </AnimatedButton>
               </Link>
-              <AnimatedButton variant="outline" size="lg">
-                Learn More
-              </AnimatedButton>
+              <Link to="/about">
+                <AnimatedButton variant="outline" size="lg">
+                  Learn More
+                </AnimatedButton>
+              </Link>
             </div>
           </div>
         </div>
@@ -110,12 +112,12 @@ const Index = () => {
                   </svg>
                 )
               }
-            ].map((feature, idx) => (
+            ].map((feature, index) => (
               <div 
-                key={feature.title} 
+                key={index} 
                 className={cn(
                   "flex flex-col items-center text-center p-6 rounded-2xl bg-white border border-border/50 shadow-subtle hover:shadow-elevated transition-all duration-300 animate-fade-in opacity-0",
-                  idx === 0 ? "animate-slide-up" : idx === 1 ? "animate-slide-up animate-delay-200" : "animate-slide-up animate-delay-300"
+                  index === 0 ? "animate-slide-up" : index === 1 ? "animate-slide-up animate-delay-200" : "animate-slide-up animate-delay-300"
                 )}
                 style={{ animationFillMode: 'forwards' }}
               >
@@ -124,6 +126,13 @@ const Index = () => {
                 </div>
                 <h3 className="text-xl font-display font-medium mb-3">{feature.title}</h3>
                 <p className="text-muted-foreground">{feature.description}</p>
+                <Link to="/about" className="inline-flex items-center mt-4 text-primary hover:underline">
+                  Learn More
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1">
+                    <path d="M5 12h14"></path>
+                    <path d="m12 5 7 7-7 7"></path>
+                  </svg>
+                </Link>
               </div>
             ))}
           </div>
@@ -200,12 +209,14 @@ const Index = () => {
                     {user ? "My Workouts" : "Get Started"}
                   </AnimatedButton>
                 </Link>
-                <AnimatedButton
-                  className="bg-primary-foreground/10 text-primary-foreground border border-primary-foreground/20 hover:bg-primary-foreground/20"
-                  size="lg"
-                >
-                  Learn More
-                </AnimatedButton>
+                <Link to="/about">
+                  <AnimatedButton
+                    className="bg-primary-foreground/10 text-primary-foreground border border-primary-foreground/20 hover:bg-primary-foreground/20"
+                    size="lg"
+                  >
+                    Learn More
+                  </AnimatedButton>
+                </Link>
               </div>
             </div>
             

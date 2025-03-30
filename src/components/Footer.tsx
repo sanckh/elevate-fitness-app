@@ -43,11 +43,11 @@ export const Footer = () => {
           <div>
             <h3 className="font-semibold mb-4">Company</h3>
             <ul className="space-y-2">
-              {/* <li>
+              <li>
                 <Link to="/about" className="text-muted-foreground hover:text-primary">
-                  About Us
+                  About
                 </Link>
-              </li> */}
+              </li>
               <li>
                 <Link to="/pricing" className="text-muted-foreground hover:text-primary">
                   Pricing
