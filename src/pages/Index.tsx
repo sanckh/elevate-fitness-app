@@ -89,50 +89,58 @@ const Index = () => {
                     <path d="M10 9.5V5a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v9"></path>
                     <path d="M6 14v1a6 6 0 0 0 12 0v-1"></path>
                   </svg>
-                )
+                ),
+                link: '/workouts'
+              },
+              {
+                title: 'Progress Tracking',
+                description: 'Monitor your strength gains and track your progress over time with detailed graphs and analytics.',
+                icon: (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 3v18h18"></path>
+                    <path d="m19 9-5 5-4-4-3 3"></path>
+                  </svg>
+                ),
+                link: '/progression'
               },
               {
                 title: 'Nutrition Management',
                 description: 'Monitor your daily calories, macronutrients, and build healthier eating habits.',
                 icon: (
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path>
-                    <path d="M19.5 10a7.5 7.5 0 1 0-15 0"></path>
-                    <path d="M12 12v8"></path>
-                    <path d="M8 16h8"></path>
+                    <path d="M12 2v20"></path>
+                    <path d="M2 12h20"></path>
                   </svg>
-                )
-              },
-              {
-                title: 'Progress Tracking',
-                description: 'Visualize your journey with progress photos, measurements, and achievement badges.',
-                icon: (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="m8 3 4 8 5-5 5 15H2L8 3z"></path>
-                  </svg>
-                )
+                ),
+                comingSoon: true
               }
             ].map((feature, index) => (
               <div 
-                key={index} 
+                key={feature.title} 
                 className={cn(
                   "flex flex-col items-center text-center p-6 rounded-2xl bg-white border border-border/50 shadow-subtle hover:shadow-elevated transition-all duration-300 animate-fade-in opacity-0",
                   index === 0 ? "animate-slide-up" : index === 1 ? "animate-slide-up animate-delay-200" : "animate-slide-up animate-delay-300"
                 )}
                 style={{ animationFillMode: 'forwards' }}
               >
-                <div className="rounded-full p-3 bg-primary/10 text-primary mb-5">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-primary">
                   {feature.icon}
                 </div>
                 <h3 className="text-xl font-display font-medium mb-3">{feature.title}</h3>
                 <p className="text-muted-foreground">{feature.description}</p>
-                <Link to="/about" className="inline-flex items-center mt-4 text-primary hover:underline">
-                  Learn More
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1">
-                    <path d="M5 12h14"></path>
-                    <path d="m12 5 7 7-7 7"></path>
-                  </svg>
-                </Link>
+                {feature.comingSoon ? (
+                  <span className="inline-flex items-center mt-4 text-muted-foreground">
+                    Coming Soon
+                  </span>
+                ) : (
+                  <Link to={feature.link} className="inline-flex items-center mt-4 text-primary hover:underline">
+                    Learn More
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1">
+                      <path d="M5 12h14"></path>
+                      <path d="m12 5 7 7-7 7"></path>
+                    </svg>
+                  </Link>
+                )}
               </div>
             ))}
           </div>
