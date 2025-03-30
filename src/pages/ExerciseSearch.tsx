@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, Plus, Save, Trash2 } from 'lucide-react';
@@ -33,7 +32,6 @@ const ExerciseSearch = () => {
     
     setIsLoading(true);
     try {
-      console.log(`[ExerciseDB] Searching for exercises with name: ${searchQuery}`);
       const response = await getExercisesByName(searchQuery);
       
       setSearchResults(response.slice(0, 10));
@@ -229,7 +227,7 @@ const ExerciseSearch = () => {
             <CardHeader>
               <CardTitle>Selected Exercises</CardTitle>
               <CardDescription>
-                {selectedExercises.length} exercise{selectedExercises.length !== 1 ? 's' : ''} added
+                {selectedExercises.length} exercise{selectedExercises.length !== 1 ? 's' : ''}
               </CardDescription>
             </CardHeader>
             <CardContent>
