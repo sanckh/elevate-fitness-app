@@ -140,7 +140,7 @@ const Index = () => {
       </section>
       
       {/* Testimonial section */}
-      <section className="py-16 md:py-24 bg-secondary/50">
+      {/* <section className="py-16 md:py-24 bg-secondary/50">
         <div className="container mx-auto px-4 md:px-6">
           <div className="text-center mb-16">
             <h2 className="h2 mb-4">Transformations that inspire</h2>
@@ -189,7 +189,7 @@ const Index = () => {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
       
       {/* CTA section */}
       <section className="py-16 md:py-24">
