@@ -15,7 +15,6 @@ import { ExerciseSet } from '@/interfaces/exercise';
 import ExerciseSetList from '@/components/ExerciseSetList';
 import { getExercisesByName } from '@/api/exercisedbapi';
 import { useAuth } from '@/context/AuthContext';
-import axios from 'axios';
 import { saveWorkout } from '@/api/workout';
 
 const ExerciseSearch = () => {
@@ -34,6 +33,7 @@ const ExerciseSearch = () => {
     
     setIsLoading(true);
     try {
+      console.log(`[ExerciseDB] Searching for exercises with name: ${searchQuery}`);
       const response = await getExercisesByName(searchQuery);
       
       setSearchResults(response.slice(0, 10));

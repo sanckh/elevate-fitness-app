@@ -4,7 +4,6 @@ const RAPID_API_HOST = import.meta.env.VITE_RAPID_API_HOST;
 
 const headers = {
   'X-RapidAPI-Key': RAPID_API_KEY,
-  'X-RapidAPI-Host': RAPID_API_HOST,
 };
 
 interface Exercise {
@@ -162,7 +161,6 @@ export const getExerciseById = async (id: string): Promise<Exercise> => {
   }
 };
 
-// Get exercises by name
 export const getExercisesByName = async (name: string): Promise<Exercise[]> => {
   try {
     const response = await fetch(`${RAPID_API_HOST}/exercises/name/${name}`, {
